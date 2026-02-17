@@ -222,7 +222,7 @@ async function sha256base64url(str) {
 
 async function initDropboxAuth() {
 
-    const redirectUri = window.location.origin + window.location.pathname;
+    const redirectUri = "https://evotechlab.github.io/pickappadmin/";
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
 
