@@ -24,11 +24,7 @@ header{
     font-size:18px;
 }
 
-.container{
-    padding:20px;
-}
-
-/* KPI CARDS */
+.container{ padding:20px; }
 
 .kpi-grid{
     display:grid;
@@ -60,8 +56,6 @@ header{
 
 .kpi.pick .value{ color:#92400e; }
 .kpi.restock .value{ color:#166534; }
-
-/* TABLE */
 
 .card{
     background:white;
@@ -96,11 +90,7 @@ th{
     letter-spacing:.5px;
 }
 
-tr:hover{
-    background:#f8fafc;
-}
-
-/* Badge */
+tr:hover{ background:#f8fafc; }
 
 .badge{
     padding:6px 10px;
@@ -121,7 +111,6 @@ tr:hover{
 
 .row-pick{ background:#fffbeb; }
 .row-restock{ background:#f0fdf4; }
-
 </style>
 </head>
 
@@ -131,7 +120,6 @@ tr:hover{
 
 <div class="container">
 
-<!-- KPI -->
 <div class="kpi-grid">
     <div class="kpi">
         <h4>Movimenti Totali</h4>
@@ -154,12 +142,8 @@ tr:hover{
     </div>
 </div>
 
-<!-- TABLE -->
 <div class="card">
-
-<div class="status" id="status">
-Caricamento dati...
-</div>
+<div class="status" id="status">Inizializzazione...</div>
 
 <table>
 <thead>
@@ -173,310 +157,284 @@ Caricamento dati...
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
-
 </div>
 </div>
 
 <script>
 
-/* =========================
-   CONFIG
-========================= */
+/* ================= CONFIG ================= */
 
 const DROPBOX_APP_KEY = "k026s39y9cnq8y1";
 const DROPBOX_FOLDER = "/movimenti";
+const REDIRECT_URI = window.location.origin + window.location.pathname;
 
-/* =========================
-   TOKEN STORAGE
-========================= */
+const DB_API = "https://api.dropboxapi.com/2/";
+const DB_CONTENT = "https://content.dropboxapi.com/2/";
+
+/* ================= TOKEN STORAGE ================= */
 
 let accessToken = localStorage.getItem("db_access");
 let refreshToken = localStorage.getItem("db_refresh");
 
-/* =========================
-   PKCE HELPERS
-========================= */
+/* ================= PKCE ================= */
 
-function generateRandomString(length) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+function randomString(length){
+    const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result="";
+    for(let i=0;i<length;i++){
+        result+=chars.charAt(Math.floor(Math.random()*chars.length));
     }
     return result;
 }
 
-async function sha256base64url(str) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(str);
-    const hash = await crypto.subtle.digest("SHA-256", data);
+async function sha256base64url(str){
+    const encoder=new TextEncoder();
+    const data=encoder.encode(str);
+    const hash=await crypto.subtle.digest("SHA-256",data);
     return btoa(String.fromCharCode(...new Uint8Array(hash)))
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
+        .replace(/\+/g,"-")
+        .replace(/\//g,"_")
+        .replace(/=+$/,"");
 }
 
-/* =========================
-   OAUTH INIT
-========================= */
+/* ================= AUTH ================= */
 
-async function initDropboxAuth() {
+async function initAuth(){
 
-    const redirectUri = "https://evotechlab.github.io/pickappadmin/";
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
+    const params=new URLSearchParams(window.location.search);
+    const code=params.get("code");
 
-    // RITORNO DA DROPBOX
-    if (code && !accessToken) {
+    if(code && !accessToken){
 
-        const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+        const codeVerifier=sessionStorage.getItem("pkce_verifier");
 
-        const response = await fetch("https://api.dropboxapi.com/oauth2/token", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
+        const response=await fetch("https://api.dropboxapi.com/oauth2/token",{
+            method:"POST",
+            headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+            body:new URLSearchParams({
                 code,
-                grant_type: "authorization_code",
-                client_id: DROPBOX_APP_KEY,
-                redirect_uri: redirectUri,
-                code_verifier: codeVerifier
+                grant_type:"authorization_code",
+                client_id:DROPBOX_APP_KEY,
+                redirect_uri:REDIRECT_URI,
+                code_verifier:codeVerifier
             })
         });
 
-        if (!response.ok) {
-            console.error("Token exchange failed");
+        if(!response.ok){
             localStorage.clear();
-            location.reload();
+            window.location.href=REDIRECT_URI;
             return;
         }
 
-        const data = await response.json();
+        const data=await response.json();
 
-        accessToken = data.access_token;
-        refreshToken = data.refresh_token;
+        accessToken=data.access_token;
+        refreshToken=data.refresh_token;
 
-        localStorage.setItem("db_access", accessToken);
-        localStorage.setItem("db_refresh", refreshToken);
+        localStorage.setItem("db_access",accessToken);
+        localStorage.setItem("db_refresh",refreshToken);
 
-        window.history.replaceState({}, document.title, redirectUri);
+        window.history.replaceState({},document.title,REDIRECT_URI);
     }
 
-    // SE NON AUTENTICATO
-    if (!accessToken && !refreshToken) {
+    if(!accessToken && !refreshToken){
 
-        const codeVerifier = generateRandomString(64);
-        const codeChallenge = await sha256base64url(codeVerifier);
+        const verifier=randomString(64);
+        const challenge=await sha256base64url(verifier);
 
-        sessionStorage.setItem("pkce_code_verifier", codeVerifier);
+        sessionStorage.setItem("pkce_verifier",verifier);
 
-        const authUrl =
-            `https://www.dropbox.com/oauth2/authorize` +
-            `?client_id=${DROPBOX_APP_KEY}` +
-            `&response_type=code` +
-            `&token_access_type=offline` +
-            `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-            `&code_challenge=${codeChallenge}` +
+        const authUrl=
+            `https://www.dropbox.com/oauth2/authorize`+
+            `?client_id=${DROPBOX_APP_KEY}`+
+            `&response_type=code`+
+            `&token_access_type=offline`+
+            `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`+
+            `&code_challenge=${challenge}`+
             `&code_challenge_method=S256`;
 
-        window.location.href = authUrl;
-        return;
+        window.location.href=authUrl;
     }
 }
 
-/* =========================
-   REFRESH TOKEN
-========================= */
+/* ================= REFRESH ================= */
 
-async function refreshAccessToken() {
+async function refreshAccessToken(){
 
-    const response = await fetch("https://api.dropboxapi.com/oauth2/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-            grant_type: "refresh_token",
-            refresh_token: refreshToken,
-            client_id: DROPBOX_APP_KEY
+    const response=await fetch("https://api.dropboxapi.com/oauth2/token",{
+        method:"POST",
+        headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+        body:new URLSearchParams({
+            grant_type:"refresh_token",
+            refresh_token:refreshToken,
+            client_id:DROPBOX_APP_KEY
         })
     });
 
-    if (!response.ok) {
-        console.error("Refresh failed");
+    if(!response.ok){
         localStorage.clear();
-        location.reload();
+        window.location.reload();
         return;
     }
 
-    const data = await response.json();
-    accessToken = data.access_token;
-    localStorage.setItem("db_access", accessToken);
+    const data=await response.json();
+    accessToken=data.access_token;
+    localStorage.setItem("db_access",accessToken);
 }
 
-/* =========================
-   DROPBOX FETCH WRAPPER
-========================= */
+/* ================= FETCH WRAPPER ================= */
 
-async function dropboxFetch(url, options = {}) {
+async function dropboxFetch(endpoint,options={}){
 
-    options.headers = options.headers || {};
-    options.headers["Authorization"] = "Bearer " + accessToken;
+    options.headers=options.headers||{};
+    options.headers["Authorization"]="Bearer "+accessToken;
 
-    let response = await fetch(url, options);
+    let response=await fetch(endpoint,options);
 
-    if (response.status === 401 && refreshToken) {
+    if(response.status===401 && refreshToken){
         await refreshAccessToken();
-        options.headers["Authorization"] = "Bearer " + accessToken;
-        response = await fetch(url, options);
+        options.headers["Authorization"]="Bearer "+accessToken;
+        response=await fetch(endpoint,options);
     }
 
-    if (!response.ok) {
-        throw new Error("Dropbox API error: " + response.status);
+    if(!response.ok){
+        const text=await response.text();
+        throw new Error("Dropbox error "+response.status+" - "+text);
     }
 
     return response;
 }
 
-/* =========================
-   STATE
-========================= */
+/* ================= ENSURE FOLDER ================= */
 
-let loadedFiles = new Set();
-let movements = [];
+async function ensureFolder(){
 
-/* =========================
-   LIST FILES
-========================= */
-
-async function listAllFiles() {
-
-    const response = await dropboxFetch(
-        "https://api.dropboxapi.com/2/files/list_folder",
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ path: DROPBOX_FOLDER })
-        }
-    );
-
-    const data = await response.json();
-    return data.entries || [];
+    try{
+        await dropboxFetch(DB_API+"files/get_metadata",{
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body:JSON.stringify({ path:DROPBOX_FOLDER })
+        });
+    }catch{
+        await dropboxFetch(DB_API+"files/create_folder_v2",{
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body:JSON.stringify({ path:DROPBOX_FOLDER })
+        });
+    }
 }
 
-/* =========================
-   DOWNLOAD FILE
-========================= */
+/* ================= DATA ================= */
 
-async function downloadFile(path) {
+let loadedFiles=new Set();
+let movements=[];
 
-    const response = await dropboxFetch(
-        "https://content.dropboxapi.com/2/files/download",
-        {
-            method: "POST",
-            headers: {
-                "Dropbox-API-Arg": JSON.stringify({ path })
-            }
+async function listFiles(){
+
+    const response=await dropboxFetch(DB_API+"files/list_folder",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({
+            path:DROPBOX_FOLDER || "",
+            recursive:false
+        })
+    });
+
+    const data=await response.json();
+    return data.entries||[];
+}
+
+async function downloadFile(path){
+
+    const response=await dropboxFetch(DB_CONTENT+"files/download",{
+        method:"POST",
+        headers:{
+            "Dropbox-API-Arg":JSON.stringify({ path })
         }
-    );
+    });
 
     return await response.json();
 }
 
-/* =========================
-   UPDATE DATA
-========================= */
+/* ================= UPDATE ================= */
 
-async function updateData() {
+async function updateData(){
 
-    document.getElementById("status").innerText = "Aggiornamento...";
+    document.getElementById("status").innerText="Aggiornamento...";
 
-    const files = await listAllFiles();
+    const files=await listFiles();
 
-    for (const file of files) {
+    for(const file of files){
 
-        if (file[".tag"] !== "file") continue;
+        if(file[".tag"]!=="file") continue;
 
-        if (!loadedFiles.has(file.path_lower)) {
+        if(!loadedFiles.has(file.path_lower)){
 
-            const content = await downloadFile(file.path_lower);
-
+            const content=await downloadFile(file.path_lower);
             movements.push(content);
             loadedFiles.add(file.path_lower);
         }
     }
 
-    renderDashboard();
+    render();
 }
 
-/* =========================
-   RENDER DASHBOARD
-========================= */
+/* ================= RENDER ================= */
 
-function renderDashboard() {
+function render(){
 
-    movements.sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+    movements.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
 
-    let pickCount = 0;
-    let restockCount = 0;
-    let operatorSet = new Set();
+    let pick=0,restock=0;
+    let operators=new Set();
 
     movements.forEach(m=>{
-        const action = (m.azione || "pick").toLowerCase();
-        if(action === "restock") restockCount++;
-        else pickCount++;
-        operatorSet.add(m.operatore);
+        const action=(m.azione||"pick").toLowerCase();
+        if(action==="restock") restock++;
+        else pick++;
+        operators.add(m.operatore);
     });
 
-    document.getElementById("kpiTotal").innerText = movements.length;
-    document.getElementById("kpiPick").innerText = pickCount;
-    document.getElementById("kpiRestock").innerText = restockCount;
-    document.getElementById("kpiOperators").innerText = operatorSet.size;
+    document.getElementById("kpiTotal").innerText=movements.length;
+    document.getElementById("kpiPick").innerText=pick;
+    document.getElementById("kpiRestock").innerText=restock;
+    document.getElementById("kpiOperators").innerText=operators.size;
 
-    renderTable();
-
-    document.getElementById("status").innerText =
-        "Ultimo aggiornamento: " + new Date().toLocaleTimeString();
-}
-
-/* =========================
-   RENDER TABLE
-========================= */
-
-function renderTable(){
-
-    const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
+    const tbody=document.getElementById("tableBody");
+    tbody.innerHTML="";
 
     movements.forEach(m=>{
 
-        const d = new Date(m.timestamp);
-        const azione = (m.azione || "pick").toLowerCase();
-        const rowClass = azione === "restock" ? "row-restock" : "row-pick";
+        const d=new Date(m.timestamp);
+        const action=(m.azione||"pick").toLowerCase();
+        const rowClass=action==="restock"?"row-restock":"row-pick";
 
-        tbody.innerHTML += `
+        tbody.innerHTML+=`
         <tr class="${rowClass}">
             <td>${d.toLocaleDateString()}</td>
             <td>${d.toLocaleTimeString()}</td>
             <td>${m.operatore}</td>
             <td>${m.barcode}</td>
-            <td><span class="badge ${azione}">${azione.toUpperCase()}</span></td>
+            <td><span class="badge ${action}">${action.toUpperCase()}</span></td>
         </tr>`;
     });
+
+    document.getElementById("status").innerText=
+        "Ultimo aggiornamento: "+new Date().toLocaleTimeString();
 }
 
-/* =========================
-   INIT
-========================= */
+/* ================= INIT ================= */
 
-async function init() {
-    await initDropboxAuth();
+async function init(){
+    await initAuth();
+    await ensureFolder();
     await updateData();
-    setInterval(updateData, 5000);
+    setInterval(updateData,5000);
 }
 
 init();
 
 </script>
-
-
-
 </body>
 </html>
+
