@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WMS - Admin Dashboard</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -14,106 +13,78 @@ body{
     background:#f1f5f9;
     color:#0f172a;
 }
-
 header{
     background:#0f172a;
     color:white;
     padding:18px;
     text-align:center;
     font-weight:600;
-    font-size:18px;
 }
-
 .container{ padding:20px; }
-
 .kpi-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
     gap:16px;
     margin-bottom:20px;
 }
-
 .kpi{
     background:white;
     border-radius:16px;
     padding:18px;
     box-shadow:0 6px 18px rgba(0,0,0,0.08);
 }
-
 .kpi h4{
     margin:0;
-    font-size:13px;
+    font-size:12px;
     color:#64748b;
-    font-weight:600;
     text-transform:uppercase;
 }
-
 .kpi .value{
     margin-top:8px;
     font-size:24px;
     font-weight:700;
 }
-
-.kpi.pick .value{ color:#92400e; }
-.kpi.restock .value{ color:#166534; }
-
 .card{
     background:white;
     border-radius:16px;
     padding:20px;
     box-shadow:0 6px 18px rgba(0,0,0,0.08);
 }
-
 .status{
-    margin-bottom:16px;
+    margin-bottom:12px;
     font-size:14px;
     color:#475569;
 }
-
 table{
     width:100%;
     border-collapse:collapse;
+}
+th,td{
+    padding:10px;
+    border-bottom:1px solid #e2e8f0;
     font-size:14px;
 }
-
-th, td{
-    padding:12px;
-    border-bottom:1px solid #e2e8f0;
-    text-align:left;
-}
-
 th{
     background:#f8fafc;
-    font-weight:600;
-    font-size:12px;
     text-transform:uppercase;
-    letter-spacing:.5px;
+    font-size:11px;
 }
-
-tr:hover{ background:#f8fafc; }
-
 .badge{
-    padding:6px 10px;
+    padding:5px 10px;
     border-radius:20px;
     font-size:12px;
     font-weight:600;
 }
-
 .badge.pick{
     background:#fef9c3;
     color:#92400e;
 }
-
 .badge.restock{
     background:#dcfce7;
     color:#166534;
 }
-
-.row-pick{ background:#fffbeb; }
-.row-restock{ background:#f0fdf4; }
 </style>
 </head>
-
 <body>
 
 <header>WMS - Admin Dashboard</header>
@@ -125,76 +96,69 @@ tr:hover{ background:#f8fafc; }
         <h4>Movimenti Totali</h4>
         <div class="value" id="kpiTotal">0</div>
     </div>
-
-    <div class="kpi pick">
+    <div class="kpi">
         <h4>Pick</h4>
         <div class="value" id="kpiPick">0</div>
     </div>
-
-    <div class="kpi restock">
+    <div class="kpi">
         <h4>Restock</h4>
         <div class="value" id="kpiRestock">0</div>
     </div>
-
     <div class="kpi">
-        <h4>Operatori Attivi</h4>
+        <h4>Operatori</h4>
         <div class="value" id="kpiOperators">0</div>
     </div>
 </div>
 
 <div class="card">
 <div class="status" id="status">Inizializzazione...</div>
-
 <table>
 <thead>
 <tr>
 <th>Data</th>
 <th>Ora</th>
 <th>Operatore</th>
-<th>Item</th>
-<th>Operazione</th>
+<th>Barcode</th>
+<th>Azione</th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
 </div>
 </div>
+
 <script>
 
 /* ================= CONFIG ================= */
 
 const DROPBOX_APP_KEY = "k026s39y9cnq8y1";
 const DROPBOX_FOLDER = "/movimenti";
-const REDIRECT_URI = "https://evotechlab.github.io/pickappadmin/";
+const REDIRECT_URI = window.location.origin + window.location.pathname;
 
 const DB_API = "https://api.dropboxapi.com/2/";
 const DB_CONTENT = "https://content.dropboxapi.com/2/";
 const DB_TOKEN = "https://api.dropboxapi.com/oauth2/token";
 
-/* ================= TOKEN STORAGE ================= */
+/* ================= TOKEN ================= */
 
 let accessToken = localStorage.getItem("db_access");
 let refreshToken = localStorage.getItem("db_refresh");
 
 /* ================= PKCE ================= */
 
-function randomString(length){
+function randomString(len){
     const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result="";
-    for(let i=0;i<length;i++){
-        result+=chars.charAt(Math.floor(Math.random()*chars.length));
-    }
-    return result;
+    let out="";
+    for(let i=0;i<len;i++) out+=chars.charAt(Math.floor(Math.random()*chars.length));
+    return out;
 }
 
 async function sha256base64url(str){
-    const encoder=new TextEncoder();
-    const data=encoder.encode(str);
+    const enc=new TextEncoder();
+    const data=enc.encode(str);
     const hash=await crypto.subtle.digest("SHA-256",data);
     return btoa(String.fromCharCode(...new Uint8Array(hash)))
-        .replace(/\+/g,"-")
-        .replace(/\//g,"_")
-        .replace(/=+$/,"");
+        .replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
 
 /* ================= AUTH ================= */
@@ -220,13 +184,8 @@ async function initAuth(){
             })
         });
 
-        if(!res.ok){
-            localStorage.clear();
-            window.location.href=REDIRECT_URI;
-            return;
-        }
-
         const data=await res.json();
+
         accessToken=data.access_token;
         refreshToken=data.refresh_token;
 
@@ -240,7 +199,6 @@ async function initAuth(){
 
         const verifier=randomString(64);
         const challenge=await sha256base64url(verifier);
-
         sessionStorage.setItem("pkce_verifier",verifier);
 
         const authUrl=
@@ -259,7 +217,6 @@ async function initAuth(){
 /* ================= REFRESH ================= */
 
 async function refreshAccessToken(){
-
     const res=await fetch(DB_TOKEN,{
         method:"POST",
         headers:{ "Content-Type":"application/x-www-form-urlencoded" },
@@ -269,13 +226,6 @@ async function refreshAccessToken(){
             client_id:DROPBOX_APP_KEY
         })
     });
-
-    if(!res.ok){
-        localStorage.clear();
-        window.location.reload();
-        return;
-    }
-
     const data=await res.json();
     accessToken=data.access_token;
     localStorage.setItem("db_access",accessToken);
@@ -297,30 +247,12 @@ async function dropboxFetch(endpoint,options={}){
     }
 
     if(!res.ok){
-        const errText=await res.text();
-        console.error("Dropbox error:",errText);
+        const err=await res.text();
+        console.error("Dropbox error:",err);
         throw new Error("Dropbox "+res.status);
     }
 
     return res;
-}
-
-/* ================= ENSURE FOLDER ================= */
-
-async function ensureFolder(){
-    try{
-        await dropboxFetch(DB_API+"files/get_metadata",{
-            method:"POST",
-            headers:{ "Content-Type":"application/json" },
-            body:JSON.stringify({ path:DROPBOX_FOLDER })
-        });
-    }catch{
-        await dropboxFetch(DB_API+"files/create_folder_v2",{
-            method:"POST",
-            headers:{ "Content-Type":"application/json" },
-            body:JSON.stringify({ path:DROPBOX_FOLDER })
-        });
-    }
 }
 
 /* ================= DATA ================= */
@@ -331,7 +263,6 @@ let movements=[];
 /* ================= LIST FILES ================= */
 
 async function listFiles(){
-
     const res=await dropboxFetch(DB_API+"files/list_folder",{
         method:"POST",
         headers:{ "Content-Type":"application/json" },
@@ -340,28 +271,23 @@ async function listFiles(){
             recursive:false
         })
     });
-
     const data=await res.json();
     return data.entries||[];
 }
 
-/* ================= DOWNLOAD FILE ================= */
+/* ================= DOWNLOAD ================= */
 
 async function downloadFile(path){
-
     const res=await dropboxFetch(DB_CONTENT+"files/download",{
         method:"POST",
         headers:{
             "Dropbox-API-Arg":JSON.stringify({ path })
         }
     });
-
     const text=await res.text();
-
     try{
         return JSON.parse(text);
     }catch{
-        console.warn("File non JSON valido:",path);
         return null;
     }
 }
@@ -384,7 +310,13 @@ async function updateData(){
             const content=await downloadFile(file.path_lower);
 
             if(content){
-                movements.push(content);
+
+                if(Array.isArray(content)){
+                    content.forEach(m => movements.push(m));
+                }else{
+                    movements.push(content);
+                }
+
                 loadedFiles.add(file.path_lower);
             }
         }
@@ -418,13 +350,11 @@ function render(){
     tbody.innerHTML="";
 
     movements.forEach(m=>{
-
         const d=new Date(m.timestamp);
         const action=(m.azione||"pick").toLowerCase();
-        const rowClass=action==="restock"?"row-restock":"row-pick";
 
         tbody.innerHTML+=`
-        <tr class="${rowClass}">
+        <tr>
             <td>${d.toLocaleDateString()}</td>
             <td>${d.toLocaleTimeString()}</td>
             <td>${m.operatore}</td>
@@ -441,7 +371,6 @@ function render(){
 
 async function init(){
     await initAuth();
-    await ensureFolder();
     await updateData();
     setInterval(updateData,5000);
 }
@@ -449,7 +378,7 @@ async function init(){
 init();
 
 </script>
-
 </body>
 </html>
+
 
