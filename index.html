@@ -3,312 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WMS Dashboard Admin</title>
+    <title>WMS Admin Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f1f5f9; color: #1e293b; font-family: system-ui, -apple-system, sans-serif; }
-        .sidebar { min-height: calc(100vh - 64px); }
-        .modal { transition: opacity 0.25s ease; }
-        body.modal-active { overflow-x: hidden; overflow-y: hidden !important; }
+        body { background-color: #f8fafc; color: #1e293b; font-family: system-ui, -apple-system, sans-serif; }
+        .modal { transition: opacity 0.2s ease; }
+        body.modal-active { overflow: hidden; }
+        .timeline-line { position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background-color: #e2e8f0; z-index: 0; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <header class="bg-blue-600 text-white h-16 flex items-center justify-between px-6 shadow-md z-20">
+    <header class="bg-blue-700 text-white h-16 flex items-center justify-between px-6 shadow-md z-20 sticky top-0">
         <div class="flex items-center gap-3">
-            <i class="fa-solid fa-server text-2xl text-blue-200"></i>
-            <h1 class="text-xl font-bold tracking-tight">WMS <span class="text-blue-200 font-light">Admin Panel</span></h1>
+            <i class="fa-solid fa-server text-2xl text-blue-300"></i>
+            <h1 class="text-xl font-bold tracking-tight">WMS <span class="text-blue-300 font-light">Admin Pro</span></h1>
         </div>
         <div class="flex items-center gap-4">
-            <div id="syncStatus" class="hidden items-center gap-2 text-sm bg-blue-700 px-3 py-1 rounded-full">
+            <div id="syncStatus" class="hidden items-center gap-2 text-sm bg-blue-800 px-3 py-1 rounded-full border border-blue-600">
                 <i class="fa-solid fa-cloud-arrow-down text-blue-300"></i> <span id="lastSyncTime">Sincronizzato</span>
             </div>
-            <button onclick="hardLogout()" class="hover:text-blue-200 transition" title="Disconnetti">
-                <i class="fa-solid fa-right-from-bracket text-lg"></i>
+            <button onclick="hardLogout()" class="hover:text-blue-300 transition" title="Disconnetti">
+                <i class="fa-solid fa-power-off text-lg"></i>
             </button>
         </div>
     </header>
 
     <div id="loginScreen" class="fixed inset-0 top-16 bg-slate-50 z-50 flex items-center justify-center hidden">
         <div class="bg-white p-8 rounded-2xl w-full max-w-sm border border-slate-200 shadow-xl text-center">
-            <i class="fa-solid fa-lock text-4xl text-blue-500 mb-4"></i>
+            <i class="fa-solid fa-user-shield text-5xl text-blue-600 mb-4"></i>
             <h2 class="text-2xl font-bold text-slate-800 mb-6">Accesso Amministratore</h2>
-            <input type="text" id="adminUser" placeholder="Username" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl mb-4 outline-none focus:border-blue-500 transition">
-            <input type="password" id="adminPass" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl mb-6 outline-none focus:border-blue-500 transition">
-            <button onclick="verifyLogin()" id="loginBtn" class="w-full bg-blue-600 text-white font-bold p-3 rounded-xl hover:bg-blue-700 transition">
+            <input type="text" id="adminUser" placeholder="Username Admin" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl mb-4 outline-none focus:border-blue-500 font-mono">
+            <input type="password" id="adminPass" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6 outline-none focus:border-blue-500 font-mono">
+            <button onclick="verifyLogin()" id="loginBtn" class="w-full bg-blue-600 text-white font-bold p-4 rounded-xl hover:bg-blue-700 active:scale-95 transition">
                 Accedi al Pannello
             </button>
         </div>
     </div>
 
     <div id="authScreen" class="fixed inset-0 top-16 bg-slate-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white p-8 rounded-2xl w-full max-w-md border border-slate-200 shadow-xl text-center">
+        <div class="bg-white p-8 rounded-2xl w-full max-w-sm border border-slate-200 shadow-xl text-center">
             <i class="fa-brands fa-dropbox text-5xl text-blue-500 mb-4"></i>
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">Connessione Database</h2>
-            <p class="text-slate-500 mb-6 text-sm">Autorizza l'accesso all'App Folder di Dropbox per gestire l'inventario.</p>
-            <button onclick="loginDropbox()" id="dbBtn" class="w-full bg-blue-600 text-white font-bold p-3 rounded-xl hover:bg-blue-700 transition">
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Database</h2>
+            <p class="text-slate-500 mb-6 text-sm">Autorizza l'accesso per gestire i dati.</p>
+            <button onclick="loginDropbox()" id="dbBtn" class="w-full bg-blue-600 text-white font-bold p-4 rounded-xl hover:bg-blue-700 transition">
                 Connetti Server Dropbox
             </button>
         </div>
     </div>
 
     <div id="dashboardScreen" class="flex-1 flex hidden">
-        
-        <aside class="w-64 bg-white border-r border-slate-200 shadow-sm sidebar flex flex-col">
-            <nav class="flex-1 p-4 flex flex-col gap-2">
-                <button class="flex items-center gap-3 w-full bg-blue-50 text-blue-700 p-3 rounded-xl font-bold text-left transition">
-                    <i class="fa-solid fa-boxes-stacked w-5 text-center"></i> Gestione Inventario
-                </button>
-                <button onclick="loadData()" class="flex items-center gap-3 w-full text-slate-600 hover:bg-slate-50 p-3 rounded-xl font-medium text-left transition mt-auto">
-                    <i class="fa-solid fa-rotate w-5 text-center"></i> Ricarica Dati
-                </button>
-            </nav>
-        </aside>
-
-        <main class="flex-1 p-8">
-            <div class="flex justify-between items-center mb-8">
+        <main class="flex-1 p-8 max-w-6xl mx-auto w-full">
+            <div class="flex justify-between items-end mb-8 border-b border-slate-200 pb-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Inventario Articoli</h2>
-                    <p class="text-slate-500">Gestisci i codici a barre e visualizza le giacenze calcolate.</p>
+                    <h2 class="text-3xl font-black text-slate-800 tracking-tight">Inventario Articoli</h2>
+                    <p class="text-slate-500 font-medium mt-1">Gestione anagrafiche e giacenze in tempo reale.</p>
                 </div>
-                <button onclick="openModal()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 shadow-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Nuovo Articolo
-                </button>
+                <div class="flex gap-3">
+                    <button onclick="loadData()" class="bg-white border border-slate-300 text-slate-700 font-bold py-3 px-5 rounded-xl hover:bg-slate-50 transition shadow-sm">
+                        <i class="fa-solid fa-rotate mr-2"></i> Ricarica
+                    </button>
+                    <button onclick="openItemModal()" class="bg-blue-600 text-white font-bold py-3 px-5 rounded-xl hover:bg-blue-700 transition shadow-md">
+                        <i class="fa-solid fa-plus mr-2"></i> Nuovo Articolo
+                    </button>
+                </div>
             </div>
 
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm uppercase tracking-wider">
-                            <th class="p-4 font-bold">Codice a Barre</th>
-                            <th class="p-4 font-bold">Nome Articolo</th>
-                            <th class="p-4 font-bold text-center">Giacenza (Stock)</th>
-                            <th class="p-4 font-bold text-right">Azioni</th>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
+                            <th class="p-4 font-bold w-1/4">Codice a Barre</th>
+                            <th class="p-4 font-bold w-2/4">Descrizione Articolo</th>
+                            <th class="p-4 font-bold text-center w-32">Giacenza</th>
+                            <th class="p-4 font-bold text-right">Amministrazione</th>
                         </tr>
                     </thead>
-                    <tbody id="inventoryTableBody" class="divide-y divide-slate-100">
-                        </tbody>
+                    <tbody id="inventoryTableBody" class="divide-y divide-slate-100"></tbody>
                 </table>
-                <div id="emptyState" class="hidden p-12 text-center text-slate-500">
-                    <i class="fa-solid fa-box-open text-4xl text-slate-300 mb-3"></i>
-                    <p>Nessun articolo in inventario.</p>
+                <div id="emptyState" class="hidden p-16 text-center text-slate-400">
+                    <i class="fa-solid fa-boxes-stacked text-5xl mb-4 opacity-50"></i>
+                    <p class="font-medium">Nessun articolo a sistema.</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="itemModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/50 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform" id="modalContent">
+    <div id="itemModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform" id="itemModalContent">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h3 class="text-xl font-bold text-slate-800" id="modalTitle">Aggiungi Articolo</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <h3 class="text-xl font-bold text-slate-800" id="itemModalTitle">Articolo</h3>
+                <button onclick="closeModal('itemModal', 'itemModalContent')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="p-6">
                 <input type="hidden" id="editOriginalBarcode">
                 <div class="mb-4">
-                    <label class="block text-sm font-bold text-slate-700 mb-1">Codice a Barre (Univoco)</label>
-                    <input type="text" id="itemBarcode" placeholder="Es. ABC-1234" class="w-full border border-slate-300 p-3 rounded-lg focus:border-blue-500 outline-none font-mono uppercase">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Codice Seriale (Barcode)</label>
+                    <input type="text" id="itemBarcode" placeholder="ABC-1234" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-blue-500 outline-none font-mono uppercase font-bold text-lg text-slate-800">
+                    <p class="text-xs text-rose-500 mt-1 hidden" id="barcodeWarning">Attenzione: Modificando il barcode, lo storico verrà aggiornato automaticamente.</p>
                 </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-bold text-slate-700 mb-1">Nome Articolo / Descrizione</label>
-                    <input type="text" id="itemName" placeholder="Es. Scatola Media" class="w-full border border-slate-300 p-3 rounded-lg focus:border-blue-500 outline-none">
+                <div class="mb-8">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Descrizione</label>
+                    <input type="text" id="itemName" placeholder="Es. Laptop Dell" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-blue-500 outline-none text-slate-800 font-medium">
                 </div>
                 <div class="flex justify-end gap-3">
-                    <button onclick="closeModal()" class="px-5 py-2.5 rounded-lg text-slate-600 font-bold hover:bg-slate-100 transition">Annulla</button>
-                    <button onclick="saveItem()" id="saveItemBtn" class="px-5 py-2.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition">Salva Articolo</button>
+                    <button onclick="closeModal('itemModal', 'itemModalContent')" class="px-6 py-3 rounded-xl text-slate-600 font-bold hover:bg-slate-100 transition">Annulla</button>
+                    <button onclick="saveItem()" id="saveItemBtn" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-md">Salva Dati</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="historyModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform" id="historyModalContent">
+            
+            <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-start">
+                <div>
+                    <h3 class="text-xl font-black text-slate-800 font-mono" id="historyBarcode">ABC-123</h3>
+                    <p class="text-sm font-medium text-slate-500" id="historyName">Descrizione Articolo</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div id="historyCurrentStock" class="px-4 py-2 rounded-xl font-bold text-sm"></div>
+                    <button onclick="closeModal('historyModal', 'historyModalContent')" class="text-slate-400 hover:text-slate-700 bg-white border border-slate-200 w-10 h-10 rounded-full flex items-center justify-center shadow-sm"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <div class="p-4 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
+                <p class="text-xs font-bold text-blue-800 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-blue-500"></i> Azioni Amministratore (Forzatura Stato)
+                </p>
+                <div class="flex gap-2">
+                    <button onclick="forceMovement('IN')" class="bg-white border border-emerald-300 text-emerald-700 font-bold px-4 py-2 rounded-lg hover:bg-emerald-50 active:scale-95 transition text-sm shadow-sm">
+                        <i class="fa-solid fa-box-open mr-1"></i> Forza IN
+                    </button>
+                    <button onclick="forceMovement('OUT')" class="bg-white border border-rose-300 text-rose-700 font-bold px-4 py-2 rounded-lg hover:bg-rose-50 active:scale-95 transition text-sm shadow-sm">
+                        <i class="fa-solid fa-dolly mr-1"></i> Forza OUT
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 relative bg-slate-50" id="historyTimeline">
+                <div class="timeline-line"></div>
+                <div id="timelineContainer" class="flex flex-col gap-4">
+                    </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // ================= CONFIGURAZIONE =================
-        const WORKER_URL = "https://wild-feather-f74a.sviluppo-49a.workers.dev"; // INSERISCI IL WORKER
+        const WORKER_URL = "https://wild-feather-f74a.sviluppo-49a.workers.dev"; 
         
         let isAdminUnlocked = localStorage.getItem("wms_admin_unlocked") === "true";
         let accessToken = localStorage.getItem("wms_admin_db_token");
         
-        // Stato Applicazione
         let inventario = [];
         let movimenti = [];
+        let currentHistoryBarcode = null;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            handleRedirect();
-            checkAppStatus();
-        });
+        document.addEventListener('DOMContentLoaded', () => { handleRedirect(); checkAppStatus(); });
 
         // ================= ROUTING =================
         function checkAppStatus() {
-            if (!isAdminUnlocked) {
-                showScreen('loginScreen');
-            } else if (!accessToken) {
-                showScreen('authScreen');
-            } else {
-                showScreen('dashboardScreen');
-                document.getElementById('syncStatus').classList.remove('hidden');
-                loadData();
-            }
+            if (!isAdminUnlocked) showScreen('loginScreen');
+            else if (!accessToken) showScreen('authScreen');
+            else { showScreen('dashboardScreen'); document.getElementById('syncStatus').classList.remove('hidden'); loadData(); }
         }
+        function showScreen(id) { ['loginScreen', 'authScreen', 'dashboardScreen'].forEach(s => document.getElementById(s).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 
-        function showScreen(id) {
-            ['loginScreen', 'authScreen', 'dashboardScreen'].forEach(s => document.getElementById(s).classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        // ================= 1. LOGIN ADMIN =================
+        // ================= AUTH =================
         async function verifyLogin() {
-            const user = document.getElementById('adminUser').value.trim();
-            const pass = document.getElementById('adminPass').value.trim();
-            const btn = document.getElementById('loginBtn');
-            if(!user || !pass) return;
-
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifica...'; 
-            btn.disabled = true;
-
+            const user = document.getElementById('adminUser').value.trim(); const pass = document.getElementById('adminPass').value.trim(); const btn = document.getElementById('loginBtn');
+            if(!user || !pass) return; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true;
             try {
-                const res = await fetch(WORKER_URL, {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "verifyAdminLogin", user: user, pass: pass })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true");
-                    checkAppStatus();
-                } else {
-                    alert("Credenziali Amministratore Errate!");
-                }
-            } catch (e) {
-                alert("Errore di connessione al server.");
-            } finally {
-                btn.innerHTML = 'Accedi al Pannello'; btn.disabled = false;
-            }
+                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user, pass }) });
+                if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Credenziali Errate!");
+            } catch (e) { alert("Errore di rete."); } finally { btn.innerHTML = 'Accedi al Pannello'; btn.disabled = false; }
         }
-
-        // ================= 2. DROPBOX AUTH =================
         async function loginDropbox() {
             try {
                 const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAuthUrl" }) });
-                const data = await res.json();
-                if (data.success && data.url) window.location.href = data.url;
-            } catch (e) { alert("Errore connessione API"); }
+                const data = await res.json(); if (data.success && data.url) window.location.href = data.url;
+            } catch (e) { alert("Errore API Dropbox"); }
         }
-
         function handleRedirect() {
             const hash = window.location.hash;
             if (hash && hash.includes("access_token")) {
-                const params = new URLSearchParams(hash.substring(1));
-                const token = params.get("access_token");
-                if (token) {
-                    accessToken = token; localStorage.setItem("wms_admin_db_token", accessToken);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
+                const token = new URLSearchParams(hash.substring(1)).get("access_token");
+                if (token) { accessToken = token; localStorage.setItem("wms_admin_db_token", accessToken); window.history.replaceState({}, document.title, window.location.pathname); }
             }
         }
 
-        // ================= 3. LOGICA DASHBOARD =================
+        // ================= DATI & UI =================
         async function loadData() {
-            const btn = document.getElementById('lastSyncTime');
-            btn.innerText = "Sincronizzazione...";
-            
+            const btn = document.getElementById('lastSyncTime'); btn.innerText = "Sync in corso...";
             try {
-                const res = await fetch(WORKER_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` },
-                    body: JSON.stringify({ action: "getDashboardData" })
-                });
-                
-                if (res.status === 401) throw new Error("Token Scaduto");
+                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` }, body: JSON.stringify({ action: "getDashboardData" }) });
+                if (res.status === 401) throw new Error("Token scaduto");
                 const data = await res.json();
-                
                 if (data.success) {
-                    inventario = data.inventario || [];
-                    movimenti = data.movimenti || [];
-                    renderTable();
-                    
-                    const now = new Date();
-                    btn.innerText = `Aggiornato alle ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                    inventario = data.inventario || []; movimenti = data.movimenti || []; renderTable();
+                    const now = new Date(); btn.innerText = `Aggiornato alle ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
                 }
-            } catch (e) {
-                if(e.message === "Token Scaduto") hardLogout();
-                else alert("Impossibile caricare i dati.");
-                btn.innerText = "Errore Sync";
-            }
+            } catch (e) { if(e.message === "Token scaduto") hardLogout(); else alert("Errore caricamento dati."); btn.innerText = "Errore"; }
         }
 
-        function calculateStock(barcode) {
-            // Calcola giacenza: +1 per ogni IN, -1 per ogni OUT
+        function getStock(barcode) {
             const itemMoves = movimenti.filter(m => m.barcode === barcode);
-            let stock = 0;
-            itemMoves.forEach(m => {
-                if (m.type === 'IN') stock++;
-                if (m.type === 'OUT') stock--;
-            });
-            return stock;
+            if (itemMoves.length === 0) return { val: 0, status: 'none' };
+            const lastMove = itemMoves[itemMoves.length - 1];
+            return { val: lastMove.type === 'IN' ? 1 : 0, status: lastMove.type };
         }
 
         function renderTable() {
             const tbody = document.getElementById('inventoryTableBody');
-            const emptyState = document.getElementById('emptyState');
-            tbody.innerHTML = '';
-
-            if (inventario.length === 0) {
-                emptyState.classList.remove('hidden');
-                return;
-            }
-            emptyState.classList.add('hidden');
-
-            inventario.forEach(item => {
-                const stock = calculateStock(item.barcode);
+            document.getElementById('emptyState').classList.toggle('hidden', inventario.length > 0);
+            tbody.innerHTML = inventario.map(item => {
+                const stock = getStock(item.barcode);
+                const badge = stock.val === 1 
+                    ? `<div class="bg-emerald-100 text-emerald-700 border border-emerald-300 px-3 py-1.5 rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-box"></i> IN MAGAZZINO</div>`
+                    : `<div class="bg-slate-100 text-slate-500 border border-slate-200 px-3 py-1.5 rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-dolly"></i> FUORI / SPEDITO</div>`;
                 
-                // Formattazione colore badge in base alla giacenza
-                let stockBadge = `<span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-bold">0</span>`;
-                if (stock > 0) stockBadge = `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-bold">+${stock}</span>`;
-                if (stock < 0) stockBadge = `<span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-full font-bold">${stock}</span>`; // Raro, ma possibile in caso di disallineamento
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-4 border-b border-slate-100 font-mono font-bold text-slate-700">${item.barcode}</td>
-                        <td class="p-4 border-b border-slate-100 font-medium text-slate-900">${item.name}</td>
-                        <td class="p-4 border-b border-slate-100 text-center">${stockBadge}</td>
-                        <td class="p-4 border-b border-slate-100 text-right">
-                            <button onclick="editItem('${item.barcode}')" class="text-blue-500 hover:text-blue-700 mx-2 p-1"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteItem('${item.barcode}')" class="text-rose-500 hover:text-rose-700 mx-2 p-1"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
+                return `
+                <tr class="hover:bg-slate-50 transition group cursor-pointer" onclick="openHistoryModal('${item.barcode}')">
+                    <td class="p-4 border-b border-slate-100 font-mono font-bold text-slate-800 text-lg">${item.barcode}</td>
+                    <td class="p-4 border-b border-slate-100 font-medium text-slate-600">${item.name}</td>
+                    <td class="p-4 border-b border-slate-100">${badge}</td>
+                    <td class="p-4 border-b border-slate-100 text-right">
+                        <button onclick="event.stopPropagation(); openItemModal('${item.barcode}')" class="text-slate-400 hover:text-blue-600 bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm mx-1 transition"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="event.stopPropagation(); deleteItem('${item.barcode}')" class="text-slate-400 hover:text-rose-600 bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm mx-1 transition"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
         }
 
-        // ================= 4. CRUD INVENTARIO =================
-        const modal = document.getElementById('itemModal');
-        const modalContent = document.getElementById('modalContent');
-
-        function openModal(barcode = null) {
-            document.getElementById('itemBarcode').value = '';
-            document.getElementById('itemName').value = '';
-            document.getElementById('editOriginalBarcode').value = '';
-            document.getElementById('modalTitle').innerText = 'Aggiungi Articolo';
-
-            if (barcode) { // Modalità Modifica
+        // ================= MODALI E SALVATAGGIO (CRUD + CASCADE) =================
+        function openItemModal(barcode = null) {
+            document.getElementById('itemBarcode').value = ''; document.getElementById('itemName').value = ''; document.getElementById('editOriginalBarcode').value = '';
+            document.getElementById('itemModalTitle').innerText = 'Nuovo Articolo'; document.getElementById('barcodeWarning').classList.add('hidden');
+            
+            if (barcode) {
                 const item = inventario.find(i => i.barcode === barcode);
                 if(item) {
-                    document.getElementById('itemBarcode').value = item.barcode;
-                    document.getElementById('itemName').value = item.name;
-                    document.getElementById('editOriginalBarcode').value = item.barcode;
-                    document.getElementById('modalTitle').innerText = 'Modifica Articolo';
+                    document.getElementById('itemBarcode').value = item.barcode; document.getElementById('itemName').value = item.name;
+                    document.getElementById('editOriginalBarcode').value = item.barcode; document.getElementById('itemModalTitle').innerText = 'Modifica Anagrafica';
+                    
+                    // Listener per mostrare l'avviso di modifica a cascata
+                    document.getElementById('itemBarcode').oninput = (e) => {
+                        document.getElementById('barcodeWarning').classList.toggle('hidden', e.target.value.trim().toUpperCase() === item.barcode);
+                    };
                 }
             }
-
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            modalContent.classList.remove('scale-95');
-            document.body.classList.add('modal-active');
-        }
-
-        function closeModal() {
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            modalContent.classList.add('scale-95');
-            document.body.classList.remove('modal-active');
+            openModal('itemModal', 'itemModalContent');
         }
 
         async function saveItem() {
@@ -317,60 +263,126 @@
             const originalBcode = document.getElementById('editOriginalBarcode').value;
             const btn = document.getElementById('saveItemBtn');
 
-            if (!bcode || !name) return alert("Compila tutti i campi.");
-
-            // Controlla duplicati (se non sto modificando me stesso)
-            if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) {
-                return alert("Attenzione: questo Codice a Barre esiste già!");
-            }
+            if (!bcode || !name) return alert("Inserisci Barcode e Nome.");
+            if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Barcode già esistente!");
 
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true;
 
-            // Aggiorna l'array locale
+            let updatedMovimenti = false;
+            
             if (originalBcode) {
-                // Modifica
+                // Modifica Anagrafica
                 const idx = inventario.findIndex(i => i.barcode === originalBcode);
                 if (idx > -1) inventario[idx] = { barcode: bcode, name: name };
+                
+                // CASCATA LOGICA: Se ho cambiato il Barcode, aggiorno anche tutto lo storico associato!
+                if (originalBcode !== bcode) {
+                    movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; });
+                    updatedMovimenti = true;
+                }
             } else {
-                // Nuovo
                 inventario.push({ barcode: bcode, name: name });
             }
 
-            await syncInventory(btn);
+            // Manda al server sia inventario che (se serve) i movimenti modificati
+            const payload = { action: "saveAdminData", inventario: inventario };
+            if (updatedMovimenti) payload.movimenti = movimenti;
+
+            await syncDataToServer(payload, btn, 'itemModal', 'itemModalContent');
         }
 
         async function deleteItem(barcode) {
-            if (!confirm(`Sei sicuro di voler eliminare l'articolo ${barcode}?\n(I movimenti storici rimarranno nei log)`)) return;
-            
+            if (!confirm(`Vuoi eliminare ${barcode} dall'anagrafica?\nLo storico movimenti non verrà toccato.`)) return;
             inventario = inventario.filter(i => i.barcode !== barcode);
-            await syncInventory();
+            await syncDataToServer({ action: "saveAdminData", inventario: inventario });
         }
 
-        async function syncInventory(btnObj = null) {
-            try {
-                const res = await fetch(WORKER_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` },
-                    body: JSON.stringify({ action: "saveInventory", inventario: inventario })
-                });
-                
-                if (res.ok) {
-                    closeModal();
-                    renderTable();
-                } else {
-                    alert("Errore durante il salvataggio.");
-                }
-            } catch (e) {
-                alert("Errore di rete.");
-            } finally {
-                if(btnObj) { btnObj.innerHTML = 'Salva Articolo'; btnObj.disabled = false; }
+        // ================= CARTELLA CLINICA E FORZATURE =================
+        function openHistoryModal(barcode) {
+            currentHistoryBarcode = barcode;
+            const item = inventario.find(i => i.barcode === barcode);
+            document.getElementById('historyBarcode').innerText = barcode;
+            document.getElementById('historyName').innerText = item ? item.name : "Sconosciuto";
+            
+            renderHistoryTimeline();
+            openModal('historyModal', 'historyModalContent');
+        }
+
+        function renderHistoryTimeline() {
+            const container = document.getElementById('timelineContainer');
+            const itemMoves = movimenti.filter(m => m.barcode === currentHistoryBarcode);
+            
+            // Aggiorna Badge Stato Attuale
+            const stock = getStock(currentHistoryBarcode);
+            const badge = document.getElementById('historyCurrentStock');
+            if(stock.val === 1) { badge.className = "px-4 py-2 rounded-xl font-bold text-sm bg-emerald-100 text-emerald-800"; badge.innerText = "Stato Attuale: IN"; }
+            else { badge.className = "px-4 py-2 rounded-xl font-bold text-sm bg-slate-100 text-slate-600 border border-slate-200"; badge.innerText = "Stato Attuale: OUT"; }
+
+            if (itemMoves.length === 0) {
+                container.innerHTML = `<div class="pl-8 py-4 text-slate-400 font-medium">Nessun movimento registrato.</div>`; return;
             }
+
+            // Inverti per mostrare dal più recente al più vecchio
+            const reversedMoves = [...itemMoves].reverse();
+            
+            container.innerHTML = reversedMoves.map((m, index) => {
+                const isIN = m.type === 'IN';
+                const color = isIN ? 'emerald' : 'rose';
+                const icon = isIN ? 'fa-box-open' : 'fa-dolly';
+                const date = new Date(m.timestamp);
+                const timeStr = `${date.toLocaleDateString('it-IT')} - ${date.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'})}`;
+                const opLabel = m.operatore === 'ADMIN' ? `<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ml-2">Forzatura Admin</span>` : `<span class="text-slate-500 text-xs ml-2"><i class="fa-solid fa-mobile-screen-button"></i> Mobile</span>`;
+
+                return `
+                <div class="relative pl-10 flex items-center justify-between group">
+                    <div class="absolute left-[9px] top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-${color}-500 border-2 border-white shadow z-10"></div>
+                    <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex-1 flex flex-col hover:border-${color}-300 transition">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-black text-${color}-600 text-sm"><i class="fa-solid ${icon}"></i> ${m.type}</span>
+                            ${opLabel}
+                        </div>
+                        <span class="text-slate-500 text-xs font-medium">${timeStr}</span>
+                    </div>
+                    <button onclick="deleteMovement('${m.id}')" class="ml-4 text-slate-300 hover:text-rose-500 transition opacity-0 group-hover:opacity-100" title="Elimina Movimento"><i class="fa-solid fa-trash"></i></button>
+                </div>`;
+            }).join('');
         }
 
-        function hardLogout() {
-            localStorage.clear();
-            window.location.reload();
+        async function forceMovement(type) {
+            const stock = getStock(currentHistoryBarcode);
+            if (stock.status === type) return alert(`L'oggetto è già ${type}! Non è necessario forzare.`);
+            
+            if(!confirm(`Forzare lo stato a ${type}? Questa azione sovrascrive i controlli.`)) return;
+            
+            const newMove = { id: Date.now().toString(), barcode: currentHistoryBarcode, type: type, timestamp: new Date().toISOString(), operatore: "ADMIN" };
+            movimenti.push(newMove);
+            
+            await syncDataToServer({ action: "saveAdminData", movimenti: movimenti });
+            renderHistoryTimeline();
         }
+
+        async function deleteMovement(id) {
+            if(!confirm("Eliminare questa operazione dai log storici?")) return;
+            movimenti = movimenti.filter(m => m.id !== id);
+            await syncDataToServer({ action: "saveAdminData", movimenti: movimenti });
+            renderHistoryTimeline();
+        }
+
+        // ================= UTILITY DI SISTEMA =================
+        async function syncDataToServer(payload, btnObj = null, modalId = null, contentId = null) {
+            try {
+                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` }, body: JSON.stringify(payload) });
+                if (res.ok) {
+                    renderTable();
+                    if(modalId) closeModal(modalId, contentId);
+                } else alert("Errore di salvataggio remoto.");
+            } catch (e) { alert("Errore di Rete."); }
+            if(btnObj) { btnObj.innerHTML = 'Salva Dati'; btnObj.disabled = false; }
+        }
+
+        function openModal(modalId, contentId) { document.getElementById(modalId).classList.remove('opacity-0', 'pointer-events-none'); document.getElementById(contentId).classList.remove('scale-95'); document.body.classList.add('modal-active'); }
+        function closeModal(modalId, contentId) { document.getElementById(modalId).classList.add('opacity-0', 'pointer-events-none'); document.getElementById(contentId).classList.add('scale-95'); document.body.classList.remove('modal-active'); }
+        function hardLogout() { localStorage.clear(); window.location.reload(); }
     </script>
 </body>
 </html>
