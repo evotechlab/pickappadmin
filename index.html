@@ -1,383 +1,377 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WMS - Admin Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
-<style>
-body{
-    margin:0;
-    font-family:Inter,sans-serif;
-    background:#f1f5f9;
-    color:#0f172a;
-}
-header{
-    background:#0f172a;
-    color:white;
-    padding:18px;
-    text-align:center;
-    font-weight:600;
-}
-.container{ padding:20px; }
-.kpi-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-    gap:16px;
-    margin-bottom:20px;
-}
-.kpi{
-    background:white;
-    border-radius:16px;
-    padding:18px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.08);
-}
-.kpi h4{
-    margin:0;
-    font-size:12px;
-    color:#64748b;
-    text-transform:uppercase;
-}
-.kpi .value{
-    margin-top:8px;
-    font-size:24px;
-    font-weight:700;
-}
-.card{
-    background:white;
-    border-radius:16px;
-    padding:20px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.08);
-}
-.status{
-    margin-bottom:12px;
-    font-size:14px;
-    color:#475569;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-th,td{
-    padding:10px;
-    border-bottom:1px solid #e2e8f0;
-    font-size:14px;
-}
-th{
-    background:#f8fafc;
-    text-transform:uppercase;
-    font-size:11px;
-}
-.badge{
-    padding:5px 10px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:600;
-}
-.badge.pick{
-    background:#fef9c3;
-    color:#92400e;
-}
-.badge.restock{
-    background:#dcfce7;
-    color:#166534;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WMS Dashboard Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f1f5f9; color: #1e293b; font-family: system-ui, -apple-system, sans-serif; }
+        .sidebar { min-height: calc(100vh - 64px); }
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow-x: hidden; overflow-y: hidden !important; }
+    </style>
 </head>
-<body>
+<body class="flex flex-col min-h-screen">
 
-<header>WMS - Admin Dashboard</header>
+    <header class="bg-blue-600 text-white h-16 flex items-center justify-between px-6 shadow-md z-20">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-server text-2xl text-blue-200"></i>
+            <h1 class="text-xl font-bold tracking-tight">WMS <span class="text-blue-200 font-light">Admin Panel</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div id="syncStatus" class="hidden items-center gap-2 text-sm bg-blue-700 px-3 py-1 rounded-full">
+                <i class="fa-solid fa-cloud-arrow-down text-blue-300"></i> <span id="lastSyncTime">Sincronizzato</span>
+            </div>
+            <button onclick="hardLogout()" class="hover:text-blue-200 transition" title="Disconnetti">
+                <i class="fa-solid fa-right-from-bracket text-lg"></i>
+            </button>
+        </div>
+    </header>
 
-<div class="container">
-
-<div class="kpi-grid">
-    <div class="kpi">
-        <h4>Movimenti Totali</h4>
-        <div class="value" id="kpiTotal">0</div>
+    <div id="loginScreen" class="fixed inset-0 top-16 bg-slate-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-2xl w-full max-w-sm border border-slate-200 shadow-xl text-center">
+            <i class="fa-solid fa-lock text-4xl text-blue-500 mb-4"></i>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6">Accesso Amministratore</h2>
+            <input type="text" id="adminUser" placeholder="Username" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl mb-4 outline-none focus:border-blue-500 transition">
+            <input type="password" id="adminPass" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl mb-6 outline-none focus:border-blue-500 transition">
+            <button onclick="verifyLogin()" id="loginBtn" class="w-full bg-blue-600 text-white font-bold p-3 rounded-xl hover:bg-blue-700 transition">
+                Accedi al Pannello
+            </button>
+        </div>
     </div>
-    <div class="kpi">
-        <h4>Pick</h4>
-        <div class="value" id="kpiPick">0</div>
+
+    <div id="authScreen" class="fixed inset-0 top-16 bg-slate-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-2xl w-full max-w-md border border-slate-200 shadow-xl text-center">
+            <i class="fa-brands fa-dropbox text-5xl text-blue-500 mb-4"></i>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Connessione Database</h2>
+            <p class="text-slate-500 mb-6 text-sm">Autorizza l'accesso all'App Folder di Dropbox per gestire l'inventario.</p>
+            <button onclick="loginDropbox()" id="dbBtn" class="w-full bg-blue-600 text-white font-bold p-3 rounded-xl hover:bg-blue-700 transition">
+                Connetti Server Dropbox
+            </button>
+        </div>
     </div>
-    <div class="kpi">
-        <h4>Restock</h4>
-        <div class="value" id="kpiRestock">0</div>
+
+    <div id="dashboardScreen" class="flex-1 flex hidden">
+        
+        <aside class="w-64 bg-white border-r border-slate-200 shadow-sm sidebar flex flex-col">
+            <nav class="flex-1 p-4 flex flex-col gap-2">
+                <button class="flex items-center gap-3 w-full bg-blue-50 text-blue-700 p-3 rounded-xl font-bold text-left transition">
+                    <i class="fa-solid fa-boxes-stacked w-5 text-center"></i> Gestione Inventario
+                </button>
+                <button onclick="loadData()" class="flex items-center gap-3 w-full text-slate-600 hover:bg-slate-50 p-3 rounded-xl font-medium text-left transition mt-auto">
+                    <i class="fa-solid fa-rotate w-5 text-center"></i> Ricarica Dati
+                </button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Inventario Articoli</h2>
+                    <p class="text-slate-500">Gestisci i codici a barre e visualizza le giacenze calcolate.</p>
+                </div>
+                <button onclick="openModal()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Nuovo Articolo
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm uppercase tracking-wider">
+                            <th class="p-4 font-bold">Codice a Barre</th>
+                            <th class="p-4 font-bold">Nome Articolo</th>
+                            <th class="p-4 font-bold text-center">Giacenza (Stock)</th>
+                            <th class="p-4 font-bold text-right">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody" class="divide-y divide-slate-100">
+                        </tbody>
+                </table>
+                <div id="emptyState" class="hidden p-12 text-center text-slate-500">
+                    <i class="fa-solid fa-box-open text-4xl text-slate-300 mb-3"></i>
+                    <p>Nessun articolo in inventario.</p>
+                </div>
+            </div>
+        </main>
     </div>
-    <div class="kpi">
-        <h4>Operatori</h4>
-        <div class="value" id="kpiOperators">0</div>
+
+    <div id="itemModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform" id="modalContent">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="text-xl font-bold text-slate-800" id="modalTitle">Aggiungi Articolo</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6">
+                <input type="hidden" id="editOriginalBarcode">
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Codice a Barre (Univoco)</label>
+                    <input type="text" id="itemBarcode" placeholder="Es. ABC-1234" class="w-full border border-slate-300 p-3 rounded-lg focus:border-blue-500 outline-none font-mono uppercase">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Nome Articolo / Descrizione</label>
+                    <input type="text" id="itemName" placeholder="Es. Scatola Media" class="w-full border border-slate-300 p-3 rounded-lg focus:border-blue-500 outline-none">
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button onclick="closeModal()" class="px-5 py-2.5 rounded-lg text-slate-600 font-bold hover:bg-slate-100 transition">Annulla</button>
+                    <button onclick="saveItem()" id="saveItemBtn" class="px-5 py-2.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition">Salva Articolo</button>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
-<div class="card">
-<div class="status" id="status">Inizializzazione...</div>
-<table>
-<thead>
-<tr>
-<th>Data</th>
-<th>Ora</th>
-<th>Operatore</th>
-<th>Barcode</th>
-<th>Azione</th>
-</tr>
-</thead>
-<tbody id="tableBody"></tbody>
-</table>
-</div>
-</div>
+    <script>
+        // ================= CONFIGURAZIONE =================
+        const WORKER_URL = "https://wild-feather-f74a.sviluppo-49a.workers.dev"; // INSERISCI IL WORKER
+        
+        let isAdminUnlocked = localStorage.getItem("wms_admin_unlocked") === "true";
+        let accessToken = localStorage.getItem("wms_admin_db_token");
+        
+        // Stato Applicazione
+        let inventario = [];
+        let movimenti = [];
 
-<script>
-
-/* ================= CONFIG ================= */
-
-const DROPBOX_APP_KEY = "k026s39y9cnq8y1";
-const DROPBOX_FOLDER = "/movimenti";
-const REDIRECT_URI = "https://evotechlab.github.io/pickappadmin/";
-
-const DB_API = "https://api.dropboxapi.com/2/";
-const DB_CONTENT = "https://content.dropboxapi.com/2/";
-const DB_TOKEN = "https://api.dropboxapi.com/oauth2/token";
-
-/* ================= TOKEN ================= */
-
-let accessToken = localStorage.getItem("db_access");
-let refreshToken = localStorage.getItem("db_refresh");
-
-/* ================= PKCE ================= */
-
-function randomString(len){
-    const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let out="";
-    for(let i=0;i<len;i++) out+=chars.charAt(Math.floor(Math.random()*chars.length));
-    return out;
-}
-
-async function sha256base64url(str){
-    const enc=new TextEncoder();
-    const data=enc.encode(str);
-    const hash=await crypto.subtle.digest("SHA-256",data);
-    return btoa(String.fromCharCode(...new Uint8Array(hash)))
-        .replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-}
-
-/* ================= AUTH ================= */
-
-async function initAuth(){
-
-    const params=new URLSearchParams(window.location.search);
-    const code=params.get("code");
-
-    if(code && !accessToken){
-
-        const verifier=sessionStorage.getItem("pkce_verifier");
-
-        const res=await fetch(DB_TOKEN,{
-            method:"POST",
-            headers:{ "Content-Type":"application/x-www-form-urlencoded" },
-            body:new URLSearchParams({
-                code,
-                grant_type:"authorization_code",
-                client_id:DROPBOX_APP_KEY,
-                redirect_uri:REDIRECT_URI,
-                code_verifier:verifier
-            })
+        document.addEventListener('DOMContentLoaded', () => {
+            handleRedirect();
+            checkAppStatus();
         });
 
-        const data=await res.json();
-
-        accessToken=data.access_token;
-        refreshToken=data.refresh_token;
-
-        localStorage.setItem("db_access",accessToken);
-        localStorage.setItem("db_refresh",refreshToken);
-
-        window.history.replaceState({},document.title,REDIRECT_URI);
-    }
-
-    if(!accessToken && !refreshToken){
-
-        const verifier=randomString(64);
-        const challenge=await sha256base64url(verifier);
-        sessionStorage.setItem("pkce_verifier",verifier);
-
-        const authUrl=
-            `https://www.dropbox.com/oauth2/authorize`+
-            `?client_id=${DROPBOX_APP_KEY}`+
-            `&response_type=code`+
-            `&token_access_type=offline`+
-            `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`+
-            `&code_challenge=${challenge}`+
-            `&code_challenge_method=S256`;
-
-        window.location.href=authUrl;
-    }
-}
-
-/* ================= REFRESH ================= */
-
-async function refreshAccessToken(){
-    const res=await fetch(DB_TOKEN,{
-        method:"POST",
-        headers:{ "Content-Type":"application/x-www-form-urlencoded" },
-        body:new URLSearchParams({
-            grant_type:"refresh_token",
-            refresh_token:refreshToken,
-            client_id:DROPBOX_APP_KEY
-        })
-    });
-    const data=await res.json();
-    accessToken=data.access_token;
-    localStorage.setItem("db_access",accessToken);
-}
-
-/* ================= DROPBOX WRAPPER ================= */
-
-async function dropboxFetch(endpoint,options={}){
-
-    options.headers=options.headers||{};
-    options.headers["Authorization"]="Bearer "+accessToken;
-
-    let res=await fetch(endpoint,options);
-
-    if(res.status===401 && refreshToken){
-        await refreshAccessToken();
-        options.headers["Authorization"]="Bearer "+accessToken;
-        res=await fetch(endpoint,options);
-    }
-
-    if(!res.ok){
-        const err=await res.text();
-        console.error("Dropbox error:",err);
-        throw new Error("Dropbox "+res.status);
-    }
-
-    return res;
-}
-
-/* ================= DATA ================= */
-
-let loadedFiles=new Set();
-let movements=[];
-
-/* ================= LIST FILES ================= */
-
-async function listFiles(){
-    const res=await dropboxFetch(DB_API+"files/list_folder",{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({
-            path:DROPBOX_FOLDER,
-            recursive:false
-        })
-    });
-    const data=await res.json();
-    return data.entries||[];
-}
-
-/* ================= DOWNLOAD ================= */
-
-async function downloadFile(path){
-    const res=await dropboxFetch(DB_CONTENT+"files/download",{
-        method:"POST",
-        headers:{
-            "Dropbox-API-Arg":JSON.stringify({ path })
-        }
-    });
-    const text=await res.text();
-    try{
-        return JSON.parse(text);
-    }catch{
-        return null;
-    }
-}
-
-/* ================= UPDATE ================= */
-
-async function updateData(){
-
-    document.getElementById("status").innerText="Aggiornamento...";
-
-    const files=await listFiles();
-
-    for(const file of files){
-
-        if(file[".tag"]!=="file") continue;
-        if(!file.name.endsWith(".json")) continue;
-
-        if(!loadedFiles.has(file.path_lower)){
-
-            const content=await downloadFile(file.path_lower);
-
-            if(content){
-
-                if(Array.isArray(content)){
-                    content.forEach(m => movements.push(m));
-                }else{
-                    movements.push(content);
-                }
-
-                loadedFiles.add(file.path_lower);
+        // ================= ROUTING =================
+        function checkAppStatus() {
+            if (!isAdminUnlocked) {
+                showScreen('loginScreen');
+            } else if (!accessToken) {
+                showScreen('authScreen');
+            } else {
+                showScreen('dashboardScreen');
+                document.getElementById('syncStatus').classList.remove('hidden');
+                loadData();
             }
         }
-    }
 
-    render();
-}
+        function showScreen(id) {
+            ['loginScreen', 'authScreen', 'dashboardScreen'].forEach(s => document.getElementById(s).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
 
-/* ================= RENDER ================= */
+        // ================= 1. LOGIN ADMIN =================
+        async function verifyLogin() {
+            const user = document.getElementById('adminUser').value.trim();
+            const pass = document.getElementById('adminPass').value.trim();
+            const btn = document.getElementById('loginBtn');
+            if(!user || !pass) return;
 
-function render(){
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifica...'; 
+            btn.disabled = true;
 
-    movements.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+            try {
+                const res = await fetch(WORKER_URL, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "verifyAdminLogin", user: user, pass: pass })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true");
+                    checkAppStatus();
+                } else {
+                    alert("Credenziali Amministratore Errate!");
+                }
+            } catch (e) {
+                alert("Errore di connessione al server.");
+            } finally {
+                btn.innerHTML = 'Accedi al Pannello'; btn.disabled = false;
+            }
+        }
 
-    let pick=0,restock=0;
-    let operators=new Set();
+        // ================= 2. DROPBOX AUTH =================
+        async function loginDropbox() {
+            try {
+                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAuthUrl" }) });
+                const data = await res.json();
+                if (data.success && data.url) window.location.href = data.url;
+            } catch (e) { alert("Errore connessione API"); }
+        }
 
-    movements.forEach(m=>{
-        const action=(m.azione||"pick").toLowerCase();
-        if(action==="restock") restock++;
-        else pick++;
-        operators.add(m.operatore);
-    });
+        function handleRedirect() {
+            const hash = window.location.hash;
+            if (hash && hash.includes("access_token")) {
+                const params = new URLSearchParams(hash.substring(1));
+                const token = params.get("access_token");
+                if (token) {
+                    accessToken = token; localStorage.setItem("wms_admin_db_token", accessToken);
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+        }
 
-    document.getElementById("kpiTotal").innerText=movements.length;
-    document.getElementById("kpiPick").innerText=pick;
-    document.getElementById("kpiRestock").innerText=restock;
-    document.getElementById("kpiOperators").innerText=operators.size;
+        // ================= 3. LOGICA DASHBOARD =================
+        async function loadData() {
+            const btn = document.getElementById('lastSyncTime');
+            btn.innerText = "Sincronizzazione...";
+            
+            try {
+                const res = await fetch(WORKER_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` },
+                    body: JSON.stringify({ action: "getDashboardData" })
+                });
+                
+                if (res.status === 401) throw new Error("Token Scaduto");
+                const data = await res.json();
+                
+                if (data.success) {
+                    inventario = data.inventario || [];
+                    movimenti = data.movimenti || [];
+                    renderTable();
+                    
+                    const now = new Date();
+                    btn.innerText = `Aggiornato alle ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                }
+            } catch (e) {
+                if(e.message === "Token Scaduto") hardLogout();
+                else alert("Impossibile caricare i dati.");
+                btn.innerText = "Errore Sync";
+            }
+        }
 
-    const tbody=document.getElementById("tableBody");
-    tbody.innerHTML="";
+        function calculateStock(barcode) {
+            // Calcola giacenza: +1 per ogni IN, -1 per ogni OUT
+            const itemMoves = movimenti.filter(m => m.barcode === barcode);
+            let stock = 0;
+            itemMoves.forEach(m => {
+                if (m.type === 'IN') stock++;
+                if (m.type === 'OUT') stock--;
+            });
+            return stock;
+        }
 
-    movements.forEach(m=>{
-        const d=new Date(m.timestamp);
-        const action=(m.azione||"pick").toLowerCase();
+        function renderTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            const emptyState = document.getElementById('emptyState');
+            tbody.innerHTML = '';
 
-        tbody.innerHTML+=`
-        <tr>
-            <td>${d.toLocaleDateString()}</td>
-            <td>${d.toLocaleTimeString()}</td>
-            <td>${m.operatore}</td>
-            <td>${m.barcode}</td>
-            <td><span class="badge ${action}">${action.toUpperCase()}</span></td>
-        </tr>`;
-    });
+            if (inventario.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
 
-    document.getElementById("status").innerText=
-        "Ultimo aggiornamento: "+new Date().toLocaleTimeString();
-}
+            inventario.forEach(item => {
+                const stock = calculateStock(item.barcode);
+                
+                // Formattazione colore badge in base alla giacenza
+                let stockBadge = `<span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-bold">0</span>`;
+                if (stock > 0) stockBadge = `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-bold">+${stock}</span>`;
+                if (stock < 0) stockBadge = `<span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-full font-bold">${stock}</span>`; // Raro, ma possibile in caso di disallineamento
 
-/* ================= INIT ================= */
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-4 border-b border-slate-100 font-mono font-bold text-slate-700">${item.barcode}</td>
+                        <td class="p-4 border-b border-slate-100 font-medium text-slate-900">${item.name}</td>
+                        <td class="p-4 border-b border-slate-100 text-center">${stockBadge}</td>
+                        <td class="p-4 border-b border-slate-100 text-right">
+                            <button onclick="editItem('${item.barcode}')" class="text-blue-500 hover:text-blue-700 mx-2 p-1"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteItem('${item.barcode}')" class="text-rose-500 hover:text-rose-700 mx-2 p-1"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
 
-async function init(){
-    await initAuth();
-    await updateData();
-    setInterval(updateData,5000);
-}
+        // ================= 4. CRUD INVENTARIO =================
+        const modal = document.getElementById('itemModal');
+        const modalContent = document.getElementById('modalContent');
 
-init();
+        function openModal(barcode = null) {
+            document.getElementById('itemBarcode').value = '';
+            document.getElementById('itemName').value = '';
+            document.getElementById('editOriginalBarcode').value = '';
+            document.getElementById('modalTitle').innerText = 'Aggiungi Articolo';
 
-</script>
+            if (barcode) { // Modalità Modifica
+                const item = inventario.find(i => i.barcode === barcode);
+                if(item) {
+                    document.getElementById('itemBarcode').value = item.barcode;
+                    document.getElementById('itemName').value = item.name;
+                    document.getElementById('editOriginalBarcode').value = item.barcode;
+                    document.getElementById('modalTitle').innerText = 'Modifica Articolo';
+                }
+            }
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-95');
+            document.body.classList.add('modal-active');
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalContent.classList.add('scale-95');
+            document.body.classList.remove('modal-active');
+        }
+
+        async function saveItem() {
+            const bcode = document.getElementById('itemBarcode').value.trim().toUpperCase();
+            const name = document.getElementById('itemName').value.trim();
+            const originalBcode = document.getElementById('editOriginalBarcode').value;
+            const btn = document.getElementById('saveItemBtn');
+
+            if (!bcode || !name) return alert("Compila tutti i campi.");
+
+            // Controlla duplicati (se non sto modificando me stesso)
+            if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) {
+                return alert("Attenzione: questo Codice a Barre esiste già!");
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true;
+
+            // Aggiorna l'array locale
+            if (originalBcode) {
+                // Modifica
+                const idx = inventario.findIndex(i => i.barcode === originalBcode);
+                if (idx > -1) inventario[idx] = { barcode: bcode, name: name };
+            } else {
+                // Nuovo
+                inventario.push({ barcode: bcode, name: name });
+            }
+
+            await syncInventory(btn);
+        }
+
+        async function deleteItem(barcode) {
+            if (!confirm(`Sei sicuro di voler eliminare l'articolo ${barcode}?\n(I movimenti storici rimarranno nei log)`)) return;
+            
+            inventario = inventario.filter(i => i.barcode !== barcode);
+            await syncInventory();
+        }
+
+        async function syncInventory(btnObj = null) {
+            try {
+                const res = await fetch(WORKER_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` },
+                    body: JSON.stringify({ action: "saveInventory", inventario: inventario })
+                });
+                
+                if (res.ok) {
+                    closeModal();
+                    renderTable();
+                } else {
+                    alert("Errore durante il salvataggio.");
+                }
+            } catch (e) {
+                alert("Errore di rete.");
+            } finally {
+                if(btnObj) { btnObj.innerHTML = 'Salva Articolo'; btnObj.disabled = false; }
+            }
+        }
+
+        function hardLogout() {
+            localStorage.clear();
+            window.location.reload();
+        }
+    </script>
 </body>
 </html>
 
