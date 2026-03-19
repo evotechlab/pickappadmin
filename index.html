@@ -151,239 +151,312 @@
         </div>
     </div>
 
-    <script>
-        const WORKER_URL = "https://wild-feather-f74a.sviluppo-49a.workers.dev"; 
-        
-        let isAdminUnlocked = localStorage.getItem("wms_admin_unlocked") === "true";
-        let accessToken = localStorage.getItem("wms_admin_db_token");
-        
-        let inventario = [];
-        let movimenti = [];
-        let currentHistoryBarcode = null;
+<script>
+    const WORKER_URL = "https://wild-feather-f74a.sviluppo-49a.workers.dev"; 
+    
+    let isAdminUnlocked = localStorage.getItem("wms_admin_unlocked") === "true";
+    let accessToken = localStorage.getItem("wms_admin_db_token");
+    let refreshToken = localStorage.getItem("wms_admin_refresh_token"); // Nuova chiave Master
+    
+    let inventario = [];
+    let movimenti = [];
+    let currentHistoryBarcode = null;
+    let autoRefreshTimer = null; // Timer per il background polling
 
-        document.addEventListener('DOMContentLoaded', () => { handleRedirect(); checkAppStatus(); });
+    document.addEventListener('DOMContentLoaded', () => { handleRedirect(); checkAppStatus(); });
 
-        // ================= ROUTING =================
-        function checkAppStatus() {
-            if (!isAdminUnlocked) showScreen('loginScreen');
-            else if (!accessToken) showScreen('authScreen');
-            else { showScreen('dashboardScreen'); document.getElementById('syncStatus').classList.remove('hidden'); loadData(); }
+    // ================= ROUTING & AUTO-REFRESH =================
+    function checkAppStatus() {
+        if (!isAdminUnlocked) showScreen('loginScreen');
+        else if (!accessToken) showScreen('authScreen');
+        else { 
+            showScreen('dashboardScreen'); 
+            document.getElementById('syncStatus').classList.remove('hidden'); 
+            loadData(); 
+            startAutoRefresh(); // Avvia il timer appena sbloccato
         }
-        function showScreen(id) { ['loginScreen', 'authScreen', 'dashboardScreen'].forEach(s => document.getElementById(s).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+    }
+    
+    function showScreen(id) { ['loginScreen', 'authScreen', 'dashboardScreen'].forEach(s => document.getElementById(s).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 
-        // ================= AUTH =================
-        async function verifyLogin() {
-            const user = document.getElementById('adminUser').value.trim(); const pass = document.getElementById('adminPass').value.trim(); const btn = document.getElementById('loginBtn');
-            if(!user || !pass) return; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true;
-            try {
-                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user, pass }) });
-                if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Credenziali Errate!");
-            } catch (e) { alert("Errore di rete."); } finally { btn.innerHTML = 'Accedi al Pannello'; btn.disabled = false; }
-        }
-        async function loginDropbox() {
-            try {
-                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAuthUrl" }) });
-                const data = await res.json(); if (data.success && data.url) window.location.href = data.url;
-            } catch (e) { alert("Errore API Dropbox"); }
-        }
-        function handleRedirect() {
-            const hash = window.location.hash;
-            if (hash && hash.includes("access_token")) {
-                const token = new URLSearchParams(hash.substring(1)).get("access_token");
-                if (token) { accessToken = token; localStorage.setItem("wms_admin_db_token", accessToken); window.history.replaceState({}, document.title, window.location.pathname); }
+    function startAutoRefresh() {
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        // Ogni 15 secondi aggiorna in modo "silenzioso"
+        autoRefreshTimer = setInterval(() => {
+            // Ricarica SOLO se non ci sono finestre modali aperte (per non disturbare chi scrive)
+            if (!document.body.classList.contains('modal-active')) {
+                loadData(true); 
             }
-        }
+        }, 15000); 
+    }
 
-        // ================= DATI & UI =================
-        async function loadData() {
-            const btn = document.getElementById('lastSyncTime'); btn.innerText = "Sync in corso...";
+    // ================= AUTH & REFRESH TOKEN =================
+    async function verifyLogin() {
+        const user = document.getElementById('adminUser').value.trim(); const pass = document.getElementById('adminPass').value.trim(); const btn = document.getElementById('loginBtn');
+        if(!user || !pass) return; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true;
+        try {
+            const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user, pass }) });
+            if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Credenziali Errate!");
+        } catch (e) { alert("Errore di rete."); } finally { btn.innerHTML = 'Accedi al Pannello'; btn.disabled = false; }
+    }
+
+    async function loginDropbox() {
+        document.getElementById('dbBtn').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Attendere...';
+        try {
+            // Chiede il link per autorizzazione OFFLINE (genera il code, non il token)
+            const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) });
+            const data = await res.json(); if (data.success && data.url) window.location.href = data.url;
+        } catch (e) { alert("Errore API Dropbox"); document.getElementById('dbBtn').innerHTML = 'Connetti Server Dropbox'; }
+    }
+
+    async function handleRedirect() {
+        // Cerca il parametro ?code= invece di #access_token=
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        if (code) {
+            window.history.replaceState({}, document.title, window.location.pathname); // Pulisce l'URL visivo
+            document.getElementById('authScreen').classList.remove('hidden'); 
+            document.getElementById('dbBtn').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generazione chiavi...';
+            
             try {
-                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` }, body: JSON.stringify({ action: "getDashboardData" }) });
-                if (res.status === 401) throw new Error("Token scaduto");
+                // Scambia il codice per Access Token e Refresh Token
+                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) });
                 const data = await res.json();
-                if (data.success) {
-                    inventario = data.inventario || []; movimenti = data.movimenti || []; renderTable();
-                    const now = new Date(); btn.innerText = `Aggiornato alle ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-                }
-            } catch (e) { if(e.message === "Token scaduto") hardLogout(); else alert("Errore caricamento dati."); btn.innerText = "Errore"; }
+                if(data.success) {
+                    accessToken = data.access_token; 
+                    refreshToken = data.refresh_token;
+                    localStorage.setItem("wms_admin_db_token", accessToken); 
+                    localStorage.setItem("wms_admin_refresh_token", refreshToken);
+                    checkAppStatus();
+                } else alert("Errore di generazione chiavi.");
+            } catch(e) { alert("Errore di rete nello scambio codice."); }
         }
+    }
 
-        function getStock(barcode) {
-            const itemMoves = movimenti.filter(m => m.barcode === barcode);
-            if (itemMoves.length === 0) return { val: 0, status: 'none' };
-            const lastMove = itemMoves[itemMoves.length - 1];
-            return { val: lastMove.type === 'IN' ? 1 : 0, status: lastMove.type };
-        }
+    // ================= MOTORE API UNIFICATO =================
+    // Questa funzione centralizza tutte le chiamate, intercetta le scadenze e rinnova i token da sola
+    async function apiCall(actionName, payload = {}) {
+        let fetchOptions = { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` }, body: JSON.stringify({ action: actionName, ...payload }) };
+        let res = await fetch(WORKER_URL, fetchOptions);
+        let data = await res.json();
 
-        function renderTable() {
-            const tbody = document.getElementById('inventoryTableBody');
-            document.getElementById('emptyState').classList.toggle('hidden', inventario.length > 0);
-            tbody.innerHTML = inventario.map(item => {
-                const stock = getStock(item.barcode);
-                const badge = stock.val === 1 
-                    ? `<div class="bg-emerald-100 text-emerald-700 border border-emerald-300 px-3 py-1.5 rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-box"></i> IN MAGAZZINO</div>`
-                    : `<div class="bg-slate-100 text-slate-500 border border-slate-200 px-3 py-1.5 rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-dolly"></i> FUORI / SPEDITO</div>`;
-                
-                return `
-                <tr class="hover:bg-slate-50 transition group cursor-pointer" onclick="openHistoryModal('${item.barcode}')">
-                    <td class="p-4 border-b border-slate-100 font-mono font-bold text-slate-800 text-lg">${item.barcode}</td>
-                    <td class="p-4 border-b border-slate-100 font-medium text-slate-600">${item.name}</td>
-                    <td class="p-4 border-b border-slate-100">${badge}</td>
-                    <td class="p-4 border-b border-slate-100 text-right">
-                        <button onclick="event.stopPropagation(); openItemModal('${item.barcode}')" class="text-slate-400 hover:text-blue-600 bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm mx-1 transition"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="event.stopPropagation(); deleteItem('${item.barcode}')" class="text-slate-400 hover:text-rose-600 bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm mx-1 transition"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>`;
-            }).join('');
-        }
-
-        // ================= MODALI E SALVATAGGIO (CRUD + CASCADE) =================
-        function openItemModal(barcode = null) {
-            document.getElementById('itemBarcode').value = ''; document.getElementById('itemName').value = ''; document.getElementById('editOriginalBarcode').value = '';
-            document.getElementById('itemModalTitle').innerText = 'Nuovo Articolo'; document.getElementById('barcodeWarning').classList.add('hidden');
+        if (!res.ok && data.error === "EXPIRED_TOKEN" && refreshToken) {
+            console.log("Token scaduto. Eseguo rinnovo automatico...");
+            document.getElementById('lastSyncTime').innerText = "Rinnovo in corso...";
             
-            if (barcode) {
-                const item = inventario.find(i => i.barcode === barcode);
-                if(item) {
-                    document.getElementById('itemBarcode').value = item.barcode; document.getElementById('itemName').value = item.name;
-                    document.getElementById('editOriginalBarcode').value = item.barcode; document.getElementById('itemModalTitle').innerText = 'Modifica Anagrafica';
-                    
-                    // Listener per mostrare l'avviso di modifica a cascata
-                    document.getElementById('itemBarcode').oninput = (e) => {
-                        document.getElementById('barcodeWarning').classList.toggle('hidden', e.target.value.trim().toUpperCase() === item.barcode);
-                    };
-                }
-            }
-            openModal('itemModal', 'itemModalContent');
-        }
-
-        async function saveItem() {
-            const bcode = document.getElementById('itemBarcode').value.trim().toUpperCase();
-            const name = document.getElementById('itemName').value.trim();
-            const originalBcode = document.getElementById('editOriginalBarcode').value;
-            const btn = document.getElementById('saveItemBtn');
-
-            if (!bcode || !name) return alert("Inserisci Barcode e Nome.");
-            if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Barcode già esistente!");
-
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true;
-
-            let updatedMovimenti = false;
+            const refreshRes = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "refreshToken", refresh_token: refreshToken }) });
+            const refreshData = await refreshRes.json();
             
-            if (originalBcode) {
-                // Modifica Anagrafica
-                const idx = inventario.findIndex(i => i.barcode === originalBcode);
-                if (idx > -1) inventario[idx] = { barcode: bcode, name: name };
-                
-                // CASCATA LOGICA: Se ho cambiato il Barcode, aggiorno anche tutto lo storico associato!
-                if (originalBcode !== bcode) {
-                    movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; });
-                    updatedMovimenti = true;
-                }
+            if (refreshData.success) {
+                accessToken = refreshData.access_token; 
+                localStorage.setItem("wms_admin_db_token", accessToken);
+                // Ritenta la chiamata originale con il token nuovo
+                fetchOptions.headers["Authorization"] = `Bearer ${accessToken}`;
+                res = await fetch(WORKER_URL, fetchOptions);
+                data = await res.json();
             } else {
-                inventario.push({ barcode: bcode, name: name });
+                hardLogout(); throw new Error("Sessione scaduta irrimediabilmente. Rifare login.");
             }
-
-            // Manda al server sia inventario che (se serve) i movimenti modificati
-            const payload = { action: "saveAdminData", inventario: inventario };
-            if (updatedMovimenti) payload.movimenti = movimenti;
-
-            await syncDataToServer(payload, btn, 'itemModal', 'itemModalContent');
         }
+        
+        if (!res.ok) throw new Error(data.error || "Errore sconosciuto dal server.");
+        return data;
+    }
 
-        async function deleteItem(barcode) {
-            if (!confirm(`Vuoi eliminare ${barcode} dall'anagrafica?\nLo storico movimenti non verrà toccato.`)) return;
-            inventario = inventario.filter(i => i.barcode !== barcode);
-            await syncDataToServer({ action: "saveAdminData", inventario: inventario });
+    // ================= DATI & UI =================
+    async function loadData(isSilent = false) {
+        const btn = document.getElementById('lastSyncTime'); 
+        if (!isSilent) btn.innerText = "Sync in corso...";
+        else btn.innerHTML = '<i class="fa-solid fa-circle text-[10px] text-blue-400 animate-pulse"></i> Aggiornamento...';
+        
+        try {
+            const data = await apiCall("getDashboardData");
+            inventario = data.inventario || []; 
+            movimenti = data.movimenti || []; 
+            renderTable();
+            const now = new Date(); btn.innerText = `Aggiornato alle ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        } catch (e) { 
+            if(e.message !== "Sessione scaduta irrimediabilmente. Rifare login." && !isSilent) alert(`Errore: ${e.message}`); 
+            btn.innerText = "Errore Sync"; 
         }
+    }
 
-        // ================= CARTELLA CLINICA E FORZATURE =================
-        function openHistoryModal(barcode) {
-            currentHistoryBarcode = barcode;
+    async function syncDataToServer(payload, btnObj = null, modalId = null, contentId = null) {
+        try {
+            await apiCall("saveAdminData", payload);
+            renderTable();
+            if(modalId) closeModal(modalId, contentId);
+        } catch (e) { alert(`Operazione fallita:\n${e.message}`); }
+        if(btnObj) { btnObj.innerHTML = 'Salva Dati'; btnObj.disabled = false; }
+    }
+
+    function getStock(barcode) {
+        const itemMoves = movimenti.filter(m => m.barcode === barcode);
+        if (itemMoves.length === 0) return { val: 0, status: 'none' };
+        const lastMove = itemMoves[itemMoves.length - 1];
+        return { val: lastMove.type === 'IN' ? 1 : 0, status: lastMove.type };
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('inventoryTableBody');
+        document.getElementById('emptyState').classList.toggle('hidden', inventario.length > 0);
+        tbody.innerHTML = inventario.map(item => {
+            const stock = getStock(item.barcode);
+            const badge = stock.val === 1 
+                ? `<div class="bg-emerald-100 text-emerald-700 border border-emerald-300 px-3 py-1.5 rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-box"></i> IN MAGAZZINO</div>`
+                : `<div class="bg-slate-100 text-slate-500 border border-slate-200 px-3 py-1.5 rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-dolly"></i> FUORI / SPEDITO</div>`;
+            
+            return `
+            <tr class="hover:bg-slate-50 transition group cursor-pointer" onclick="openHistoryModal('${item.barcode}')">
+                <td class="p-4 border-b border-slate-100 font-mono font-bold text-slate-800 text-lg">${item.barcode}</td>
+                <td class="p-4 border-b border-slate-100 font-medium text-slate-600">${item.name}</td>
+                <td class="p-4 border-b border-slate-100">${badge}</td>
+                <td class="p-4 border-b border-slate-100 text-right">
+                    <button onclick="event.stopPropagation(); openItemModal('${item.barcode}')" class="text-slate-400 hover:text-blue-600 bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm mx-1 transition"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="event.stopPropagation(); deleteItem('${item.barcode}')" class="text-slate-400 hover:text-rose-600 bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm mx-1 transition"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    // ================= MODALI E SALVATAGGIO (CRUD + CASCADE) =================
+    function openItemModal(barcode = null) {
+        document.getElementById('itemBarcode').value = ''; document.getElementById('itemName').value = ''; document.getElementById('editOriginalBarcode').value = '';
+        document.getElementById('itemModalTitle').innerText = 'Nuovo Articolo'; document.getElementById('barcodeWarning').classList.add('hidden');
+        
+        if (barcode) {
             const item = inventario.find(i => i.barcode === barcode);
-            document.getElementById('historyBarcode').innerText = barcode;
-            document.getElementById('historyName').innerText = item ? item.name : "Sconosciuto";
-            
-            renderHistoryTimeline();
-            openModal('historyModal', 'historyModalContent');
-        }
-
-        function renderHistoryTimeline() {
-            const container = document.getElementById('timelineContainer');
-            const itemMoves = movimenti.filter(m => m.barcode === currentHistoryBarcode);
-            
-            // Aggiorna Badge Stato Attuale
-            const stock = getStock(currentHistoryBarcode);
-            const badge = document.getElementById('historyCurrentStock');
-            if(stock.val === 1) { badge.className = "px-4 py-2 rounded-xl font-bold text-sm bg-emerald-100 text-emerald-800"; badge.innerText = "Stato Attuale: IN"; }
-            else { badge.className = "px-4 py-2 rounded-xl font-bold text-sm bg-slate-100 text-slate-600 border border-slate-200"; badge.innerText = "Stato Attuale: OUT"; }
-
-            if (itemMoves.length === 0) {
-                container.innerHTML = `<div class="pl-8 py-4 text-slate-400 font-medium">Nessun movimento registrato.</div>`; return;
+            if(item) {
+                document.getElementById('itemBarcode').value = item.barcode; document.getElementById('itemName').value = item.name;
+                document.getElementById('editOriginalBarcode').value = item.barcode; document.getElementById('itemModalTitle').innerText = 'Modifica Anagrafica';
+                
+                document.getElementById('itemBarcode').oninput = (e) => {
+                    document.getElementById('barcodeWarning').classList.toggle('hidden', e.target.value.trim().toUpperCase() === item.barcode);
+                };
             }
+        }
+        openModal('itemModal', 'itemModalContent');
+    }
 
-            // Inverti per mostrare dal più recente al più vecchio
-            const reversedMoves = [...itemMoves].reverse();
+    async function saveItem() {
+        const bcode = document.getElementById('itemBarcode').value.trim().toUpperCase();
+        const name = document.getElementById('itemName').value.trim();
+        const originalBcode = document.getElementById('editOriginalBarcode').value;
+        const btn = document.getElementById('saveItemBtn');
+
+        if (!bcode || !name) return alert("Inserisci Barcode e Nome.");
+        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Barcode già esistente!");
+
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true;
+
+        let updatedMovimenti = false;
+        
+        if (originalBcode) {
+            const idx = inventario.findIndex(i => i.barcode === originalBcode);
+            if (idx > -1) inventario[idx] = { barcode: bcode, name: name };
             
-            container.innerHTML = reversedMoves.map((m, index) => {
-                const isIN = m.type === 'IN';
-                const color = isIN ? 'emerald' : 'rose';
-                const icon = isIN ? 'fa-box-open' : 'fa-dolly';
-                const date = new Date(m.timestamp);
-                const timeStr = `${date.toLocaleDateString('it-IT')} - ${date.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'})}`;
-                const opLabel = m.operatore === 'ADMIN' ? `<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ml-2">Forzatura Admin</span>` : `<span class="text-slate-500 text-xs ml-2"><i class="fa-solid fa-mobile-screen-button"></i> Mobile</span>`;
+            if (originalBcode !== bcode) {
+                movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; });
+                updatedMovimenti = true;
+            }
+        } else {
+            inventario.push({ barcode: bcode, name: name });
+        }
 
-                return `
-                <div class="relative pl-10 flex items-center justify-between group">
-                    <div class="absolute left-[9px] top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-${color}-500 border-2 border-white shadow z-10"></div>
-                    <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex-1 flex flex-col hover:border-${color}-300 transition">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="font-black text-${color}-600 text-sm"><i class="fa-solid ${icon}"></i> ${m.type}</span>
-                            ${opLabel}
-                        </div>
-                        <span class="text-slate-500 text-xs font-medium">${timeStr}</span>
+        const payload = { inventario: inventario };
+        if (updatedMovimenti) payload.movimenti = movimenti;
+
+        await syncDataToServer(payload, btn, 'itemModal', 'itemModalContent');
+    }
+
+    async function deleteItem(barcode) {
+        if (!confirm(`Vuoi eliminare ${barcode} dall'anagrafica?\nLo storico movimenti non verrà toccato.`)) return;
+        inventario = inventario.filter(i => i.barcode !== barcode);
+        await syncDataToServer({ inventario: inventario });
+    }
+
+    // ================= CARTELLA CLINICA E FORZATURE =================
+    function openHistoryModal(barcode) {
+        currentHistoryBarcode = barcode;
+        const item = inventario.find(i => i.barcode === barcode);
+        document.getElementById('historyBarcode').innerText = barcode;
+        document.getElementById('historyName').innerText = item ? item.name : "Sconosciuto";
+        
+        renderHistoryTimeline();
+        openModal('historyModal', 'historyModalContent');
+    }
+
+    function renderHistoryTimeline() {
+        const container = document.getElementById('timelineContainer');
+        const itemMoves = movimenti.filter(m => m.barcode === currentHistoryBarcode);
+        
+        const stock = getStock(currentHistoryBarcode);
+        const badge = document.getElementById('historyCurrentStock');
+        if(stock.val === 1) { badge.className = "px-4 py-2 rounded-xl font-bold text-sm bg-emerald-100 text-emerald-800"; badge.innerText = "Stato Attuale: IN"; }
+        else { badge.className = "px-4 py-2 rounded-xl font-bold text-sm bg-slate-100 text-slate-600 border border-slate-200"; badge.innerText = "Stato Attuale: OUT"; }
+
+        if (itemMoves.length === 0) {
+            container.innerHTML = `<div class="pl-8 py-4 text-slate-400 font-medium">Nessun movimento registrato.</div>`; return;
+        }
+
+        const reversedMoves = [...itemMoves].reverse();
+        
+        container.innerHTML = reversedMoves.map((m, index) => {
+            const isIN = m.type === 'IN';
+            const color = isIN ? 'emerald' : 'rose';
+            const icon = isIN ? 'fa-box-open' : 'fa-dolly';
+            const date = new Date(m.timestamp);
+            const timeStr = `${date.toLocaleDateString('it-IT')} - ${date.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'})}`;
+            const opLabel = m.operatore === 'ADMIN' ? `<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ml-2">Forzatura Admin</span>` : `<span class="text-slate-500 text-xs ml-2"><i class="fa-solid fa-mobile-screen-button"></i> Mobile</span>`;
+
+            return `
+            <div class="relative pl-10 flex items-center justify-between group">
+                <div class="absolute left-[9px] top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-${color}-500 border-2 border-white shadow z-10"></div>
+                <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex-1 flex flex-col hover:border-${color}-300 transition">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-black text-${color}-600 text-sm"><i class="fa-solid ${icon}"></i> ${m.type}</span>
+                        ${opLabel}
                     </div>
-                    <button onclick="deleteMovement('${m.id}')" class="ml-4 text-slate-300 hover:text-rose-500 transition opacity-0 group-hover:opacity-100" title="Elimina Movimento"><i class="fa-solid fa-trash"></i></button>
-                </div>`;
-            }).join('');
-        }
+                    <span class="text-slate-500 text-xs font-medium">${timeStr}</span>
+                </div>
+                <button onclick="deleteMovement('${m.id}')" class="ml-4 text-slate-300 hover:text-rose-500 transition opacity-0 group-hover:opacity-100" title="Elimina Movimento"><i class="fa-solid fa-trash"></i></button>
+            </div>`;
+        }).join('');
+    }
 
-        async function forceMovement(type) {
-            const stock = getStock(currentHistoryBarcode);
-            if (stock.status === type) return alert(`L'oggetto è già ${type}! Non è necessario forzare.`);
-            
-            if(!confirm(`Forzare lo stato a ${type}? Questa azione sovrascrive i controlli.`)) return;
-            
-            const newMove = { id: Date.now().toString(), barcode: currentHistoryBarcode, type: type, timestamp: new Date().toISOString(), operatore: "ADMIN" };
-            movimenti.push(newMove);
-            
-            await syncDataToServer({ action: "saveAdminData", movimenti: movimenti });
-            renderHistoryTimeline();
-        }
+    async function forceMovement(type) {
+        const stock = getStock(currentHistoryBarcode);
+        if (stock.status === type) return alert(`L'oggetto è già ${type}! Non è necessario forzare.`);
+        
+        if(!confirm(`Forzare lo stato a ${type}? Questa azione sovrascrive i controlli.`)) return;
+        
+        const newMove = { id: Date.now().toString(), barcode: currentHistoryBarcode, type: type, timestamp: new Date().toISOString(), operatore: "ADMIN" };
+        movimenti.push(newMove);
+        
+        await syncDataToServer({ movimenti: movimenti });
+        renderHistoryTimeline();
+    }
 
-        async function deleteMovement(id) {
-            if(!confirm("Eliminare questa operazione dai log storici?")) return;
-            movimenti = movimenti.filter(m => m.id !== id);
-            await syncDataToServer({ action: "saveAdminData", movimenti: movimenti });
-            renderHistoryTimeline();
-        }
+    async function deleteMovement(id) {
+        if(!confirm("Eliminare questa operazione dai log storici?")) return;
+        movimenti = movimenti.filter(m => m.id !== id);
+        await syncDataToServer({ movimenti: movimenti });
+        renderHistoryTimeline();
+    }
 
-        // ================= UTILITY DI SISTEMA =================
-        async function syncDataToServer(payload, btnObj = null, modalId = null, contentId = null) {
-            try {
-                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` }, body: JSON.stringify(payload) });
-                if (res.ok) {
-                    renderTable();
-                    if(modalId) closeModal(modalId, contentId);
-                } else alert("Errore di salvataggio remoto.");
-            } catch (e) { alert("Errore di Rete."); }
-            if(btnObj) { btnObj.innerHTML = 'Salva Dati'; btnObj.disabled = false; }
-        }
+    // ================= UTILITY DI SISTEMA =================
+    function openModal(modalId, contentId) { document.getElementById(modalId).classList.remove('opacity-0', 'pointer-events-none'); document.getElementById(contentId).classList.remove('scale-95'); document.body.classList.add('modal-active'); }
+    function closeModal(modalId, contentId) { document.getElementById(modalId).classList.add('opacity-0', 'pointer-events-none'); document.getElementById(contentId).classList.add('scale-95'); document.body.classList.remove('modal-active'); }
+    
+    function hardLogout() { 
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        localStorage.clear(); 
+        window.location.reload(); 
+    }
+</script>
 
-        function openModal(modalId, contentId) { document.getElementById(modalId).classList.remove('opacity-0', 'pointer-events-none'); document.getElementById(contentId).classList.remove('scale-95'); document.body.classList.add('modal-active'); }
-        function closeModal(modalId, contentId) { document.getElementById(modalId).classList.add('opacity-0', 'pointer-events-none'); document.getElementById(contentId).classList.add('scale-95'); document.body.classList.remove('modal-active'); }
-        function hardLogout() { localStorage.clear(); window.location.reload(); }
-    </script>
+
+    
 </body>
 </html>
 
