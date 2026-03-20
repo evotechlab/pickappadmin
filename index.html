@@ -362,7 +362,27 @@
     }
     async function verifyLogin() { const u = document.getElementById('adminUser').value; const p = document.getElementById('adminPass').value; if(!u||!p)return; document.getElementById('loginBtn').innerText='ATTENDI...'; try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user: u, pass: p }) }); if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Credenziali Errate"); } catch(e){ alert("Errore di Rete"); } document.getElementById('loginBtn').innerText='OK';}
     async function loginDropbox() { try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) }); const data = await res.json(); if (data.success && data.url) window.location.href = data.url; } catch(e){} }
-    async function handleRedirect() { const code = newSearchParams(window.location.search).get("code"); if(code) { window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('authScreen').classList.remove('hidden-view'); try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); const data = await res.json(); if(data.success) { accessToken = data.access_token; refreshToken = data.refresh_token; localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken); checkAppStatus(); } } catch(e){} } }
+    async function handleRedirect() { 
+        // Corretto: aggiunto "URL" e lo spazio
+        const code = new URLSearchParams(window.location.search).get("code"); 
+        if(code) { 
+            window.history.replaceState({}, document.title, window.location.pathname); 
+            document.getElementById('authScreen').classList.remove('hidden-view'); 
+            try { 
+                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); 
+                const data = await res.json(); 
+                if(data.success) { 
+                    accessToken = data.access_token; 
+                    refreshToken = data.refresh_token; 
+                    localStorage.setItem("wms_admin_db_token", accessToken); 
+                    localStorage.setItem("wms_admin_refresh_token", refreshToken); 
+                    checkAppStatus(); 
+                } 
+            } catch(e){
+                alert("Errore durante lo scambio delle chiavi");
+            } 
+        } 
+    }
 
     // ================= DATI & SMART RENDERING (Il Motore che non blocca) =================
     function getStock(barcode) { return movimenti.filter(m => m.barcode === barcode).reduce((acc, m) => { const q = parseInt(m.qty) || 1; return (m.type === 'IN' || m.type === 'STOCK') ? acc + q : acc - q; }, 0); }
