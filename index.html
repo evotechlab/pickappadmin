@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pickapp - Admin WMS Portal</title>
+    <title>WMS.exe - Multi-Node Controller</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,7 +11,6 @@
         /* ========================================================
            WMS NATIVE OS ENGINE (Strict ERP / Win32 Paradigm)
            ======================================================== */
-        
         :root {
             --sys-bg: #e4e4e4;          
             --sys-panel: #ffffff;       
@@ -23,7 +22,6 @@
 
         * { box-sizing: border-box; border-radius: 0 !important; box-shadow: none !important; transition: none !important; user-select: none; cursor: default; }
         input, select, textarea { user-select: text; cursor: text; }
-
         body { background-color: var(--sys-bg); color: var(--sys-text); font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-size: 12px; margin: 0; overflow: hidden; }
 
         /* Controlli OS Base */
@@ -32,7 +30,6 @@
         .win-input:disabled { background-color: #f0f0f0; color: #555; border-color: #ccc; cursor: not-allowed; }
         select.win-input { padding: 1px 2px; }
 
-        /* Bottoni */
         .win-btn { background-color: #e1e1e1; border: 1px solid var(--sys-border); border-bottom-color: #555; border-right-color: #555; color: #000; padding: 4px 14px; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .win-btn:hover:not(:disabled) { background-color: #e5f1fb; border-color: var(--sys-highlight); }
         .win-btn:active:not(:disabled) { background-color: #cce4f7; border-color: #005499; border-top-color: #333; border-left-color: #333; padding-top: 5px; padding-bottom: 3px; }
@@ -40,19 +37,18 @@
         .win-btn-primary { background-color: var(--sys-highlight); color: white; border: 1px solid #004c99; }
         .win-btn-primary:hover:not(:disabled) { background-color: #0059b3; }
 
-        /* Navbar Unificata */
+        /* Navbar Unificata (Contiene sia moduli che stati) */
         .win-navbar { background-color: #d4d4d4; border-bottom: 1px solid var(--sys-border); display: flex; justify-content: space-between; align-items: flex-end; padding: 0 8px; height: 36px; }
         .win-tabs { display: flex; gap: 2px; height: 100%; align-items: flex-end; }
-        .win-tab { background-color: #e8e8e8; border: 1px solid var(--sys-border); border-bottom: none; padding: 0 16px; font-size: 11px; color: #333; height: 26px; display: flex; align-items: center; text-transform: uppercase;}
+        .win-tab { background-color: #e8e8e8; border: 1px solid var(--sys-border); border-bottom: none; padding: 0 16px; font-size: 11px; color: #333; height: 26px; display: flex; align-items: center; text-transform: uppercase; }
         .win-tab:hover { background-color: #f4f4f4; }
         .win-tab.active { background-color: var(--sys-bg); border-top: 3px solid var(--sys-highlight); height: 29px; margin-bottom: -1px; font-weight: bold; color: #000; z-index: 2; position: relative; }
         
-        /* Area Status/Logout (Integrata in Navbar) */
-        .nav-status-area { display: flex; align-items: center; gap: 8px; height: 26px; margin-bottom: 4px; }
-        .status-badge { background-color: #fff; border: 1px solid var(--sys-border); padding: 2px 6px; font-family: monospace; font-size: 10px; display: flex; align-items: center; gap: 4px; }
-        .nav-user { font-size: 11px; color: #333; font-weight: bold; padding: 0 4px; border-left: 1px solid #a0a0a0; margin-left: 4px; }
-        .nav-logout { background: transparent; border: 1px solid transparent; font-size: 11px; font-weight: bold; color: #333; padding: 2px 6px; }
-        .nav-logout:hover { background-color: #e5f1fb; border: 1px solid var(--sys-highlight); }
+        /* Tab speciali per comandi e status */
+        .tab-status { font-family: monospace; font-weight: bold; cursor: default; }
+        .tab-status:hover { background-color: #e8e8e8; } /* Niente hover effect per gli stati */
+        .tab-danger { color: #d13438; font-weight: bold; }
+        .tab-danger:hover { background-color: #fce4e4; border-color: #d13438; }
 
         /* Toolbar */
         .win-toolbar { background-color: var(--sys-bg); border-bottom: 1px solid var(--sys-border); padding: 4px 8px; display: flex; gap: 2px; align-items: center; }
@@ -73,20 +69,15 @@
         .win-grid tbody tr:hover td { background-color: #f3f9ff; }
         .win-grid tbody tr.selected td { background-color: var(--sys-highlight) !important; color: white !important; }
 
-        /* Scrollbar OS */
         ::-webkit-scrollbar { width: 16px; height: 16px; }
         ::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid #ccc; }
         ::-webkit-scrollbar-thumb { background: #cdcdcd; border: 1px solid #f0f0f0; }
         ::-webkit-scrollbar-thumb:hover { background: #a6a6a6; }
-        
         .hidden-view { display: none !important; }
 
-        /* Finestre di sistema */
         .native-window { border: 1px solid #000; background: var(--sys-bg); outline: 1px solid #fff; outline-offset: -2px; }
         .native-titlebar { background: #000080; color: white; padding: 3px 6px; font-weight: bold; font-size: 11px; display: flex; justify-content: space-between; }
-        
-        /* Footer spesso */
-        .win-statusbar { height: 24px; background-color: #d4d4d4; border-top: 2px solid var(--sys-border); display: flex; align-items: center; px-2; font-size: 11px; color: #333; padding: 0 8px; justify-content: space-between; }
+        .win-statusbar { height: 24px; background-color: #d4d4d4; border-top: 2px solid var(--sys-border); display: flex; align-items: center; font-size: 11px; color: #333; padding: 0 8px; justify-content: space-between; }
     </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -116,18 +107,14 @@
         <header class="win-navbar shrink-0">
             <div class="flex items-end h-full">
                 <div class="font-bold text-[14px] text-[#333] tracking-widest px-3 pb-[6px] mr-2"><i class="fa-solid fa-cube mr-1 text-[#0066cc]"></i>WMS CORE</div>
-                <div class="win-tabs">
-                    <button onclick="switchModule('mod-sintesi', this)" class="win-tab active">Sintesi</button>
-                    <button onclick="switchModule('mod-inventario', this)" class="win-tab">Inventario & Giacenze</button>
-                    <button onclick="switchModule('mod-registro', this)" class="win-tab">Magazzino (Log)</button>
-                    <button onclick="switchModule('mod-impostazioni', this)" class="win-tab">Impostazioni</button>
-                </div>
+                <div class="win-tabs" id="dynamic-nav-tabs">
+                    </div>
             </div>
             
-            <div class="nav-status-area">
-                <div id="liveConnectionStatus" class="status-badge"><div class="w-2 h-2 bg-[#999]"></div>OFFLINE</div>
-                <span class="nav-user">OP: ADMIN</span>
-                <button onclick="hardLogout()" class="nav-logout"><i class="fa-solid fa-power-off mr-1"></i>ESCI</button>
+            <div class="win-tabs border-b-0">
+                <div id="liveConnectionStatus" class="win-tab tab-status text-gray-500">[ OFFLINE ]</div>
+                <div class="win-tab tab-status font-bold">OP: ADMIN</div>
+                <button onclick="hardLogout()" class="win-tab tab-danger"><i class="fa-solid fa-power-off mr-1"></i>ESCI</button>
             </div>
         </header>
 
@@ -146,17 +133,17 @@
             
             <div id="mod-sintesi" class="wms-module w-full h-full flex flex-col gap-1 hidden-view bg-[var(--sys-bg)]">
                 <div class="grid grid-cols-4 gap-1 shrink-0 h-20">
-                    <div class="win-pane"><div class="win-pane-header">SKU A Sistema</div><div class="flex-1 flex items-center justify-center text-3xl font-mono text-[#333]" id="kpi-sku">0</div></div>
-                    <div class="win-pane"><div class="win-pane-header">Giacenza Totale (Pz)</div><div class="flex-1 flex items-center justify-center text-3xl font-mono text-[#333]" id="kpi-qty">0</div></div>
-                    <div class="win-pane"><div class="win-pane-header">Volume Transazioni</div><div class="flex-1 flex items-center justify-center text-3xl font-mono text-[#333]" id="kpi-tx">0</div></div>
-                    <div class="win-pane"><div class="win-pane-header">Articoli Esauriti (OOS)</div><div class="flex-1 flex items-center justify-center text-3xl font-mono font-bold text-[#333]" id="kpi-oos">0</div></div>
+                    <div class="win-pane"><div class="win-pane-header">SKU Globali</div><div class="flex-1 flex items-center justify-center text-3xl font-mono text-[#333]" id="kpi-sku">0</div></div>
+                    <div class="win-pane"><div class="win-pane-header">Giacenza Globale (Pz)</div><div class="flex-1 flex items-center justify-center text-3xl font-mono text-[#333]" id="kpi-qty">0</div></div>
+                    <div class="win-pane"><div class="win-pane-header">Transazioni Loggate</div><div class="flex-1 flex items-center justify-center text-3xl font-mono text-[#333]" id="kpi-tx">0</div></div>
+                    <div class="win-pane"><div class="win-pane-header">Articoli Esauriti Globali</div><div class="flex-1 flex items-center justify-center text-3xl font-mono font-bold text-[#333]" id="kpi-oos">0</div></div>
                 </div>
                 <div class="flex-1 grid grid-cols-2 gap-1">
-                    <div class="win-pane flex flex-col"><div class="win-pane-header">Distribuzione Giacenze per Classe</div><div class="flex-1 p-2 bg-white"><canvas id="dashboardChart"></canvas></div></div>
-                    <div class="win-pane flex flex-col"><div class="win-pane-header">Ultime Operazioni Fisiche</div>
+                    <div class="win-pane flex flex-col"><div class="win-pane-header">Distribuzione Giacenze Globali</div><div class="flex-1 p-2 bg-white"><canvas id="dashboardChart"></canvas></div></div>
+                    <div class="win-pane flex flex-col"><div class="win-pane-header">Audit Trail Recente</div>
                         <div class="flex-1 overflow-auto bg-white border-t border-[var(--sys-border)]">
                             <table class="win-grid">
-                                <thead><tr><th class="w-20">Ora</th><th>SKU Code</th><th class="w-24 text-center">Operazione</th><th class="w-16 text-right">Q.tà</th></tr></thead>
+                                <thead><tr><th class="w-20">Ora</th><th>SKU Code</th><th>Nodo Magazzino</th><th class="w-24 text-center">Operazione</th><th class="w-16 text-right">Q.tà</th></tr></thead>
                                 <tbody id="kpi-recent-tx"></tbody>
                             </table>
                         </div>
@@ -164,10 +151,10 @@
                 </div>
             </div>
 
-            <div id="mod-inventario" class="wms-module w-full h-full flex gap-1">
-                <div class="w-2/3 win-pane h-full">
+            <div id="mod-inventario" class="wms-module w-full h-full flex gap-1 hidden-view">
+                <div class="w-2/3 win-pane h-full border border-gray-500">
                     <div class="win-pane-header flex justify-between">
-                        <span>Anagrafiche e Disponibilità</span>
+                        <span id="invGridTitle">DataGrid</span>
                         <input type="text" id="searchInv" onkeyup="filterTable('inventoryTableBody', this.value)" placeholder="Filtra Codice/Descrizione..." class="win-input w-48 h-[18px] text-[10px] py-0">
                     </div>
                     <div class="flex-1 overflow-auto bg-[var(--sys-panel)] relative">
@@ -183,26 +170,29 @@
                         <div class="win-pane-header bg-[#d4d4d4]" id="inspHeader">Dettagli Articolo</div>
                         <div class="p-3 bg-[var(--sys-bg)] flex flex-col gap-2 h-full overflow-y-auto">
                             <input type="hidden" id="inspOriginalBarcode">
+                            <div class="flex items-center"><label class="w-24 text-right pr-2 font-bold text-[#0066cc]">Nodo Assegnato:</label><input type="text" id="inspWarehouse" class="win-input font-bold" disabled></div>
+                            <div class="w-full h-px bg-[#ccc] my-1"></div>
+                            
                             <div class="flex items-center"><label class="w-24 text-right pr-2">SKU Code:</label><input type="text" id="inspBarcode" class="win-input font-mono uppercase" disabled></div>
                             <div class="flex items-center"><label class="w-24 text-right pr-2">Descrizione:</label><input type="text" id="inspName" class="win-input" disabled></div>
                             <div class="flex items-center"><label class="w-24 text-right pr-2">Categoria:</label><select id="inspCategory" class="win-input" disabled></select></div>
 
                             <div id="inspInitBlock" class="mt-4 border border-[#8f8f8f] p-2 bg-white hidden-view">
-                                <p class="font-bold text-[#333] mb-2 border-b border-[#eee] pb-1">Carico Iniziale (Stock di Partenza)</p>
+                                <p class="font-bold text-[#333] mb-2 border-b border-[#eee] pb-1">Inizializzazione Sistema</p>
                                 <div class="flex items-center"><label class="w-24 text-right pr-2">Pezzi Fisici:</label><input type="number" id="inspInitQty" value="0" min="0" class="win-input text-right font-mono w-24" disabled></div>
                             </div>
                         </div>
                     </div>
 
                     <div id="inspTxBlock" class="win-pane h-40 opacity-50 pointer-events-none">
-                        <div class="win-pane-header bg-[#d4d4d4]">Movimentazione Manuale</div>
+                        <div class="win-pane-header bg-[#d4d4d4]">Rettifica Fiscale / Spostamento</div>
                         <div class="p-3 bg-[var(--sys-bg)] flex flex-col gap-2 h-full justify-center">
                             <div class="flex gap-2">
                                 <div class="flex-1"><label class="text-[10px]">Operazione</label><select id="txType" class="win-input"><option value="IN">Carico IN (+)</option><option value="OUT">Scarico OUT (-)</option></select></div>
                                 <div class="w-16"><label class="text-[10px]">Quantità</label><input type="number" id="txQty" value="1" min="1" class="win-input text-right font-mono"></div>
                             </div>
                             <div class="flex gap-2 items-end">
-                                <div class="flex-1"><label class="text-[10px]">Causale / Posizione</label><input type="text" id="txLoc" placeholder="Es. Rettifica Inv." class="win-input"></div>
+                                <div class="flex-1"><label class="text-[10px]">Causale</label><input type="text" id="txLoc" placeholder="Es. Rettifica Inv." class="win-input"></div>
                                 <button onclick="executeManualTx()" class="win-btn">Applica</button>
                             </div>
                         </div>
@@ -211,11 +201,11 @@
             </div>
 
             <div id="mod-registro" class="wms-module w-full h-full hidden-view">
-                <div class="win-pane h-full">
-                    <div class="win-pane-header flex justify-between"><span>Registro Contabile (Audit Log)</span><input type="text" id="searchLog" onkeyup="filterTable('globalLogTableBody', this.value)" placeholder="Filtra..." class="win-input w-48 h-[18px] text-[10px] py-0"></div>
+                <div class="win-pane h-full border border-gray-500">
+                    <div class="win-pane-header flex justify-between"><span>Audit Trail Completo</span><input type="text" id="searchLog" onkeyup="filterTable('globalLogTableBody', this.value)" placeholder="Filtra..." class="win-input w-48 h-[18px] text-[10px] py-0"></div>
                     <div class="flex-1 overflow-auto bg-[var(--sys-panel)]">
                         <table class="win-grid">
-                            <thead><tr><th style="width:15%">Data / Ora</th><th style="width:15%">Transazione ID</th><th style="width:20%">SKU</th><th style="width:10%" class="text-center">Tipo</th><th style="width:10%" class="text-right">Q.tà</th><th style="width:15%">Causale</th><th style="width:15%">Utente</th></tr></thead>
+                            <thead><tr><th style="width:15%">Data / Ora</th><th style="width:15%">TX ID</th><th style="width:15%">Nodo</th><th style="width:15%">SKU</th><th style="width:10%" class="text-center">Tipo</th><th style="width:10%" class="text-right">Q.tà</th><th style="width:10%">Causale</th><th style="width:10%">Utente</th></tr></thead>
                             <tbody id="globalLogTableBody" class="font-mono text-[11px]"></tbody>
                         </table>
                     </div>
@@ -223,14 +213,22 @@
             </div>
 
             <div id="mod-impostazioni" class="wms-module w-full h-full hidden-view p-2 bg-[var(--sys-bg)]">
-                <div class="win-pane w-1/2">
-                    <div class="win-pane-header">Gestione Categorie Merceologiche</div>
-                    <div class="p-2 border-b border-[var(--sys-border)] flex gap-2">
-                        <input type="text" id="newCatInput" class="win-input flex-1" placeholder="Nuova categoria...">
-                        <button onclick="addCategory()" class="win-btn">Aggiungi</button>
+                <div class="flex gap-4">
+                    <div class="win-pane w-1/2 shadow">
+                        <div class="win-pane-header">Nodi Logistici (Magazzini)</div>
+                        <div class="p-2 border-b border-[var(--sys-border)] flex gap-2">
+                            <input type="text" id="newWhInput" class="win-input flex-1" placeholder="Nome Magazzino...">
+                            <button onclick="addWarehouse()" class="win-btn">Aggiungi Nodo</button>
+                        </div>
+                        <div class="bg-white h-[400px] overflow-auto p-1"><ul id="warehouseList" class="flex flex-col gap-1 border border-[#ccc] bg-[#f0f0f0]"></ul></div>
                     </div>
-                    <div class="bg-white h-64 overflow-auto p-1">
-                        <ul id="categoryList" class="flex flex-col gap-1 border border-[#ccc] bg-[#f0f0f0]"></ul>
+                    <div class="win-pane w-1/2 shadow">
+                        <div class="win-pane-header">Classi Merceologiche (Categorie)</div>
+                        <div class="p-2 border-b border-[var(--sys-border)] flex gap-2">
+                            <input type="text" id="newCatInput" class="win-input flex-1" placeholder="Nuova categoria...">
+                            <button onclick="addCategory()" class="win-btn">Aggiungi Classe</button>
+                        </div>
+                        <div class="bg-white h-[400px] overflow-auto p-1"><ul id="categoryList" class="flex flex-col gap-1 border border-[#ccc] bg-[#f0f0f0]"></ul></div>
                     </div>
                 </div>
             </div>
@@ -243,42 +241,69 @@
     </div>
 
 <script>
-    // ================= GLOBAL CORE =================
+    // ================= GLOBAL CORE & DATA ARCHITECTURE =================
     const WORKER_URL = "https://wild-feather-f74a.sviluppo-49a.workers.dev"; 
     let isAdminUnlocked = localStorage.getItem("wms_admin_unlocked") === "true";
     let accessToken = localStorage.getItem("wms_admin_db_token");
     let refreshToken = localStorage.getItem("wms_admin_refresh_token");
-    let configCategories = JSON.parse(localStorage.getItem("wms_categories")) || ["ELETTRONICA", "FERRAMENTA", "IMBALLAGGI"];
     
-    let inventario = []; let movimenti = [];
+    // Setup Default
+    let configCategories = JSON.parse(localStorage.getItem("wms_categories")) || ["MATERIE PRIME", "PRODOTTI FINITI"];
+    let configWarehouses = JSON.parse(localStorage.getItem("wms_warehouses")) || ["MAGAZZINO CENTRALE", "MAGAZZINO ESTERNO 1"];
+    
+    let inventario = []; // Format: { barcode, name, category, warehouse }
+    let movimenti = [];  // Format: { id, barcode, type, qty, location, timestamp, operatore, warehouse }
+    
     let autoRefreshTimer = null;
     let mainChartInstance = null;
     let activeModule = 'mod-sintesi';
-    let currentMode = 'VIEW'; // Modalità possibili: 'VIEW', 'SELECTED', 'INSERT', 'EDIT'
+    let activeWarehouseTab = null; // Memorizza quale magazzino stiamo guardando
+    let currentMode = 'VIEW'; // 'VIEW', 'SELECTED', 'INSERT', 'EDIT'
     let lastDataHash = "";    
 
     document.addEventListener('DOMContentLoaded', () => { 
-        handleRedirect(); checkAppStatus(); renderConfigCategories();
+        handleRedirect(); 
+        renderConfig(); 
+        buildDynamicNavbar(); // Costruisce le tab magazzini
         setInterval(() => { const d = new Date(); document.getElementById('sysClock').innerText = d.toLocaleTimeString(); }, 1000);
     });
 
-    // ================= NAV & AUTH =================
-    function switchModule(moduleId, btnElement) {
+    // ================= DYNAMIC NAVBAR =================
+    function buildDynamicNavbar() {
+        const navContainer = document.getElementById('dynamic-nav-tabs');
+        let html = `<button onclick="switchModule('mod-sintesi', null)" class="win-tab ${activeModule==='mod-sintesi'?'active':''}">Sintesi</button>`;
+        
+        configWarehouses.forEach(wh => {
+            const isAct = (activeModule === 'mod-inventario' && activeWarehouseTab === wh) ? 'active' : '';
+            html += `<button onclick="switchModule('mod-inventario', '${wh}')" class="win-tab ${isAct}"><i class="fa-solid fa-building mr-1 text-[#333]"></i> ${wh}</button>`;
+        });
+        
+        html += `<button onclick="switchModule('mod-registro', null)" class="win-tab ${activeModule==='mod-registro'?'active':''}">Audit Log</button>`;
+        html += `<button onclick="switchModule('mod-impostazioni', null)" class="win-tab ${activeModule==='mod-impostazioni'?'active':''}">Impostazioni</button>`;
+        
+        navContainer.innerHTML = html;
+    }
+
+    function switchModule(moduleId, warehouseName = null) {
         if(currentMode === 'INSERT' || currentMode === 'EDIT') {
             if(!confirm("Hai modifiche in corso. Abbandonare l'operazione?")) return;
             cancelEdit();
         }
         
         activeModule = moduleId;
+        activeWarehouseTab = warehouseName;
+        buildDynamicNavbar(); // Ridisegna i tab con quello giusto attivo
+        
         document.querySelectorAll('.wms-module').forEach(el => el.classList.add('hidden-view'));
         document.getElementById(moduleId).classList.remove('hidden-view');
-        document.querySelectorAll('.win-tab').forEach(btn => btn.classList.remove('active'));
-        btnElement.classList.add('active');
         
         updateToolbar();
+        
         if(moduleId === 'mod-sintesi') renderDashboard();
+        if(moduleId === 'mod-inventario') renderMasterData(); // Filtra automaticamente i dati
     }
 
+    // ================= SYSTEM AUTH =================
     function checkAppStatus() {
         if (!isAdminUnlocked) { showScreen('loginScreen'); }
         else if (!accessToken) { showScreen('authScreen'); }
@@ -303,14 +328,12 @@
 
     function updateBadge(status) {
         const badge = document.getElementById('liveConnectionStatus');
-        if(status === 'sync') { badge.innerHTML = `<div class="w-2 h-2 bg-blue-500"></div> SYNC_REQ`; }
-        else if(status === 'online') { badge.innerHTML = `<div class="w-2 h-2 bg-green-500"></div> ONLINE`; }
-        else { badge.innerHTML = `<div class="w-2 h-2 bg-red-500"></div> FAULT`; }
+        if(status === 'sync') { badge.innerHTML = `[ SYNC ]`; badge.style.color = '#0078d7'; }
+        else if(status === 'online') { badge.innerHTML = `[ ONLINE ]`; badge.style.color = '#107c10'; }
+        else { badge.innerHTML = `[ FAULT ]`; badge.style.color = '#d13438'; }
     }
-
     function setStatus(msg) { document.getElementById('statusBarText').innerText = msg; }
 
-    // Auth Calls
     async function apiCall(actionName, payload = {}) {
         let fetchOptions = { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` }, body: JSON.stringify({ action: actionName, ...payload }) };
         let res = await fetch(WORKER_URL, fetchOptions); let data = await res.json();
@@ -325,7 +348,7 @@
     async function loginDropbox() { try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) }); const data = await res.json(); if (data.success && data.url) window.location.href = data.url; } catch(e){} }
     async function handleRedirect() { const code = new URLSearchParams(window.location.search).get("code"); if(code) { window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('authScreen').classList.remove('hidden-view'); try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); const data = await res.json(); if(data.success) { accessToken = data.access_token; refreshToken = data.refresh_token; localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken); checkAppStatus(); } } catch(e){} } }
 
-    // ================= DATI & RENDERING =================
+    // ================= SMART SYNC & LOGIC =================
     function getStock(barcode) { return movimenti.filter(m => m.barcode === barcode).reduce((acc, m) => { const q = parseInt(m.qty) || 1; return (m.type === 'IN' || m.type === 'STOCK') ? acc + q : acc - q; }, 0); }
 
     async function loadData(isSilent = false, forceRender = false) {
@@ -346,16 +369,15 @@
     }
 
     async function syncDataToServer(payload) {
-        setStatus("Sincronizzazione dati in corso..."); updateBadge('sync');
+        setStatus("Sincronizzazione DB in corso..."); updateBadge('sync');
         try {
             await apiCall("saveAdminData", payload);
             await loadData(true, true);
-            setStatus("Pronto.");
-            return true;
+            setStatus("Pronto."); return true;
         } catch (e) { alert(`Errore DB:\n${e.message}`); return false; }
     }
 
-    // ================= TOOLBAR & INSPECTOR LOGIC CONTESTUALE =================
+    // ================= TOOLBAR & INSPECTOR =================
     function setFormEnabled(enabled) {
         document.getElementById('inspBarcode').disabled = !enabled;
         document.getElementById('inspName').disabled = !enabled;
@@ -364,30 +386,18 @@
     }
 
     function updateToolbar() {
-        // Disattiva tutto di default
         ['tb-new', 'tb-edit', 'tb-save', 'tb-cancel', 'tb-delete'].forEach(id => document.getElementById(id).disabled = true);
         
-        // Logica per modulo Anagrafica
         if(activeModule === 'mod-inventario') {
-            if(currentMode === 'VIEW') {
-                document.getElementById('tb-new').disabled = false;
-            } else if(currentMode === 'SELECTED') {
-                document.getElementById('tb-new').disabled = false;
-                document.getElementById('tb-edit').disabled = false;
-            } else if(currentMode === 'INSERT') {
-                document.getElementById('tb-save').disabled = false;
-                document.getElementById('tb-cancel').disabled = false;
-            } else if(currentMode === 'EDIT') {
-                document.getElementById('tb-save').disabled = false;
-                document.getElementById('tb-cancel').disabled = false;
-                document.getElementById('tb-delete').disabled = false;
-            }
+            if(currentMode === 'VIEW') { document.getElementById('tb-new').disabled = false; } 
+            else if(currentMode === 'SELECTED') { document.getElementById('tb-new').disabled = false; document.getElementById('tb-edit').disabled = false; } 
+            else if(currentMode === 'INSERT') { document.getElementById('tb-save').disabled = false; document.getElementById('tb-cancel').disabled = false; } 
+            else if(currentMode === 'EDIT') { document.getElementById('tb-save').disabled = false; document.getElementById('tb-cancel').disabled = false; document.getElementById('tb-delete').disabled = false; }
         }
         
-        // Pannello Manual TX visibile e usabile solo in stato SELECTED o VIEW, non in Edit/Insert
         const txBlock = document.getElementById('inspTxBlock');
-        if(currentMode === 'SELECTED') { txBlock.classList.remove('opacity-50', 'pointer-events-none'); } 
-        else { txBlock.classList.add('opacity-50', 'pointer-events-none'); }
+        if(currentMode === 'SELECTED') txBlock.classList.remove('opacity-50', 'pointer-events-none'); 
+        else txBlock.classList.add('opacity-50', 'pointer-events-none'); 
     }
 
     function initNewItem() {
@@ -395,6 +405,8 @@
         document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
         
         document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+        document.getElementById('inspWarehouse').value = activeWarehouseTab; // Vincolato al magazzino corrente
+        
         document.getElementById('inspOriginalBarcode').value = ''; document.getElementById('inspBarcode').value = '';
         document.getElementById('inspName').value = ''; document.getElementById('inspInitQty').value = '0';
         
@@ -406,7 +418,6 @@
         setStatus("Modalità Inserimento: Compilare e premere Salva.");
     }
 
-    // NUOVO FLUSSO: Clicco un record = SOLO LETTURA (SELECTED)
     function inspectItem(barcode, rowElement) {
         if(currentMode === 'INSERT' || currentMode === 'EDIT') { if(!confirm("Abbandonare le modifiche in corso?")) return; }
         currentMode = 'SELECTED';
@@ -420,33 +431,30 @@
 
         document.getElementById('inspOriginalBarcode').value = item.barcode; document.getElementById('inspBarcode').value = item.barcode;
         document.getElementById('inspName').value = item.name; document.getElementById('inspCategory').value = item.category || '';
+        document.getElementById('inspWarehouse').value = item.warehouse || 'N/A';
         
-        setFormEnabled(false); // Disabilito gli input (Sola Lettura)
+        setFormEnabled(false); 
         document.getElementById('inspInitBlock').classList.add('hidden-view');
         document.getElementById('inspHeader').innerHTML = 'DETTAGLIO ARTICOLO (Sola Lettura)';
         
         updateToolbar();
-        setStatus(`Record selezionato: ${barcode}. Premere 'Modifica' per alterare l'anagrafica.`);
+        setStatus(`Record selezionato: ${barcode}. Premere 'Modifica' per alterare.`);
     }
 
-    // TASTO MODIFICA: Sblocca i campi del record in stato SELECTED
     function enableEdit() {
         if(currentMode !== 'SELECTED') return;
-        currentMode = 'EDIT';
-        setFormEnabled(true);
+        currentMode = 'EDIT'; setFormEnabled(true);
         document.getElementById('inspHeader').innerHTML = 'MODIFICA ANAGRAFICA';
-        updateToolbar();
-        setStatus("Modalità Modifica attiva.");
+        updateToolbar(); setStatus("Modalità Modifica attiva.");
     }
 
     function cancelEdit() {
         currentMode = 'VIEW';
         document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
         setFormEnabled(false); document.getElementById('inspInitBlock').classList.add('hidden-view');
-        document.getElementById('inspBarcode').value = ''; document.getElementById('inspName').value = '';
+        document.getElementById('inspBarcode').value = ''; document.getElementById('inspName').value = ''; document.getElementById('inspWarehouse').value = '';
         document.getElementById('inspHeader').innerHTML = 'Dettagli Articolo'; 
-        updateToolbar();
-        setStatus("Operazione annullata.");
+        updateToolbar(); setStatus("Operazione annullata.");
     }
 
     async function saveMasterData() {
@@ -454,12 +462,13 @@
         const name = document.getElementById('inspName').value.trim();
         const category = document.getElementById('inspCategory').value;
         const originalBcode = document.getElementById('inspOriginalBarcode').value;
+        const targetWarehouse = document.getElementById('inspWarehouse').value;
 
         if (!bcode || !name) return alert("Codice SKU e Descrizione sono obbligatori.");
-        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Questo codice SKU è già utilizzato.");
+        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Questo codice SKU è già utilizzato in database.");
 
         let updatedMovimenti = false;
-        const newItem = { barcode: bcode, name: name, category: category };
+        const newItem = { barcode: bcode, name: name, category: category, warehouse: targetWarehouse };
 
         if (currentMode === 'EDIT' && originalBcode) {
             inventario[inventario.findIndex(i => i.barcode === originalBcode)] = newItem;
@@ -468,7 +477,7 @@
             inventario.push(newItem); 
             const initQty = parseInt(document.getElementById('inspInitQty').value) || 0;
             if (initQty > 0) {
-                movimenti.push({ id: Date.now().toString(), barcode: bcode, type: 'IN', qty: initQty, location: 'Carico Iniziale', timestamp: new Date().toISOString(), operatore: 'ADMIN' });
+                movimenti.push({ id: Date.now().toString(), barcode: bcode, type: 'IN', qty: initQty, location: 'Carico Iniziale', timestamp: new Date().toISOString(), operatore: 'ADMIN', warehouse: targetWarehouse });
                 updatedMovimenti = true;
             }
         }
@@ -480,12 +489,13 @@
     async function executeManualTx() {
         const barcode = document.getElementById('inspOriginalBarcode').value;
         const type = document.getElementById('txType').value; const qty = parseInt(document.getElementById('txQty').value);
-        const loc = document.getElementById('txLoc').value.trim() || 'Rettifica Manuale';
+        const loc = document.getElementById('txLoc').value.trim() || 'Rettifica Fiscale';
 
         if (isNaN(qty) || qty <= 0) return alert("Inserire una quantità valida.");
         if (type === 'OUT' && qty > getStock(barcode)) return alert("Errore: Impossibile scaricare. Giacenza insufficiente.");
 
-        movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'ADMIN' });
+        // Includiamo il magazzino nella traccia del movimento
+        movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'ADMIN', warehouse: activeWarehouseTab });
         if (await syncDataToServer({ movimenti: movimenti })) { document.getElementById('txQty').value = 1; document.getElementById('txLoc').value = ''; }
     }
     
@@ -496,15 +506,20 @@
         if (await syncDataToServer({ inventario: inventario })) cancelEdit();
     }
 
-    // ================= RENDER GRID =================
+    // ================= DATAGRID RENDERING (Filtered) =================
     function filterTable(tbodyId, query) {
         const rows = document.getElementById(tbodyId).getElementsByTagName('tr'); query = query.toLowerCase();
         for (let row of rows) row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
     }
 
     function renderMasterData() {
+        // Filtra la tabella in base al TAB Magazzino Selezionato
         const tbody = document.getElementById('inventoryTableBody');
-        tbody.innerHTML = inventario.map(item => {
+        document.getElementById('invGridTitle').innerText = `DataGrid - ${activeWarehouseTab}`;
+        
+        const filteredItems = inventario.filter(i => i.warehouse === activeWarehouseTab);
+        
+        tbody.innerHTML = filteredItems.map(item => {
             const qty = getStock(item.barcode);
             const status = qty > 0 ? `DISPONIBILE` : `ESAURITO`;
             return `<tr onclick="inspectItem('${item.barcode}', this)"><td class="font-bold">${item.barcode}</td><td>${item.name}</td><td>${item.category||'-'}</td><td class="text-right font-mono">${qty}</td><td class="text-center">${status}</td></tr>`;
@@ -515,7 +530,7 @@
         document.getElementById('globalLogTableBody').innerHTML = [...movimenti].reverse().map(m => {
             const isIN = m.type === 'IN' || m.type === 'STOCK';
             const d = new Date(m.timestamp);
-            return `<tr><td>${d.toLocaleString('it-IT')}</td><td class="text-gray-500">${m.id}</td><td class="font-bold">${m.barcode}</td><td class="text-center">${isIN?'CARICO (IN)':'SCARICO (OUT)'}</td><td class="text-right font-mono">${isIN?'+':'-'}${m.qty||1}</td><td>${m.location||"-"}</td><td>${m.operatore}</td></tr>`;
+            return `<tr><td>${d.toLocaleString('it-IT')}</td><td class="text-gray-500">${m.id}</td><td>${m.warehouse||'N/A'}</td><td class="font-bold">${m.barcode}</td><td class="text-center">${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${isIN?'+':'-'}${m.qty||1}</td><td>${m.location||"-"}</td><td>${m.operatore}</td></tr>`;
         }).join('');
     }
 
@@ -535,7 +550,7 @@
 
         document.getElementById('kpi-recent-tx').innerHTML = [...movimenti].reverse().slice(0, 10).map(m => {
             const isIN = m.type === 'IN' || m.type === 'STOCK';
-            return `<tr><td class="text-gray-500">${new Date(m.timestamp).toLocaleTimeString()}</td><td class="font-bold">${m.barcode}</td><td class="text-center">${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${m.qty||1}</td></tr>`;
+            return `<tr><td class="text-gray-500">${new Date(m.timestamp).toLocaleTimeString()}</td><td class="font-bold">${m.barcode}</td><td>${m.warehouse||'-'}</td><td class="text-center">${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${m.qty||1}</td></tr>`;
         }).join('');
         
         if(mainChartInstance) mainChartInstance.destroy();
@@ -545,17 +560,31 @@
         });
     }
 
-    // ================= CONFIGURAZIONI =================
-    function renderConfigCategories() {
-        document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<li class="p-2 bg-white border-b border-gray-200 flex justify-between items-center text-xs text-gray-700"><span>${c}</span> <button onclick="deleteCategory(${i})" class="win-btn px-2 py-1">X</button></li>`).join('');
+    // ================= IMPOSTAZIONI (Setup & Config) =================
+    function renderConfig() {
+        document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<li class="p-2 border-b border-[#ccc] flex justify-between items-center text-xs"><span>${c}</span> <button onclick="deleteCategory(${i})" class="win-btn px-2 py-1">X</button></li>`).join('');
+        document.getElementById('warehouseList').innerHTML = configWarehouses.map((w, i) => `<li class="p-2 border-b border-[#ccc] flex justify-between items-center text-xs"><span><i class="fa-solid fa-building mr-1"></i> ${w}</span> <button onclick="deleteWarehouse(${i})" class="win-btn px-2 py-1">X</button></li>`).join('');
     }
+    
     function addCategory() {
         const val = document.getElementById('newCatInput').value.trim().toUpperCase();
         if(!val || configCategories.includes(val)) return;
         configCategories.push(val); localStorage.setItem("wms_categories", JSON.stringify(configCategories));
-        document.getElementById('newCatInput').value = ''; renderConfigCategories();
+        document.getElementById('newCatInput').value = ''; renderConfig();
     }
-    function deleteCategory(idx) { configCategories.splice(idx, 1); localStorage.setItem("wms_categories", JSON.stringify(configCategories)); renderConfigCategories(); }
+    function deleteCategory(idx) { configCategories.splice(idx, 1); localStorage.setItem("wms_categories", JSON.stringify(configCategories)); renderConfig(); }
+
+    function addWarehouse() {
+        const val = document.getElementById('newWhInput').value.trim().toUpperCase();
+        if(!val || configWarehouses.includes(val)) return;
+        configWarehouses.push(val); localStorage.setItem("wms_warehouses", JSON.stringify(configWarehouses));
+        document.getElementById('newWhInput').value = ''; renderConfig(); buildDynamicNavbar();
+    }
+    function deleteWarehouse(idx) { 
+        if(configWarehouses.length === 1) return alert("Deve esistere almeno un Nodo Magazzino.");
+        configWarehouses.splice(idx, 1); localStorage.setItem("wms_warehouses", JSON.stringify(configWarehouses)); 
+        renderConfig(); buildDynamicNavbar(); switchModule('mod-sintesi', null);
+    }
 </script>
 </body>
 </html>
