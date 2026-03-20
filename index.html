@@ -3,156 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WMS Admin Pro</title>
-    <div id="liveConnectionStatus" class="flex items-center text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200 transition-all duration-300">
-    <span class="relative flex h-3 w-3 mr-2">
-        <span class="relative inline-flex rounded-full h-3 w-3 bg-slate-400"></span>
-    </span>
-    In attesa...
-    </div>
+    <title>WMS Admin Pro | Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8fafc; color: #1e293b; font-family: system-ui, -apple-system, sans-serif; }
-        .modal { transition: opacity 0.2s ease; }
+        /* Stile Industriale: Font compatti, assenza di arrotondamenti eccessivi, focus sui dati */
+        body { background-color: #f1f5f9; color: #1e293b; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
+        .modal { transition: opacity 0.15s ease; }
         body.modal-active { overflow: hidden; }
-        .timeline-line { position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background-color: #e2e8f0; z-index: 0; }
+        
+        /* Tabelle rigorose */
+        th { background-color: #e2e8f0; color: #334155; text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+        td, th { border: 1px solid #cbd5e1; padding: 8px 12px; }
+        tr:hover td { background-color: #f8fafc; }
+        
+        /* Scrollbar tecnica */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <header class="bg-blue-700 text-white h-16 flex items-center justify-between px-6 shadow-md z-20 sticky top-0">
-        <div class="flex items-center gap-3">
-            <i class="fa-solid fa-server text-2xl text-blue-300"></i>
-            <h1 class="text-xl font-bold tracking-tight">WMS <span class="text-blue-300 font-light">Admin Pro</span></h1>
-        </div>
+    <header class="bg-slate-900 text-slate-200 h-12 flex items-center justify-between px-4 shadow-md z-20 sticky top-0 border-b-4 border-blue-600">
         <div class="flex items-center gap-4">
-            <div id="syncStatus" class="hidden items-center gap-2 text-sm bg-blue-800 px-3 py-1 rounded-full border border-blue-600">
-                <i class="fa-solid fa-cloud-arrow-down text-blue-300"></i> <span id="lastSyncTime">Sincronizzato</span>
+            <i class="fa-solid fa-industry text-lg text-blue-400"></i>
+            <h1 class="text-sm font-bold tracking-widest uppercase">PickApp <span class="text-slate-400 font-normal">WMS Terminal</span></h1>
+            
+            <div id="liveConnectionStatus" class="ml-6 flex items-center text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded border border-slate-700 transition-all duration-300">
+                <span class="relative flex h-2 w-2 mr-2"><span class="relative inline-flex rounded-full h-2 w-2 bg-slate-500"></span></span>
+                OFFLINE
             </div>
-            <button onclick="hardLogout()" class="hover:text-blue-300 transition" title="Disconnetti">
-                <i class="fa-solid fa-power-off text-lg"></i>
+        </div>
+        <div class="flex items-center gap-4 text-xs">
+            <div id="syncStatus" class="hidden items-center gap-2">
+                <span id="lastSyncTime" class="font-mono text-slate-400">Sincronizzato</span>
+            </div>
+            <div class="h-4 w-px bg-slate-700 mx-2"></div>
+            <button onclick="hardLogout()" class="hover:text-white transition flex items-center gap-2" title="Disconnetti">
+                <i class="fa-solid fa-power-off"></i> LOGOUT
             </button>
         </div>
     </header>
 
-    <div id="loginScreen" class="fixed inset-0 top-16 bg-slate-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white p-8 rounded-2xl w-full max-w-sm border border-slate-200 shadow-xl text-center">
-            <i class="fa-solid fa-user-shield text-5xl text-blue-600 mb-4"></i>
-            <h2 class="text-2xl font-bold text-slate-800 mb-6">Accesso Amministratore</h2>
-            <input type="text" id="adminUser" placeholder="Username Admin" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl mb-4 outline-none focus:border-blue-500 font-mono">
-            <input type="password" id="adminPass" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6 outline-none focus:border-blue-500 font-mono">
-            <button onclick="verifyLogin()" id="loginBtn" class="w-full bg-blue-600 text-white font-bold p-4 rounded-xl hover:bg-blue-700 active:scale-95 transition">
-                Accedi al Pannello
+    <div id="loginScreen" class="fixed inset-0 top-12 bg-slate-200 z-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 w-full max-w-sm border border-slate-300 shadow-lg rounded-sm">
+            <div class="flex items-center gap-3 border-b border-slate-200 pb-4 mb-4">
+                <i class="fa-solid fa-lock text-slate-400 text-xl"></i>
+                <h2 class="text-lg font-bold text-slate-700 uppercase">Autenticazione</h2>
+            </div>
+            <input type="text" id="adminUser" placeholder="Codice Utente" class="w-full bg-slate-50 border border-slate-300 p-2.5 mb-3 outline-none focus:border-blue-600 font-mono text-sm rounded-sm">
+            <input type="password" id="adminPass" placeholder="Password" class="w-full bg-slate-50 border border-slate-300 p-2.5 mb-5 outline-none focus:border-blue-600 font-mono text-sm rounded-sm">
+            <button onclick="verifyLogin()" id="loginBtn" class="w-full bg-slate-800 text-white font-bold p-2.5 hover:bg-slate-900 transition text-sm uppercase rounded-sm">
+                Accedi al Sistema
             </button>
         </div>
     </div>
 
-    <div id="authScreen" class="fixed inset-0 top-16 bg-slate-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white p-8 rounded-2xl w-full max-w-sm border border-slate-200 shadow-xl text-center">
-            <i class="fa-brands fa-dropbox text-5xl text-blue-500 mb-4"></i>
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">Database</h2>
-            <p class="text-slate-500 mb-6 text-sm">Autorizza l'accesso per gestire i dati.</p>
-            <button onclick="loginDropbox()" id="dbBtn" class="w-full bg-blue-600 text-white font-bold p-4 rounded-xl hover:bg-blue-700 transition">
-                Connetti Server Dropbox
+    <div id="authScreen" class="fixed inset-0 top-12 bg-slate-200 z-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 w-full max-w-sm border border-slate-300 shadow-lg rounded-sm text-center">
+            <i class="fa-solid fa-database text-4xl text-slate-400 mb-4"></i>
+            <h2 class="text-lg font-bold text-slate-700 uppercase mb-2">Connessione Node</h2>
+            <p class="text-slate-500 mb-6 text-xs">Richiesta autorizzazione OAuth2 per l'accesso ai dati persistenti.</p>
+            <button onclick="loginDropbox()" id="dbBtn" class="w-full bg-blue-600 text-white font-bold p-2.5 hover:bg-blue-700 transition text-sm uppercase rounded-sm">
+                Inizializza Database
             </button>
         </div>
     </div>
 
-    <div id="dashboardScreen" class="flex-1 flex hidden">
-        <main class="flex-1 p-8 max-w-6xl mx-auto w-full">
-            <div class="flex justify-between items-end mb-8 border-b border-slate-200 pb-4">
-                <div>
-                    <h2 class="text-3xl font-black text-slate-800 tracking-tight">Inventario Articoli</h2>
-                    <p class="text-slate-500 font-medium mt-1">Gestione anagrafiche e giacenze in tempo reale.</p>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="loadData()" class="bg-white border border-slate-300 text-slate-700 font-bold py-3 px-5 rounded-xl hover:bg-slate-50 transition shadow-sm">
-                        <i class="fa-solid fa-rotate mr-2"></i> Ricarica
-                    </button>
-                    <button onclick="openItemModal()" class="bg-blue-600 text-white font-bold py-3 px-5 rounded-xl hover:bg-blue-700 transition shadow-md">
-                        <i class="fa-solid fa-plus mr-2"></i> Nuovo Articolo
-                    </button>
+    <div id="dashboardScreen" class="flex-1 flex flex-col hidden bg-slate-100">
+        
+        <div class="bg-white border-b border-slate-300 px-6 py-3 flex justify-between items-center shadow-sm">
+            <div class="flex items-center gap-6">
+                <h2 class="text-lg font-bold text-slate-800 uppercase tracking-tight">Anagrafica & Giacenze</h2>
+                <div class="h-6 w-px bg-slate-300"></div>
+                <div class="flex gap-4 text-sm font-medium">
+                    <span class="text-slate-500">Totale Articoli: <span id="statTotalItems" class="font-bold text-slate-800 font-mono">0</span></span>
                 </div>
             </div>
+            <div class="flex gap-2">
+                <button onclick="loadData()" class="bg-white border border-slate-300 text-slate-700 font-bold py-1.5 px-4 rounded-sm hover:bg-slate-50 transition text-xs uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+                <button onclick="openItemModal()" class="bg-blue-600 border border-blue-700 text-white font-bold py-1.5 px-4 rounded-sm hover:bg-blue-700 transition text-xs uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Nuovo Articolo
+                </button>
+            </div>
+        </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <main class="flex-1 p-6 overflow-auto">
+            <div class="bg-white border border-slate-300 shadow-sm rounded-sm">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
-                            <th class="p-4 font-bold w-1/4">Codice a Barre</th>
-                            <th class="p-4 font-bold w-2/4">Descrizione Articolo</th>
-                            <th class="p-4 font-bold text-center w-32">Giacenza</th>
-                            <th class="p-4 font-bold text-right">Amministrazione</th>
+                        <tr>
+                            <th class="w-48">Codice / SKU</th>
+                            <th>Descrizione Articolo</th>
+                            <th class="w-48">Categoria</th>
+                            <th class="w-24 text-right">Giacenza</th>
+                            <th class="w-32 text-center">Stato</th>
+                            <th class="w-24 text-center">Azioni</th>
                         </tr>
                     </thead>
-                    <tbody id="inventoryTableBody" class="divide-y divide-slate-100"></tbody>
+                    <tbody id="inventoryTableBody" class="divide-y divide-slate-200"></tbody>
                 </table>
-                <div id="emptyState" class="hidden p-16 text-center text-slate-400">
-                    <i class="fa-solid fa-boxes-stacked text-5xl mb-4 opacity-50"></i>
-                    <p class="font-medium">Nessun articolo a sistema.</p>
+                <div id="emptyState" class="hidden p-12 text-center text-slate-400 bg-slate-50">
+                    <i class="fa-solid fa-inbox text-4xl mb-3 opacity-50"></i>
+                    <p class="text-sm uppercase tracking-wider font-bold">Nessun record trovato</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="itemModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform" id="itemModalContent">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h3 class="text-xl font-bold text-slate-800" id="itemModalTitle">Articolo</h3>
-                <button onclick="closeModal('itemModal', 'itemModalContent')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-xl"></i></button>
+    <div id="itemModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg border border-slate-300 shadow-2xl rounded-sm transform scale-95 transition-transform" id="itemModalContent">
+            <div class="p-4 border-b border-slate-200 bg-slate-100 flex justify-between items-center">
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider" id="itemModalTitle">Gestione Anagrafica</h3>
+                <button onclick="closeModal('itemModal', 'itemModalContent')" class="text-slate-400 hover:text-slate-800"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="p-6">
+            <div class="p-6 flex flex-col gap-4">
                 <input type="hidden" id="editOriginalBarcode">
-                <div class="mb-4">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Codice Seriale (Barcode)</label>
-                    <input type="text" id="itemBarcode" placeholder="ABC-1234" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-blue-500 outline-none font-mono uppercase font-bold text-lg text-slate-800">
-                    <p class="text-xs text-rose-500 mt-1 hidden" id="barcodeWarning">Attenzione: Modificando il barcode, lo storico verrà aggiornato automaticamente.</p>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Codice Identificativo (SKU)*</label>
+                        <input type="text" id="itemBarcode" class="w-full bg-white border border-slate-300 p-2 focus:border-blue-500 outline-none font-mono uppercase text-sm rounded-sm">
+                        <p class="text-[10px] text-rose-500 mt-1 hidden font-bold" id="barcodeWarning">⚠ Modifica a cascata abilitata.</p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Categoria Merceologica</label>
+                        <input type="text" id="itemCategory" placeholder="Es. Elettronica, Ferramenta" class="w-full bg-white border border-slate-300 p-2 focus:border-blue-500 outline-none text-sm rounded-sm">
+                    </div>
                 </div>
-                <div class="mb-8">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Descrizione</label>
-                    <input type="text" id="itemName" placeholder="Es. Laptop Dell" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-blue-500 outline-none text-slate-800 font-medium">
+                
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nome Articolo*</label>
+                    <input type="text" id="itemName" class="w-full bg-white border border-slate-300 p-2 focus:border-blue-500 outline-none text-sm font-bold rounded-sm">
                 </div>
-                <div class="flex justify-end gap-3">
-                    <button onclick="closeModal('itemModal', 'itemModalContent')" class="px-6 py-3 rounded-xl text-slate-600 font-bold hover:bg-slate-100 transition">Annulla</button>
-                    <button onclick="saveItem()" id="saveItemBtn" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-md">Salva Dati</button>
+                
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Descrizione Dettagliata (Opzionale)</label>
+                    <textarea id="itemDesc" rows="2" class="w-full bg-white border border-slate-300 p-2 focus:border-blue-500 outline-none text-sm rounded-sm resize-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-100">
+                    <button onclick="closeModal('itemModal', 'itemModalContent')" class="px-4 py-2 border border-slate-300 text-slate-600 text-xs font-bold uppercase hover:bg-slate-50 rounded-sm">Annulla</button>
+                    <button onclick="saveItem()" id="saveItemBtn" class="px-4 py-2 bg-blue-600 text-white border border-blue-700 text-xs font-bold uppercase hover:bg-blue-700 rounded-sm">Salva Dati</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="historyModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform" id="historyModalContent">
+    <div id="historyModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/40 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-4xl h-[85vh] flex flex-col border border-slate-300 shadow-2xl rounded-sm transform scale-95 transition-transform" id="historyModalContent">
             
-            <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-start">
-                <div>
-                    <h3 class="text-xl font-black text-slate-800 font-mono" id="historyBarcode">ABC-123</h3>
-                    <p class="text-sm font-medium text-slate-500" id="historyName">Descrizione Articolo</p>
-                </div>
+            <div class="p-4 border-b border-slate-300 bg-slate-800 text-white flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <div id="historyCurrentStock" class="px-4 py-2 rounded-xl font-bold text-sm"></div>
-                    <button onclick="closeModal('historyModal', 'historyModalContent')" class="text-slate-400 hover:text-slate-700 bg-white border border-slate-200 w-10 h-10 rounded-full flex items-center justify-center shadow-sm"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-
-            <div class="p-4 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
-                <p class="text-xs font-bold text-blue-800 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-bolt text-blue-500"></i> Azioni Amministratore (Forzatura Stato)
-                </p>
-                <div class="flex gap-2">
-                    <button onclick="forceMovement('IN')" class="bg-white border border-emerald-300 text-emerald-700 font-bold px-4 py-2 rounded-lg hover:bg-emerald-50 active:scale-95 transition text-sm shadow-sm">
-                        <i class="fa-solid fa-box-open mr-1"></i> Forza IN
-                    </button>
-                    <button onclick="forceMovement('OUT')" class="bg-white border border-rose-300 text-rose-700 font-bold px-4 py-2 rounded-lg hover:bg-rose-50 active:scale-95 transition text-sm shadow-sm">
-                        <i class="fa-solid fa-dolly mr-1"></i> Forza OUT
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex-1 overflow-y-auto p-6 relative bg-slate-50" id="historyTimeline">
-                <div class="timeline-line"></div>
-                <div id="timelineContainer" class="flex flex-col gap-4">
+                    <i class="fa-solid fa-file-invoice text-2xl text-slate-400"></i>
+                    <div>
+                        <h3 class="text-lg font-black font-mono tracking-wider" id="historyBarcode">SKU</h3>
+                        <p class="text-xs font-medium text-slate-400" id="historyName">Descrizione</p>
                     </div>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="text-right">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Giacenza Calcolata</p>
+                        <p class="text-2xl font-mono font-bold text-emerald-400" id="historyCurrentStock">0</p>
+                    </div>
+                    <div class="h-8 w-px bg-slate-600"></div>
+                    <button onclick="closeModal('historyModal', 'historyModalContent')" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-100 border-b border-slate-300 flex items-end gap-3">
+                <div class="w-32">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Operazione</label>
+                    <select id="forceType" class="w-full border border-slate-300 p-1.5 text-sm rounded-sm">
+                        <option value="IN">STOCK (Ingresso)</option>
+                        <option value="OUT">PICK (Uscita)</option>
+                    </select>
+                </div>
+                <div class="w-24">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Quantità</label>
+                    <input type="number" id="forceQty" value="1" min="1" class="w-full border border-slate-300 p-1.5 text-sm rounded-sm text-right font-mono">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Magazzino / Ubicazione</label>
+                    <input type="text" id="forceLocation" placeholder="Es. Mag. Principale - Corsia A" class="w-full border border-slate-300 p-1.5 text-sm rounded-sm">
+                </div>
+                <button onclick="forceMovement()" class="bg-slate-800 text-white px-4 py-1.5 border border-slate-900 font-bold text-xs uppercase rounded-sm hover:bg-slate-700">
+                    Esegui Transazione
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 bg-white">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="w-32">Data / Ora</th>
+                            <th class="w-24 text-center">Tipo</th>
+                            <th class="w-24 text-right">Q.tà</th>
+                            <th>Ubicazione / Note</th>
+                            <th class="w-32">Operatore</th>
+                            <th class="w-16 text-center">Del</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timelineContainer" class="divide-y divide-slate-100 font-mono text-xs">
+                        </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -162,12 +220,12 @@
     
     let isAdminUnlocked = localStorage.getItem("wms_admin_unlocked") === "true";
     let accessToken = localStorage.getItem("wms_admin_db_token");
-    let refreshToken = localStorage.getItem("wms_admin_refresh_token"); // Nuova chiave Master
+    let refreshToken = localStorage.getItem("wms_admin_refresh_token");
     
     let inventario = [];
     let movimenti = [];
     let currentHistoryBarcode = null;
-    let autoRefreshTimer = null; // Timer per il background polling
+    let autoRefreshTimer = null;
 
     document.addEventListener('DOMContentLoaded', () => { handleRedirect(); checkAppStatus(); });
 
@@ -179,7 +237,7 @@
             showScreen('dashboardScreen'); 
             document.getElementById('syncStatus').classList.remove('hidden'); 
             loadData(); 
-            startAutoRefresh(); // Avvia il timer appena sbloccato
+            startAutoRefresh();
         }
     }
     
@@ -187,195 +245,156 @@
 
     function startAutoRefresh() {
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-        // Ogni 15 secondi aggiorna in modo "silenzioso"
         autoRefreshTimer = setInterval(() => {
-            // Ricarica SOLO se non ci sono finestre modali aperte (per non disturbare chi scrive)
-            if (!document.body.classList.contains('modal-active')) {
-                loadData(true); 
-            }
+            if (!document.body.classList.contains('modal-active')) loadData(true); 
         }, 15000); 
     }
 
-    // ================= AUTH & REFRESH TOKEN =================
+    // ================= AUTH =================
     async function verifyLogin() {
         const user = document.getElementById('adminUser').value.trim(); const pass = document.getElementById('adminPass').value.trim(); const btn = document.getElementById('loginBtn');
-        if(!user || !pass) return; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true;
+        if(!user || !pass) return; btn.innerText = 'VERIFICA...'; btn.disabled = true;
         try {
             const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user, pass }) });
             if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Credenziali Errate!");
-        } catch (e) { alert("Errore di rete."); } finally { btn.innerHTML = 'Accedi al Pannello'; btn.disabled = false; }
+        } catch (e) { alert("Errore di rete."); } finally { btn.innerText = 'ACCEDI AL SISTEMA'; btn.disabled = false; }
     }
 
     async function loginDropbox() {
-        document.getElementById('dbBtn').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Attendere...';
+        document.getElementById('dbBtn').innerText = 'ATTENDERE...';
         try {
-            // Chiede il link per autorizzazione OFFLINE (genera il code, non il token)
             const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) });
             const data = await res.json(); if (data.success && data.url) window.location.href = data.url;
-        } catch (e) { alert("Errore API Dropbox"); document.getElementById('dbBtn').innerHTML = 'Connetti Server Dropbox'; }
+        } catch (e) { alert("Errore API Dropbox"); document.getElementById('dbBtn').innerText = 'INIZIALIZZA DATABASE'; }
     }
 
     async function handleRedirect() {
-        // Cerca il parametro ?code= invece di #access_token=
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get("code");
+        const params = new URLSearchParams(window.location.search); const code = params.get("code");
         if (code) {
-            window.history.replaceState({}, document.title, window.location.pathname); // Pulisce l'URL visivo
+            window.history.replaceState({}, document.title, window.location.pathname); 
             document.getElementById('authScreen').classList.remove('hidden'); 
-            document.getElementById('dbBtn').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generazione chiavi...';
-            
+            document.getElementById('dbBtn').innerText = 'GENERAZIONE CHIAVI...';
             try {
-                // Scambia il codice per Access Token e Refresh Token
                 const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) });
                 const data = await res.json();
                 if(data.success) {
-                    accessToken = data.access_token; 
-                    refreshToken = data.refresh_token;
-                    localStorage.setItem("wms_admin_db_token", accessToken); 
-                    localStorage.setItem("wms_admin_refresh_token", refreshToken);
+                    accessToken = data.access_token; refreshToken = data.refresh_token;
+                    localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken);
                     checkAppStatus();
-                } else alert("Errore di generazione chiavi.");
+                } else alert("Errore generazione chiavi.");
             } catch(e) { alert("Errore di rete nello scambio codice."); }
         }
     }
 
-    // ================= MOTORE API UNIFICATO =================
-    // Questa funzione centralizza tutte le chiamate, intercetta le scadenze e rinnova i token da sola
     async function apiCall(actionName, payload = {}) {
         let fetchOptions = { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` }, body: JSON.stringify({ action: actionName, ...payload }) };
         let res = await fetch(WORKER_URL, fetchOptions);
         let data = await res.json();
 
         if (!res.ok && data.error === "EXPIRED_TOKEN" && refreshToken) {
-            console.log("Token scaduto. Eseguo rinnovo automatico...");
-            document.getElementById('lastSyncTime').innerText = "Rinnovo in corso...";
-            
             const refreshRes = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "refreshToken", refresh_token: refreshToken }) });
             const refreshData = await refreshRes.json();
-            
             if (refreshData.success) {
-                accessToken = refreshData.access_token; 
-                localStorage.setItem("wms_admin_db_token", accessToken);
-                // Ritenta la chiamata originale con il token nuovo
+                accessToken = refreshData.access_token; localStorage.setItem("wms_admin_db_token", accessToken);
                 fetchOptions.headers["Authorization"] = `Bearer ${accessToken}`;
-                res = await fetch(WORKER_URL, fetchOptions);
-                data = await res.json();
-            } else {
-                hardLogout(); throw new Error("Sessione scaduta irrimediabilmente. Rifare login.");
-            }
+                res = await fetch(WORKER_URL, fetchOptions); data = await res.json();
+            } else { hardLogout(); throw new Error("Sessione scaduta."); }
         }
-        
-        if (!res.ok) throw new Error(data.error || "Errore sconosciuto dal server.");
-        return data;
+        if (!res.ok) throw new Error(data.error || "Errore API."); return data;
     }
 
-    // ================= DATI & UI =================
+    // ================= LOGICA QUANTITÁ (LEDGER) =================
+    // Questa è la nuova formula matematica. Legge lo storico e somma IN, sottrae OUT.
+    function getStock(barcode) {
+        const itemMoves = movimenti.filter(m => m.barcode === barcode);
+        let total = 0;
+        itemMoves.forEach(m => {
+            // Retrocompatibilità: se non c'è qty nei vecchi json, assume 1
+            const q = parseInt(m.qty) || 1; 
+            if (m.type === 'IN' || m.type === 'STOCK') total += q;
+            if (m.type === 'OUT' || m.type === 'PICK') total -= q;
+        });
+        return total;
+    }
+
+    // ================= DATI & UI DASHBOARD =================
     async function loadData(isSilent = false) {
         const statusBadge = document.getElementById('liveConnectionStatus');
+        const timeBadge = document.getElementById('lastSyncTime');
         
-        // 1. STATO: Sincronizzazione in corso (Pulsante Blu)
         if (statusBadge) {
-            statusBadge.className = "flex items-center text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200 transition-all duration-300";
-            statusBadge.innerHTML = `
-                <span class="relative flex h-3 w-3 mr-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
-                </span>
-                Sincronizzazione...
-            `;
+            statusBadge.className = "ml-6 flex items-center text-[10px] font-bold text-blue-400 bg-blue-900/50 px-2 py-1 rounded border border-blue-700 transition-all duration-300";
+            statusBadge.innerHTML = `<span class="relative flex h-2 w-2 mr-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span></span> SYNC...`;
         }
         
         try {
             const data = await apiCall("getDashboardData");
-            inventario = data.inventario || []; 
-            movimenti = data.movimenti || []; 
+            inventario = data.inventario || []; movimenti = data.movimenti || []; 
             renderTable();
             
-            // 2. STATO: Connesso e Aggiornato (Verde brillante)
             if (statusBadge) {
-                statusBadge.className = "flex items-center text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 transition-all duration-300 shadow-sm";
-                statusBadge.innerHTML = `
-                    <span class="relative flex h-3 w-3 mr-2">
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]"></span>
-                    </span>
-                    Live / Connesso
-                `;
+                statusBadge.className = "ml-6 flex items-center text-[10px] font-bold text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded border border-emerald-700 transition-all duration-300 shadow-[0_0_8px_rgba(16,185,129,0.2)]";
+                statusBadge.innerHTML = `<span class="relative flex h-2 w-2 mr-2"><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span> ONLINE`;
             }
-            
-            // Aggiorna anche l'orario se hai mantenuto il vecchio testo da qualche parte
-            const btn = document.getElementById('lastSyncTime'); 
-            if (btn) {
-                const now = new Date(); 
-                btn.innerText = `Ultimo Sync: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-            }
+            if(timeBadge) { const d = new Date(); timeBadge.innerText = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`; }
+            document.getElementById('statTotalItems').innerText = inventario.length;
 
         } catch (e) { 
-            // 3. STATO: Errore o Disconnesso (Rosso allarme)
             if (statusBadge) {
-                statusBadge.className = "flex items-center text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-full border border-rose-200 transition-all duration-300 animate-pulse";
-                statusBadge.innerHTML = `
-                    <span class="relative flex h-3 w-3 mr-2">
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
-                    </span>
-                    Disconnesso
-                `;
+                statusBadge.className = "ml-6 flex items-center text-[10px] font-bold text-rose-400 bg-rose-900/50 px-2 py-1 rounded border border-rose-700 transition-all duration-300 animate-pulse";
+                statusBadge.innerHTML = `<span class="relative flex h-2 w-2 mr-2"><span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span></span> ERROR`;
             }
-            if(e.message !== "Sessione scaduta irrimediabilmente. Rifare login." && !isSilent) console.error(`Errore: ${e.message}`); 
         }
     }
 
     async function syncDataToServer(payload, btnObj = null, modalId = null, contentId = null) {
         try {
             await apiCall("saveAdminData", payload);
-            renderTable();
-            if(modalId) closeModal(modalId, contentId);
+            renderTable(); if(modalId) closeModal(modalId, contentId);
         } catch (e) { alert(`Operazione fallita:\n${e.message}`); }
-        if(btnObj) { btnObj.innerHTML = 'Salva Dati'; btnObj.disabled = false; }
-    }
-
-    function getStock(barcode) {
-        const itemMoves = movimenti.filter(m => m.barcode === barcode);
-        if (itemMoves.length === 0) return { val: 0, status: 'none' };
-        const lastMove = itemMoves[itemMoves.length - 1];
-        return { val: lastMove.type === 'IN' ? 1 : 0, status: lastMove.type };
+        if(btnObj) { btnObj.innerText = 'SALVA DATI'; btnObj.disabled = false; }
     }
 
     function renderTable() {
         const tbody = document.getElementById('inventoryTableBody');
         document.getElementById('emptyState').classList.toggle('hidden', inventario.length > 0);
+        
         tbody.innerHTML = inventario.map(item => {
-            const stock = getStock(item.barcode);
-            const badge = stock.val === 1 
-                ? `<div class="bg-emerald-100 text-emerald-700 border border-emerald-300 px-3 py-1.5 rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-box"></i> IN MAGAZZINO</div>`
-                : `<div class="bg-slate-100 text-slate-500 border border-slate-200 px-3 py-1.5 rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-dolly"></i> FUORI / SPEDITO</div>`;
+            const qty = getStock(item.barcode);
+            const statusBadge = qty > 0 
+                ? `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-1 text-[10px] font-bold uppercase rounded-sm">Disponibile</span>`
+                : `<span class="bg-rose-100 text-rose-800 border border-rose-300 px-2 py-1 text-[10px] font-bold uppercase rounded-sm">Esaurito</span>`;
             
             return `
-            <tr class="hover:bg-slate-50 transition group cursor-pointer" onclick="openHistoryModal('${item.barcode}')">
-                <td class="p-4 border-b border-slate-100 font-mono font-bold text-slate-800 text-lg">${item.barcode}</td>
-                <td class="p-4 border-b border-slate-100 font-medium text-slate-600">${item.name}</td>
-                <td class="p-4 border-b border-slate-100">${badge}</td>
-                <td class="p-4 border-b border-slate-100 text-right">
-                    <button onclick="event.stopPropagation(); openItemModal('${item.barcode}')" class="text-slate-400 hover:text-blue-600 bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm mx-1 transition"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="event.stopPropagation(); deleteItem('${item.barcode}')" class="text-slate-400 hover:text-rose-600 bg-white border border-slate-200 p-2.5 rounded-lg shadow-sm mx-1 transition"><i class="fa-solid fa-trash"></i></button>
+            <tr class="cursor-pointer" onclick="openHistoryModal('${item.barcode}')">
+                <td class="font-mono font-bold text-blue-700 text-sm">${item.barcode}</td>
+                <td class="font-bold text-slate-800 text-sm">${item.name}</td>
+                <td class="text-slate-500 text-xs">${item.category || '-'}</td>
+                <td class="font-mono font-bold text-lg text-right ${qty>0 ? 'text-slate-800' : 'text-rose-600'}">${qty}</td>
+                <td class="text-center">${statusBadge}</td>
+                <td class="text-center">
+                    <button onclick="event.stopPropagation(); openItemModal('${item.barcode}')" class="text-slate-400 hover:text-blue-600 mx-1 transition p-1"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="event.stopPropagation(); deleteItem('${item.barcode}')" class="text-slate-400 hover:text-rose-600 mx-1 transition p-1"><i class="fa-solid fa-trash"></i></button>
                 </td>
             </tr>`;
         }).join('');
     }
 
-    // ================= MODALI E SALVATAGGIO (CRUD + CASCADE) =================
+    // ================= ANAGRAFICA (CRUD) =================
     function openItemModal(barcode = null) {
-        document.getElementById('itemBarcode').value = ''; document.getElementById('itemName').value = ''; document.getElementById('editOriginalBarcode').value = '';
-        document.getElementById('itemModalTitle').innerText = 'Nuovo Articolo'; document.getElementById('barcodeWarning').classList.add('hidden');
+        document.getElementById('itemBarcode').value = ''; document.getElementById('itemName').value = ''; 
+        document.getElementById('itemCategory').value = ''; document.getElementById('itemDesc').value = '';
+        document.getElementById('editOriginalBarcode').value = '';
+        document.getElementById('itemModalTitle').innerText = 'NUOVA ANAGRAFICA'; 
+        document.getElementById('barcodeWarning').classList.add('hidden');
         
         if (barcode) {
             const item = inventario.find(i => i.barcode === barcode);
             if(item) {
                 document.getElementById('itemBarcode').value = item.barcode; document.getElementById('itemName').value = item.name;
-                document.getElementById('editOriginalBarcode').value = item.barcode; document.getElementById('itemModalTitle').innerText = 'Modifica Anagrafica';
-                
-                document.getElementById('itemBarcode').oninput = (e) => {
-                    document.getElementById('barcodeWarning').classList.toggle('hidden', e.target.value.trim().toUpperCase() === item.barcode);
-                };
+                document.getElementById('itemCategory').value = item.category || ''; document.getElementById('itemDesc').value = item.description || '';
+                document.getElementById('editOriginalBarcode').value = item.barcode; document.getElementById('itemModalTitle').innerText = 'MODIFICA ANAGRAFICA';
+                document.getElementById('itemBarcode').oninput = (e) => { document.getElementById('barcodeWarning').classList.toggle('hidden', e.target.value.trim().toUpperCase() === item.barcode); };
             }
         }
         openModal('itemModal', 'itemModalContent');
@@ -384,46 +403,50 @@
     async function saveItem() {
         const bcode = document.getElementById('itemBarcode').value.trim().toUpperCase();
         const name = document.getElementById('itemName').value.trim();
+        const category = document.getElementById('itemCategory').value.trim();
+        const desc = document.getElementById('itemDesc').value.trim();
         const originalBcode = document.getElementById('editOriginalBarcode').value;
         const btn = document.getElementById('saveItemBtn');
 
-        if (!bcode || !name) return alert("Inserisci Barcode e Nome.");
-        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Barcode già esistente!");
+        if (!bcode || !name) return alert("SKU e Nome sono obbligatori.");
+        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("SKU già a sistema!");
 
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; btn.disabled = true;
-
+        btn.innerText = 'SALVATAGGIO...'; btn.disabled = true;
         let updatedMovimenti = false;
         
+        const newItemData = { barcode: bcode, name: name, category: category, description: desc };
+
         if (originalBcode) {
             const idx = inventario.findIndex(i => i.barcode === originalBcode);
-            if (idx > -1) inventario[idx] = { barcode: bcode, name: name };
-            
+            if (idx > -1) inventario[idx] = newItemData;
+            // Modifica a cascata dello storico
             if (originalBcode !== bcode) {
                 movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; });
                 updatedMovimenti = true;
             }
-        } else {
-            inventario.push({ barcode: bcode, name: name });
-        }
+        } else { inventario.push(newItemData); }
 
         const payload = { inventario: inventario };
         if (updatedMovimenti) payload.movimenti = movimenti;
-
         await syncDataToServer(payload, btn, 'itemModal', 'itemModalContent');
     }
 
     async function deleteItem(barcode) {
-        if (!confirm(`Vuoi eliminare ${barcode} dall'anagrafica?\nLo storico movimenti non verrà toccato.`)) return;
+        if (!confirm(`ATTENZIONE:\nVuoi eliminare l'anagrafica ${barcode}?\nLo storico movimenti rimarrà integro ma l'oggetto non sarà più scansionabile.`)) return;
         inventario = inventario.filter(i => i.barcode !== barcode);
         await syncDataToServer({ inventario: inventario });
     }
 
-    // ================= CARTELLA CLINICA E FORZATURE =================
+    // ================= ESTRATTO CONTO / REGISTRO =================
     function openHistoryModal(barcode) {
         currentHistoryBarcode = barcode;
         const item = inventario.find(i => i.barcode === barcode);
         document.getElementById('historyBarcode').innerText = barcode;
-        document.getElementById('historyName').innerText = item ? item.name : "Sconosciuto";
+        document.getElementById('historyName').innerText = item ? item.name : "N/D";
+        
+        // Reset campi form
+        document.getElementById('forceQty').value = "1";
+        document.getElementById('forceLocation').value = "";
         
         renderHistoryTimeline();
         openModal('historyModal', 'historyModalContent');
@@ -433,55 +456,72 @@
         const container = document.getElementById('timelineContainer');
         const itemMoves = movimenti.filter(m => m.barcode === currentHistoryBarcode);
         
-        const stock = getStock(currentHistoryBarcode);
-        const badge = document.getElementById('historyCurrentStock');
-        if(stock.val === 1) { badge.className = "px-4 py-2 rounded-xl font-bold text-sm bg-emerald-100 text-emerald-800"; badge.innerText = "Stato Attuale: IN"; }
-        else { badge.className = "px-4 py-2 rounded-xl font-bold text-sm bg-slate-100 text-slate-600 border border-slate-200"; badge.innerText = "Stato Attuale: OUT"; }
+        // Calcolo giacenza e aggiornamento header
+        const currentQty = getStock(currentHistoryBarcode);
+        document.getElementById('historyCurrentStock').innerText = currentQty;
+        document.getElementById('historyCurrentStock').className = `text-3xl font-mono font-black ${currentQty > 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
         if (itemMoves.length === 0) {
-            container.innerHTML = `<div class="pl-8 py-4 text-slate-400 font-medium">Nessun movimento registrato.</div>`; return;
+            container.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Nessuna transazione registrata per questo SKU.</td></tr>`; return;
         }
 
         const reversedMoves = [...itemMoves].reverse();
         
-        container.innerHTML = reversedMoves.map((m, index) => {
-            const isIN = m.type === 'IN';
-            const color = isIN ? 'emerald' : 'rose';
-            const icon = isIN ? 'fa-box-open' : 'fa-dolly';
-            const date = new Date(m.timestamp);
-            const timeStr = `${date.toLocaleDateString('it-IT')} - ${date.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'})}`;
-            const opLabel = m.operatore === 'ADMIN' ? `<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ml-2">Forzatura Admin</span>` : `<span class="text-slate-500 text-xs ml-2"><i class="fa-solid fa-mobile-screen-button"></i> Mobile</span>`;
+        container.innerHTML = reversedMoves.map(m => {
+            const isIN = m.type === 'IN' || m.type === 'STOCK';
+            const typeLabel = isIN 
+                ? `<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 border border-emerald-200 rounded-sm">STOCK IN</span>` 
+                : `<span class="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 border border-rose-200 rounded-sm">PICK OUT</span>`;
+            
+            const q = m.qty || 1; // Fallback per vecchi record
+            const loc = m.location || "-";
+            const d = new Date(m.timestamp);
+            const timeStr = `${d.toLocaleDateString('it-IT')} <span class="text-slate-400 ml-1">${d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'})}</span>`;
 
             return `
-            <div class="relative pl-10 flex items-center justify-between group">
-                <div class="absolute left-[9px] top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-${color}-500 border-2 border-white shadow z-10"></div>
-                <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex-1 flex flex-col hover:border-${color}-300 transition">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="font-black text-${color}-600 text-sm"><i class="fa-solid ${icon}"></i> ${m.type}</span>
-                        ${opLabel}
-                    </div>
-                    <span class="text-slate-500 text-xs font-medium">${timeStr}</span>
-                </div>
-                <button onclick="deleteMovement('${m.id}')" class="ml-4 text-slate-300 hover:text-rose-500 transition opacity-0 group-hover:opacity-100" title="Elimina Movimento"><i class="fa-solid fa-trash"></i></button>
-            </div>`;
+            <tr class="hover:bg-blue-50/50">
+                <td class="p-3 border-b border-slate-200">${timeStr}</td>
+                <td class="p-3 border-b border-slate-200 text-center">${typeLabel}</td>
+                <td class="p-3 border-b border-slate-200 text-right font-bold text-sm ${isIN ? 'text-emerald-600' : 'text-rose-600'}">${isIN ? '+' : '-'}${q}</td>
+                <td class="p-3 border-b border-slate-200 text-slate-600">${loc}</td>
+                <td class="p-3 border-b border-slate-200 text-slate-500">${m.operatore}</td>
+                <td class="p-3 border-b border-slate-200 text-center">
+                    <button onclick="deleteMovement('${m.id}')" class="text-slate-300 hover:text-rose-600 transition" title="Annulla Transazione"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>`;
         }).join('');
     }
 
-    async function forceMovement(type) {
-        const stock = getStock(currentHistoryBarcode);
-        if (stock.status === type) return alert(`L'oggetto è già ${type}! Non è necessario forzare.`);
+    async function forceMovement() {
+        const type = document.getElementById('forceType').value;
+        const qty = parseInt(document.getElementById('forceQty').value);
+        const loc = document.getElementById('forceLocation').value.trim();
+
+        if (isNaN(qty) || qty <= 0) return alert("La quantità deve essere un numero maggiore di zero.");
         
-        if(!confirm(`Forzare lo stato a ${type}? Questa azione sovrascrive i controlli.`)) return;
+        // Controllo "Giacenza Insufficiente" (Anti-Negativo)
+        if (type === 'OUT') {
+            const currentQty = getStock(currentHistoryBarcode);
+            if (qty > currentQty) return alert(`ERRORE: Giacenza insufficiente.\nStai cercando di prelevare ${qty} ma la giacenza attuale è ${currentQty}.`);
+        }
+
+        const newMove = { 
+            id: Date.now().toString(), 
+            barcode: currentHistoryBarcode, 
+            type: type, 
+            qty: qty, 
+            location: loc,
+            timestamp: new Date().toISOString(), 
+            operatore: "ADMIN" 
+        };
         
-        const newMove = { id: Date.now().toString(), barcode: currentHistoryBarcode, type: type, timestamp: new Date().toISOString(), operatore: "ADMIN" };
         movimenti.push(newMove);
-        
         await syncDataToServer({ movimenti: movimenti });
-        renderHistoryTimeline();
+        renderHistoryTimeline(); // Aggiorna in tempo reale senza chiudere il popup
     }
 
     async function deleteMovement(id) {
-        if(!confirm("Eliminare questa operazione dai log storici?")) return;
+        if(!confirm("CANCELLAZIONE TRANSZAIZONE\n\nAttenzione: eliminando questo movimento modificherai retroattivamente il calcolo della giacenza. Procedere?")) return;
         movimenti = movimenti.filter(m => m.id !== id);
         await syncDataToServer({ movimenti: movimenti });
         renderHistoryTimeline();
@@ -490,16 +530,8 @@
     // ================= UTILITY DI SISTEMA =================
     function openModal(modalId, contentId) { document.getElementById(modalId).classList.remove('opacity-0', 'pointer-events-none'); document.getElementById(contentId).classList.remove('scale-95'); document.body.classList.add('modal-active'); }
     function closeModal(modalId, contentId) { document.getElementById(modalId).classList.add('opacity-0', 'pointer-events-none'); document.getElementById(contentId).classList.add('scale-95'); document.body.classList.remove('modal-active'); }
-    
-    function hardLogout() { 
-        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-        localStorage.clear(); 
-        window.location.reload(); 
-    }
+    function hardLogout() { if (autoRefreshTimer) clearInterval(autoRefreshTimer); localStorage.clear(); window.location.reload(); }
 </script>
-
-
-    
 </body>
 </html>
 
