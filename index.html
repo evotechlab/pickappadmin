@@ -13,26 +13,26 @@
            ======================================================== */
         
         :root {
-            --sys-bg: #f0f0f0;          /* Sfondo classico finestra */
-            --sys-panel: #ffffff;       /* Sfondo liste/tabelle */
-            --sys-border: #8f8f8f;      /* Bordi netti finestre */
+            --sys-bg: #f0f0f0;          
+            --sys-panel: #ffffff;       
+            --sys-border: #8f8f8f;      
             --sys-border-light: #cccccc; 
-            --sys-highlight: #0078d7;   /* Colore selezione standard Windows */
+            --sys-highlight: #0078d7;   
             --sys-text: #000000;
         }
 
-        /* 1. Comportamento NATIVO: Via gli effetti Web */
+        /* Comportamento NATIVO: Via gli effetti Web */
         * {
             box-sizing: border-box;
-            border-radius: 0 !important;   /* Zero spigoli arrotondati */
-            box-shadow: none !important;   /* Zero ombreggiature */
-            transition: none !important;   /* Zero animazioni. Scatti istantanei. */
-            user-select: none;             /* Disabilita l'evidenziazione blu accidentale del testo */
-            cursor: default;               /* Il cursore rimane freccia */
+            border-radius: 0 !important;   
+            box-shadow: none !important;   
+            transition: none !important;   
+            user-select: none;             
+            cursor: default;               
         }
 
         input, select, textarea { 
-            user-select: text;             /* Riabilita la selezione solo dentro le caselle di testo */
+            user-select: text;             
             cursor: text;
         }
 
@@ -45,11 +45,11 @@
             overflow: hidden;
         }
 
-        /* 2. Bottoni e Input OS */
+        /* Bottoni e Input OS */
         .win-input {
             width: 100%;
             border: 1px solid var(--sys-border);
-            border-top-color: #666; /* Micro-effetto Inset nativo */
+            border-top-color: #666; 
             border-left-color: #666;
             background-color: #ffffff;
             padding: 3px 6px;
@@ -66,7 +66,7 @@
         .win-btn {
             background-color: #e1e1e1;
             border: 1px solid var(--sys-border);
-            border-bottom-color: #555; /* Effetto solido in rilievo */
+            border-bottom-color: #555; 
             border-right-color: #555;
             color: #000;
             padding: 4px 14px;
@@ -77,27 +77,28 @@
         .win-btn:active:not(:disabled) { background-color: #cce4f7; border-color: #005499; border-top-color: #333; border-left-color: #333; padding-top: 5px; padding-bottom: 3px; }
         .win-btn:disabled { color: #999; border-color: #ccc; }
         
-        /* 3. Layout a Pannelli Divisi */
+        .win-btn-primary { background-color: var(--sys-highlight); color: white; border: 1px solid #005a9e; }
+        .win-btn-primary:hover:not(:disabled) { background-color: #106ebe; }
+        
+        /* Layout a Pannelli Divisi */
         .win-pane { border: 1px solid var(--sys-border); background-color: var(--sys-bg); display: flex; flex-direction: column; }
         .win-pane-header { background-color: #d4d4d4; padding: 3px 6px; font-weight: 600; font-size: 11px; color: #333; border-bottom: 1px solid var(--sys-border); }
 
-        /* 4. Il Sistema di Navigazione (Tabs) */
+        /* Sistema di Navigazione (Tabs) */
         .win-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--sys-border); padding-left: 2px; padding-top: 4px; }
         .win-tab { background-color: #f0f0f0; border: 1px solid var(--sys-border); border-bottom: none; padding: 4px 16px; font-size: 12px; margin-top: 2px; color: #333; }
         .win-tab:hover { background-color: #e5f1fb; }
         .win-tab.active { background-color: var(--sys-panel); border-top: 3px solid var(--sys-highlight); margin-top: 0; padding-bottom: 5px; margin-bottom: -1px; font-weight: bold; z-index: 2; position: relative; }
 
-        /* 5. DataGrid Nativa (La Tabella stile Excel) */
+        /* DataGrid Nativa */
         .win-grid { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: var(--sys-panel); }
         .win-grid th { background-color: #f0f0f0; border-right: 1px solid var(--sys-border-light); border-bottom: 1px solid #999; padding: 4px 6px; text-align: left; font-weight: normal; position: sticky; top: 0; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 10; }
         .win-grid td { border-right: 1px dotted var(--sys-border-light); border-bottom: 1px solid #eee; padding: 3px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* Selezione riga stile OS */
         .win-grid tbody tr:hover td { background-color: #f3f9ff; }
         .win-grid tbody tr.selected td { background-color: var(--sys-highlight) !important; color: white !important; }
         .win-grid tbody tr.selected td * { color: white !important; }
 
-        /* Scrollbar Windows Standard */
         ::-webkit-scrollbar { width: 16px; height: 16px; }
         ::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid #ccc; }
         ::-webkit-scrollbar-thumb { background: #cdcdcd; border: 1px solid #f0f0f0; }
@@ -113,12 +114,24 @@
         .toolbar-btn i { font-size: 18px; margin-bottom: 2px; color: #005a9e; }
         .toolbar-btn:disabled i, .toolbar-btn:disabled span { color: #999; }
         .toolbar-btn span { font-size: 10px; }
+        
+        /* Modals OS Style */
+        .native-window { border: 1px solid #000; background: var(--sys-bg); outline: 1px solid #fff; outline-offset: -2px; }
+        .native-titlebar { background: linear-gradient(to right, #000080, #1084d0); color: white; padding: 3px 4px; font-weight: bold; font-size: 11px; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body class="h-screen flex flex-col">
 
+    <div class="h-6 bg-[#2d2d30] flex justify-between items-center px-2 shrink-0 border-b border-black select-none">
+        <div class="flex items-center">
+            <i class="fa-solid fa-server text-[#0078d7] mr-2"></i>
+            <span class="text-white text-[11px] font-bold">WMS.EXE - Master Controller</span>
+        </div>
+        <div id="liveConnectionStatus" class="text-white font-mono text-[10px] tracking-widest">[ OFFLINE ]</div>
+    </div>
+
     <div class="win-toolbar z-20 shrink-0">
-        <button class="toolbar-btn" onclick="hardLogout()"><i class="fa-solid fa-power-off text-red-600"></i><span>Disconnetti</span></button>
+        <button class="toolbar-btn" onclick="hardLogout()"><i class="fa-solid fa-power-off text-red-600"></i><span>Esci</span></button>
         <div class="w-px h-10 bg-gray-300 mx-1"></div>
         <button class="toolbar-btn" onclick="initNewItem()" id="tb-new"><i class="fa-solid fa-file-circle-plus text-green-600"></i><span>Nuovo</span></button>
         <button class="toolbar-btn" onclick="saveMasterData()" id="tb-save" disabled><i class="fa-solid fa-floppy-disk text-blue-600"></i><span>Salva</span></button>
@@ -137,9 +150,9 @@
         </div>
     </div>
 
-    <div id="loginScreen" class="fixed inset-0 bg-[#00000040] z-50 flex items-center justify-center hidden">
-        <div class="win-pane w-[300px] shadow-lg border border-black outline outline-1 outline-white outline-offset-[-2px]">
-            <div class="win-pane-header bg-gradient-to-r from-blue-800 to-blue-500 text-white font-bold text-[11px] py-1 border-0">Security Login</div>
+    <div id="loginScreen" class="fixed inset-0 bg-[#00000040] z-50 flex items-center justify-center hidden-view">
+        <div class="native-window w-[300px] shadow-lg">
+            <div class="native-titlebar"><span>Security Login</span></div>
             <div class="p-4 flex flex-col gap-2 bg-[#f0f0f0]">
                 <label>User ID:</label><input type="text" id="adminUser" class="win-input font-mono">
                 <label class="mt-2">Password:</label><input type="password" id="adminPass" class="win-input font-mono">
@@ -147,9 +160,10 @@
             </div>
         </div>
     </div>
-    <div id="authScreen" class="fixed inset-0 bg-[#00000040] z-50 flex items-center justify-center hidden">
-        <div class="win-pane w-[350px] shadow-lg border border-black outline outline-1 outline-white outline-offset-[-2px]">
-            <div class="win-pane-header bg-gradient-to-r from-blue-800 to-blue-500 text-white font-bold text-[11px] py-1 border-0">Data Mount</div>
+    
+    <div id="authScreen" class="fixed inset-0 bg-[#00000040] z-50 flex items-center justify-center hidden-view">
+        <div class="native-window w-[350px] shadow-lg">
+            <div class="native-titlebar"><span>Data Mount</span></div>
             <div class="p-6 text-center bg-[#f0f0f0]">
                 <i class="fa-solid fa-database text-4xl text-blue-800 mb-4"></i>
                 <p>Database non connesso.<br>Montare il file system remoto?</p>
@@ -158,7 +172,7 @@
         </div>
     </div>
 
-    <main class="flex-1 overflow-hidden relative" id="mainWorkspace">
+    <main class="flex-1 overflow-hidden relative bg-[#a0a0a0] p-1" id="mainWorkspace">
         
         <div id="module-dashboard" class="w-full h-full flex flex-col p-2 gap-2 hidden-view bg-[var(--sys-panel)]">
             <div class="grid grid-cols-3 gap-2 shrink-0 h-24">
@@ -171,7 +185,7 @@
                 <div class="win-pane flex flex-col"><div class="win-pane-header">Log Recenti</div>
                     <div class="flex-1 overflow-auto bg-white border-t border-[var(--sys-border)]">
                         <table class="win-grid">
-                            <thead><tr><th class="w-16">Ora</th><th>SKU</th><th class="w-16">OP</th><th class="w-16 text-right">Q.tà</th></tr></thead>
+                            <thead><tr><th class="w-20">Ora</th><th>SKU</th><th class="w-16 text-center">OP</th><th class="w-16 text-right">Q.tà</th></tr></thead>
                             <tbody id="kpi-recent-tx"></tbody>
                         </table>
                     </div>
@@ -179,7 +193,7 @@
             </div>
         </div>
 
-        <div id="module-masterdata" class="w-full h-full flex p-1 gap-1 bg-[#a0a0a0]">
+        <div id="module-masterdata" class="w-full h-full flex gap-1">
             
             <div class="w-2/3 win-pane h-full border border-gray-500">
                 <div class="win-pane-header flex justify-between">
@@ -218,7 +232,7 @@
                         <div id="inspInitBlock" class="mt-4 border border-[#8f8f8f] p-2 bg-white hidden-view">
                             <p class="font-bold text-[#0078d7] mb-2 border-b border-[#eee] pb-1">Carico di Inizializzazione</p>
                             <div class="flex items-center">
-                                <label class="w-24 text-right pr-2">Giacenza Iniziale:</label>
+                                <label class="w-24 text-right pr-2">Giacenza Partenza:</label>
                                 <input type="number" id="inspInitQty" value="0" min="0" class="win-input text-right font-mono w-24">
                             </div>
                         </div>
@@ -245,14 +259,14 @@
                                 <label class="text-[10px]">Causale / Posizione</label>
                                 <input type="text" id="txLoc" placeholder="Es. Rettifica" class="win-input">
                             </div>
-                            <button onclick="executeManualTx()" class="win-btn win-btn-primary w-24">Esegui</button>
+                            <button onclick="executeManualTx()" class="win-btn win-btn-primary w-20">Esegui</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="module-audit" class="w-full h-full p-1 bg-[#a0a0a0] hidden-view">
+        <div id="module-audit" class="w-full h-full bg-[#a0a0a0] hidden-view">
             <div class="win-pane h-full border border-gray-500">
                 <div class="win-pane-header flex justify-between"><span>Registro Transazioni (Log)</span><input type="text" id="searchLog" onkeyup="filterTable('globalLogTableBody', this.value)" placeholder="Filtra..." class="win-input w-48 h-4 text-[10px] py-0"></div>
                 <div class="flex-1 overflow-auto bg-[var(--sys-panel)]">
@@ -265,7 +279,7 @@
         </div>
 
         <div id="module-config" class="w-full h-full p-2 bg-[var(--sys-bg)] hidden-view">
-            <div class="win-pane w-1/2">
+            <div class="win-pane w-1/2 shadow">
                 <div class="win-pane-header">Categorie Merceologiche</div>
                 <div class="p-2 border-b border-[var(--sys-border)] flex gap-2">
                     <input type="text" id="newCatInput" class="win-input flex-1">
@@ -279,7 +293,7 @@
     </main>
 
     <div class="h-6 bg-[#0078d7] text-white flex justify-between items-center px-2 shrink-0 text-[11px] font-mono select-none">
-        <span id="statusBarText">Pronto.</span>
+        <span id="statusBarText">Avvio sistema...</span>
         <span id="sysClock">00:00:00</span>
     </div>
 
@@ -315,12 +329,18 @@
     }
 
     function setStatus(msg) { document.getElementById('statusBarText').innerText = msg; }
+    
     function checkAppStatus() {
         if (!isAdminUnlocked) { showScreen('loginScreen'); }
         else if (!accessToken) { showScreen('authScreen'); }
         else { showScreen('mainWorkspace'); loadData(); if(autoRefreshTimer) clearInterval(autoRefreshTimer); autoRefreshTimer = setInterval(() => { if(currentMode === 'VIEW') loadData(true); }, 15000); }
     }
-    function showScreen(id) { ['loginScreen', 'authScreen', 'mainWorkspace'].forEach(s => document.getElementById(s).classList.add('hidden-view')); document.getElementById(id).classList.remove('hidden-view'); }
+    
+    function showScreen(id) { 
+        ['loginScreen', 'authScreen', 'mainWorkspace'].forEach(s => document.getElementById(s).classList.add('hidden-view')); 
+        document.getElementById(id).classList.remove('hidden-view'); 
+    }
+    
     function hardLogout() { localStorage.clear(); window.location.reload(); }
     
     async function apiCall(actionName, payload = {}) {
@@ -334,39 +354,48 @@
         if (!res.ok) throw new Error(data.error); return data;
     }
 
-    // Le funzioni di login/auth Dropbox non le ricopio per brevità, sono identiche a prima
     async function verifyLogin() { const u = document.getElementById('adminUser').value; const p = document.getElementById('adminPass').value; if(!u||!p)return; try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user: u, pass: p }) }); if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Errore"); } catch (e) { alert("Rete"); } }
     async function loginDropbox() { try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) }); const data = await res.json(); if (data.success && data.url) window.location.href = data.url; } catch (e) { alert("Errore"); } }
     async function handleRedirect() { const code = new URLSearchParams(window.location.search).get("code"); if (code) { window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('authScreen').classList.remove('hidden-view'); try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); const data = await res.json(); if(data.success) { accessToken = data.access_token; refreshToken = data.refresh_token; localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken); checkAppStatus(); } } catch(e) {} } }
 
-    // ================= DATI =================
+    // ================= DATI E SINCRONIZZAZIONE =================
     function getStock(barcode) { return movimenti.filter(m => m.barcode === barcode).reduce((acc, m) => { const q = parseInt(m.qty) || 1; return (m.type === 'IN' || m.type === 'STOCK') ? acc + q : acc - q; }, 0); }
 
+    // ECCO LA FUNZIONE AGGIORNATA E BLINDATA CHE NON CRASHA!
     async function loadData(isSilent = false) {
         if(!isSilent) setStatus("Sincronizzazione DB in corso...");
+        const connectionBadge = document.getElementById('liveConnectionStatus');
+        
+        if(connectionBadge) connectionBadge.innerHTML = '[ SYNC... ]';
+        
         try {
             const data = await apiCall("getDashboardData");
             inventario = data.inventario || []; movimenti = data.movimenti || []; 
-            renderMasterData(); renderGlobalLogTable();
+            
+            renderMasterData(); 
+            renderGlobalLogTable();
             if(!document.getElementById('module-dashboard').classList.contains('hidden-view')) renderDashboard();
-            setStatus("Pronto. Dati aggiornati.");
+            
+            setStatus("Pronto.");
+            if(connectionBadge) connectionBadge.innerHTML = '[ ONLINE ]';
         } catch (e) { 
-            setStatus("Errore di connessione al Database."); 
+            setStatus("Errore di Rete / Connessione DB."); 
+            if(connectionBadge) connectionBadge.innerHTML = '[ FAULT ]';
         }
     }
 
     async function syncDataToServer(payload) {
-        setStatus("Salvataggio su cloud...");
+        setStatus("Salvataggio su cloud in corso...");
         try {
             await apiCall("saveAdminData", payload);
             renderMasterData(); renderGlobalLogTable();
             if(!document.getElementById('module-dashboard').classList.contains('hidden-view')) renderDashboard();
-            setStatus("Salvataggio completato.");
+            setStatus("Salvataggio completato con successo.");
             return true;
-        } catch (e) { alert(`Errore DB:\n${e.message}`); setStatus("Errore Salvataggio."); return false; }
+        } catch (e) { alert(`Errore scrittura DB:\n${e.message}`); setStatus("Errore Salvataggio."); return false; }
     }
 
-    // ================= LA LOGICA DELL'INSPECTOR (Il Fix dell'inserimento) =================
+    // ================= LA LOGICA DELL'INSPECTOR & TOOLBAR =================
     
     function setFormEnabled(enabled) {
         document.getElementById('inspBarcode').disabled = !enabled;
@@ -376,17 +405,14 @@
     }
 
     function updateToolbar() {
-        // Logica bottoni Toolbar
         document.getElementById('tb-new').disabled = currentMode !== 'VIEW';
         document.getElementById('tb-save').disabled = currentMode === 'VIEW';
         document.getElementById('tb-cancel').disabled = currentMode === 'VIEW';
-        document.getElementById('tb-delete').disabled = currentMode !== 'EDIT'; // Si può eliminare solo se sto guardando un record esistente
+        document.getElementById('tb-delete').disabled = currentMode !== 'EDIT'; 
         
-        // Pannello manual tx sbloccato solo se ho selezionato un record e non sto modificando
         const txBlock = document.getElementById('inspTxBlock');
         if(currentMode === 'EDIT') {
-            txBlock.classList.remove('hidden-view');
-            txBlock.classList.remove('opacity-50', 'pointer-events-none');
+            txBlock.classList.remove('hidden-view', 'opacity-50', 'pointer-events-none');
         } else {
             txBlock.classList.add('opacity-50', 'pointer-events-none');
             if(currentMode === 'INSERT') txBlock.classList.add('hidden-view');
@@ -397,10 +423,8 @@
     function initNewItem() {
         currentMode = 'INSERT';
         
-        // Rimuove la selezione blu dalla tabella
         document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
         
-        // Svuota e abilita i campi
         document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
         document.getElementById('inspOriginalBarcode').value = '';
         document.getElementById('inspBarcode').value = '';
@@ -410,13 +434,12 @@
         setFormEnabled(true);
         document.getElementById('inspInitBlock').classList.remove('hidden-view');
         
-        // Header
         document.getElementById('inspHeader').innerHTML = '<i class="fa-solid fa-asterisk text-blue-600 mr-1"></i> MODO INSERIMENTO: NUOVO SKU';
-        document.getElementById('inspHeader').className = 'win-pane-header bg-[#bfdbfe]'; // Sfondo azzurro per far capire che sta creando
+        document.getElementById('inspHeader').style.backgroundColor = '#bfdbfe'; 
         
         updateToolbar();
-        setStatus("Modalità Inserimento: Compilare i dati e premere Salva.");
-        document.getElementById('inspBarcode').focus(); // Mette il cursore pronto per scrivere
+        setStatus("Modalità Inserimento: Compilare i dati e cliccare su Salva in alto.");
+        document.getElementById('inspBarcode').focus(); 
     }
 
     // B. SELEZIONE RIGA (Apre la modalità Lettura/Modifica)
@@ -442,7 +465,7 @@
         document.getElementById('inspInitBlock').classList.add('hidden-view');
         
         document.getElementById('inspHeader').innerHTML = '<i class="fa-solid fa-pen text-orange-600 mr-1"></i> MODO MODIFICA RECORD';
-        document.getElementById('inspHeader').className = 'win-pane-header bg-[#fef08a]'; // Sfondo giallo
+        document.getElementById('inspHeader').style.backgroundColor = '#fef08a'; 
         
         updateToolbar();
         setStatus(`Record selezionato: ${item.barcode}`);
@@ -458,13 +481,13 @@
         document.getElementById('inspInitBlock').classList.add('hidden-view');
         
         document.getElementById('inspHeader').innerHTML = 'Nessun Record Selezionato';
-        document.getElementById('inspHeader').className = 'win-pane-header bg-[#fff29e]';
+        document.getElementById('inspHeader').style.backgroundColor = '#d4d4d4';
         
         updateToolbar();
-        setStatus("Operazione annullata.");
+        setStatus("Operazione annullata. Ritorno in modalità visualizzazione.");
     }
 
-    // D. BOTTONE: SALVA (Database Write)
+    // D. BOTTONE: SALVA
     async function saveMasterData() {
         const bcode = document.getElementById('inspBarcode').value.trim().toUpperCase();
         const name = document.getElementById('inspName').value.trim();
@@ -472,7 +495,7 @@
         const originalBcode = document.getElementById('inspOriginalBarcode').value;
 
         if (!bcode || !name) return alert("Errore di Validazione:\nLo SKU e la Descrizione sono campi obbligatori.");
-        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Errore Integrità:\nSKU già presente nel database.");
+        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Errore Integrità:\nQuesto SKU è già assegnato a un altro articolo.");
 
         let updatedMovimenti = false;
         const newItem = { barcode: bcode, name: name, category: category };
@@ -493,15 +516,43 @@
         if (updatedMovimenti) payload.movimenti = movimenti;
         
         if (await syncDataToServer(payload)) {
-            // Dopo il salvataggio ripristino in modalità Lettura su quell'articolo
             currentMode = 'VIEW';
             const msgBox = document.getElementById('inspStatusMsg');
-            msgBox.innerText = "RECORD SALVATO!";
+            msgBox.innerText = "RECORD SALVATO A DATABASE!";
             setTimeout(() => { msgBox.innerText = ""; cancelEdit(); }, 2000);
         }
     }
 
-    // ================= RENDER GRID =================
+    // E. ESECUZIONE RETTIFICA MANUALE
+    async function executeManualTx() {
+        const barcode = document.getElementById('inspOriginalBarcode').value;
+        const type = document.getElementById('txType').value;
+        const qty = parseInt(document.getElementById('txQty').value);
+        const loc = document.getElementById('txLoc').value.trim() || 'MANUAL_TX';
+
+        if (isNaN(qty) || qty <= 0) return alert("La quantità deve essere maggiore di zero.");
+        if (type === 'OUT' && qty > getStock(barcode)) return alert("FAULT: Giacenza On-Hand insufficiente per lo scarico.");
+
+        movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'SYS_ADMIN' });
+        
+        if (await syncDataToServer({ movimenti: movimenti })) {
+            document.getElementById('txQty').value = 1; document.getElementById('txLoc').value = '';
+            setStatus("Rettifica di magazzino eseguita con successo.");
+        }
+    }
+    
+    // F. ELIMINAZIONE ITEM
+    async function deleteCurrentItem() {
+        const barcode = document.getElementById('inspOriginalBarcode').value;
+        if (!confirm(`Sei assolutamente certo di voler eliminare l'anagrafica [ ${barcode} ] ?\nQuesta azione NON modificherà i log passati, ma impedirà future operazioni su questo codice.`)) return;
+        inventario = inventario.filter(i => i.barcode !== barcode);
+        if (await syncDataToServer({ inventario: inventario })) {
+            cancelEdit();
+            setStatus(`Articolo ${barcode} eliminato correttamente.`);
+        }
+    }
+
+    // ================= RENDER DELLE TABELLE E GRAFICI =================
     function filterTable(tbodyId, query) {
         const rows = document.getElementById(tbodyId).getElementsByTagName('tr');
         query = query.toLowerCase();
@@ -513,7 +564,7 @@
         tbody.innerHTML = inventario.map(item => {
             const qty = getStock(item.barcode);
             const status = qty > 0 ? `AVAIL` : `OUT OF STOCK`;
-            return `<tr onclick="inspectItem('${item.barcode}', this)"><td>${item.barcode}</td><td>${item.name}</td><td>${item.category||'-'}</td><td class="text-right font-mono">${qty}</td><td class="text-center">${status}</td></tr>`;
+            return `<tr onclick="inspectItem('${item.barcode}', this)"><td>${item.barcode}</td><td>${item.name}</td><td>${item.category||'-'}</td><td class="text-right font-mono font-bold">${qty}</td><td class="text-center">${status}</td></tr>`;
         }).join('');
     }
 
@@ -521,7 +572,7 @@
         document.getElementById('globalLogTableBody').innerHTML = [...movimenti].reverse().map(m => {
             const isIN = m.type === 'IN' || m.type === 'STOCK';
             const d = new Date(m.timestamp);
-            return `<tr><td>${d.toLocaleString('it-IT')}</td><td>${m.id}</td><td>${m.barcode}</td><td class="text-center">${isIN?'INBOUND':'OUTBOUND'}</td><td class="text-right">${m.qty||1}</td><td>${m.location||"-"}</td><td>${m.operatore}</td></tr>`;
+            return `<tr><td>${d.toLocaleString('it-IT')}</td><td>${m.id}</td><td class="font-bold">${m.barcode}</td><td class="text-center">${isIN?'INBOUND':'OUTBOUND'}</td><td class="text-right font-bold ${isIN?'text-green-700':'text-red-700'}">${m.qty||1}</td><td>${m.location||"-"}</td><td>${m.operatore}</td></tr>`;
         }).join('');
     }
 
@@ -531,13 +582,21 @@
         document.getElementById('kpi-tx').innerText = movimenti.length;
         document.getElementById('kpi-recent-tx').innerHTML = [...movimenti].reverse().slice(0, 10).map(m => {
             const isIN = m.type === 'IN' || m.type === 'STOCK';
-            return `<tr><td>${new Date(m.timestamp).toLocaleTimeString()}</td><td>${m.barcode}</td><td>${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${m.qty||1}</td></tr>`;
+            return `<tr><td class="text-gray-500">${new Date(m.timestamp).toLocaleTimeString()}</td><td class="font-bold">${m.barcode}</td><td class="text-center">${isIN?'IN':'OUT'}</td><td class="text-right font-mono font-bold ${isIN?'text-green-700':'text-red-700'}">${m.qty||1}</td></tr>`;
         }).join('');
+        
+        const catData = {}; inventario.forEach(item => { const cat = item.category || 'N/A'; catData[cat] = (catData[cat] || 0) + getStock(item.barcode); });
+        
+        if(mainChartInstance) mainChartInstance.destroy();
+        mainChartInstance = new Chart(document.getElementById('dashboardChart').getContext('2d'), {
+            type: 'bar', data: { labels: Object.keys(catData), datasets: [{ data: Object.values(catData), backgroundColor: '#0078d7', borderRadius: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#e4e4e7' }, border:{display:false} }, x: { grid: { display: false }, border:{display:false} } } }
+        });
     }
 
     // ================= IMPOSTAZIONI CATEGORIE =================
     function renderConfigCategories() {
-        document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<li class="p-1 bg-white border-b border-gray-300 flex justify-between"><span>${c}</span> <button onclick="deleteCategory(${i})" class="text-red-600 font-bold px-2">X</button></li>`).join('');
+        document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<li class="p-1 bg-white border-b border-gray-300 flex justify-between"><span>${c}</span> <button onclick="deleteCategory(${i})" class="text-red-600 font-bold px-2 hover:bg-red-100">X</button></li>`).join('');
     }
     function addCategory() {
         const val = document.getElementById('newCatInput').value.trim().toUpperCase();
