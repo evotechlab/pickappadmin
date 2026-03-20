@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WMS Admin Pro</title>
+    <div id="liveConnectionStatus" class="flex items-center text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200 transition-all duration-300">
+    <span class="relative flex h-3 w-3 mr-2">
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-slate-400"></span>
+    </span>
+    In attesa...
+    </div>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -265,19 +271,56 @@
 
     // ================= DATI & UI =================
     async function loadData(isSilent = false) {
-        const btn = document.getElementById('lastSyncTime'); 
-        if (!isSilent) btn.innerText = "Sync in corso...";
-        else btn.innerHTML = '<i class="fa-solid fa-circle text-[10px] text-blue-400 animate-pulse"></i> Aggiornamento...';
+        const statusBadge = document.getElementById('liveConnectionStatus');
+        
+        // 1. STATO: Sincronizzazione in corso (Pulsante Blu)
+        if (statusBadge) {
+            statusBadge.className = "flex items-center text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200 transition-all duration-300";
+            statusBadge.innerHTML = `
+                <span class="relative flex h-3 w-3 mr-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                </span>
+                Sincronizzazione...
+            `;
+        }
         
         try {
             const data = await apiCall("getDashboardData");
             inventario = data.inventario || []; 
             movimenti = data.movimenti || []; 
             renderTable();
-            const now = new Date(); btn.innerText = `Aggiornato alle ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            
+            // 2. STATO: Connesso e Aggiornato (Verde brillante)
+            if (statusBadge) {
+                statusBadge.className = "flex items-center text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 transition-all duration-300 shadow-sm";
+                statusBadge.innerHTML = `
+                    <span class="relative flex h-3 w-3 mr-2">
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]"></span>
+                    </span>
+                    Live / Connesso
+                `;
+            }
+            
+            // Aggiorna anche l'orario se hai mantenuto il vecchio testo da qualche parte
+            const btn = document.getElementById('lastSyncTime'); 
+            if (btn) {
+                const now = new Date(); 
+                btn.innerText = `Ultimo Sync: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            }
+
         } catch (e) { 
-            if(e.message !== "Sessione scaduta irrimediabilmente. Rifare login." && !isSilent) alert(`Errore: ${e.message}`); 
-            btn.innerText = "Errore Sync"; 
+            // 3. STATO: Errore o Disconnesso (Rosso allarme)
+            if (statusBadge) {
+                statusBadge.className = "flex items-center text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-full border border-rose-200 transition-all duration-300 animate-pulse";
+                statusBadge.innerHTML = `
+                    <span class="relative flex h-3 w-3 mr-2">
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                    </span>
+                    Disconnesso
+                `;
+            }
+            if(e.message !== "Sessione scaduta irrimediabilmente. Rifare login." && !isSilent) console.error(`Errore: ${e.message}`); 
         }
     }
 
