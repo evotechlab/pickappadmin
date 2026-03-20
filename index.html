@@ -334,7 +334,13 @@
         ['loginScreen', 'authScreen', 'mainWorkspace'].forEach(s => document.getElementById(s).classList.add('hidden-view')); 
         document.getElementById(id).classList.remove('hidden-view'); 
     }
-    function hardLogout() { localStorage.clear(); window.location.reload(); }
+
+    function hardLogout() { 
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer); 
+        // Rimuove SOLO lo sblocco di sicurezza, mantenendo vive le chiavi del Database e le Categorie!
+        localStorage.removeItem("wms_admin_unlocked"); 
+        window.location.reload(); 
+    }
 
     function updateBadge(status) {
         const badge = document.getElementById('liveConnectionStatus');
