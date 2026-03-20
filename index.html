@@ -349,15 +349,15 @@
 
     async function loadData(isSilent = false) {
         if(!isSilent) setStatus("Sincronizzazione DB in corso...");
-        document.getElementById('liveConnectionStatus').innerHTML = '[ SYNC ]';
         try {
             const data = await apiCall("getDashboardData");
             inventario = data.inventario || []; movimenti = data.movimenti || []; 
             renderMasterData(); renderGlobalLogTable();
             if(!document.getElementById('module-dashboard').classList.contains('hidden-view')) renderDashboard();
-            setStatus("Pronto.");
-            document.getElementById('liveConnectionStatus').innerHTML = '[ ONLINE ]';
-        } catch (e) { document.getElementById('liveConnectionStatus').innerHTML = '[ FAULT ]'; setStatus("Errore Connessione."); }
+            setStatus("Pronto. Dati aggiornati.");
+        } catch (e) { 
+            setStatus("Errore di connessione al Database."); 
+        }
     }
 
     async function syncDataToServer(payload) {
