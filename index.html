@@ -3,157 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WMS Core | Warehouse Management System</title>
+    <title>WMS.exe - Terminale Operativo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* ========================================================
-           WMS NATIVE ENGINE (Strict ERP Interface)
+           WMS NATIVE OS ENGINE (Win32 / Desktop Paradigm)
+           Estetica chiara, icone visibili, zero effetti web
            ======================================================== */
+        
         :root {
-            --sys-bg: #e5e5e5;
-            --sys-panel: #ffffff;
-            --sys-border: #999999;
-            --sys-border-light: #cccccc;
-            --sys-highlight: #005a9e;
+            --sys-bg: #f0f0f0;          
+            --sys-panel: #ffffff;       
+            --sys-border: #8f8f8f;      
+            --sys-border-light: #cccccc; 
+            --sys-highlight: #0078d7;   
             --sys-text: #000000;
-            --sys-header: #d4d4d4;
         }
 
         * {
             box-sizing: border-box;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            transition: none !important;
-            user-select: none;
-            cursor: default;
+            border-radius: 0 !important;   
+            box-shadow: none !important;   
+            transition: none !important;   
+            user-select: none;             
+            cursor: default;               
         }
 
         input, select, textarea { 
-            user-select: text; 
-            cursor: text; 
+            user-select: text;             
+            cursor: text;
         }
 
         body {
             background-color: var(--sys-bg);
             color: var(--sys-text);
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
             font-size: 12px;
             margin: 0;
             overflow: hidden;
         }
 
-        /* Controlli UI Rigidi */
-        .erp-input {
+        /* Input OS */
+        .win-input {
             width: 100%; border: 1px solid var(--sys-border);
             border-top-color: #666; border-left-color: #666;
-            background-color: #fff; padding: 3px 6px;
-            font-size: 12px; outline: none; height: 24px;
+            background-color: #ffffff; padding: 3px 6px;
+            font-size: 12px; outline: none; height: 22px;
         }
-        .erp-input:focus { border: 1px solid var(--sys-highlight); outline: 1px solid var(--sys-highlight); outline-offset: -1px; }
-        .erp-input:disabled { background-color: #f0f0f0; color: #666; }
-        select.erp-input { padding: 1px 2px; }
+        .win-input:focus { border: 1px solid var(--sys-highlight); outline: 1px solid var(--sys-highlight); outline-offset: -1px; }
+        .win-input:disabled { background-color: #e0e0e0; color: #666; border-color: #ccc; cursor: not-allowed; }
+        select.win-input { padding: 1px 2px; }
 
-        .erp-btn {
+        /* Bottoni Rigidi (Ex win-btn) */
+        .win-btn {
             background-color: #e1e1e1; border: 1px solid var(--sys-border);
             border-bottom-color: #555; border-right-color: #555;
-            color: #000; padding: 4px 12px; font-size: 11px; font-weight: bold; text-transform: uppercase;
+            color: #000; padding: 4px 14px; font-size: 12px; cursor: default;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
         }
-        .erp-btn:hover:not(:disabled) { background-color: #e5f1fb; border-color: var(--sys-highlight); }
-        .erp-btn:active:not(:disabled) { background-color: #cce4f7; padding-top: 5px; padding-bottom: 3px; }
-        .erp-btn:disabled { color: #888; border-color: #ccc; }
-        .erp-btn-primary { background-color: var(--sys-highlight); color: #fff; border-color: #003366; }
-        .erp-btn-primary:hover:not(:disabled) { background-color: #004a80; }
+        .win-btn:hover:not(:disabled) { background-color: #e5f1fb; border-color: var(--sys-highlight); }
+        .win-btn:active:not(:disabled) { background-color: #cce4f7; border-color: #005499; border-top-color: #333; border-left-color: #333; padding-top: 5px; padding-bottom: 3px; }
+        .win-btn:disabled { color: #999; border-color: #ccc; }
+        
+        .win-btn-primary { background-color: var(--sys-highlight); color: white; border: 1px solid #005a9e; }
+        .win-btn-primary:hover:not(:disabled) { background-color: #106ebe; }
 
-        /* DataGrid (Tabelle) */
-        .erp-grid { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: var(--sys-panel); }
-        .erp-grid th { background-color: #f0f0f0; border-right: 1px solid var(--sys-border-light); border-bottom: 1px solid #888; padding: 4px 6px; text-align: left; font-weight: bold; position: sticky; top: 0; color: #333; white-space: nowrap; overflow: hidden; z-index: 10; text-transform: uppercase; font-size: 10px; }
-        .erp-grid td { border-right: 1px dotted var(--sys-border-light); border-bottom: 1px solid #eee; padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
-        .erp-grid tbody tr:hover td { background-color: #f3f9ff; }
-        .erp-grid tbody tr.selected td { background-color: var(--sys-highlight) !important; color: #fff !important; border-right-color: #004a80; }
-        .erp-grid tbody tr.selected td * { color: #fff !important; }
+        /* Toolbar Orizzontale (Icone Visibili) */
+        .win-toolbar { background-color: var(--sys-bg); border-bottom: 1px solid var(--sys-border); padding: 4px; display: flex; gap: 4px; align-items: center; }
+        .toolbar-btn { background: transparent; border: 1px solid transparent; padding: 4px 8px; cursor: default; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 60px; }
+        .toolbar-btn:hover:not(:disabled) { border: 1px solid var(--sys-highlight); background-color: #e5f1fb; }
+        .toolbar-btn:active:not(:disabled) { background-color: #cce4f7; }
+        .toolbar-btn i { font-size: 18px; margin-bottom: 2px; }
+        .toolbar-btn:disabled i, .toolbar-btn:disabled span { color: #999 !important; } /* Sovrascrive i colori se disabilitato */
+        .toolbar-btn span { font-size: 10px; }
 
-        ::-webkit-scrollbar { width: 14px; height: 14px; }
+        /* Navbar Unificata (Stile Tab Cartelle Windows) */
+        .win-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--sys-border); padding-left: 2px; padding-top: 6px; background-color: var(--sys-bg); align-items: flex-end;}
+        .win-tab { background-color: #f0f0f0; border: 1px solid var(--sys-border); border-bottom: none; padding: 4px 16px; font-size: 12px; color: #333; height: 26px;}
+        .win-tab:hover { background-color: #e5f1fb; }
+        .win-tab.active { background-color: var(--sys-panel); border-top: 3px solid var(--sys-highlight); padding-bottom: 5px; margin-bottom: -1px; font-weight: bold; z-index: 2; position: relative; height: 29px; color: #000;}
+
+        /* Pannelli Divisi */
+        .win-pane { border: 1px solid var(--sys-border); background-color: var(--sys-bg); display: flex; flex-direction: column; }
+        .win-pane-header { background-color: #d4d4d4; padding: 3px 6px; font-weight: 600; font-size: 11px; color: #333; border-bottom: 1px solid var(--sys-border); }
+
+        /* DataGrid Nativa */
+        .win-grid { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: var(--sys-panel); }
+        .win-grid th { background-color: #f0f0f0; border-right: 1px solid var(--sys-border-light); border-bottom: 1px solid #999; padding: 4px 6px; text-align: left; font-weight: normal; position: sticky; top: 0; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 10; }
+        .win-grid td { border-right: 1px dotted var(--sys-border-light); border-bottom: 1px solid #eee; padding: 3px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .win-grid tbody tr:hover td { background-color: #f3f9ff; }
+        .win-grid tbody tr.selected td { background-color: var(--sys-highlight) !important; color: white !important; }
+        .win-grid tbody tr.selected td * { color: white !important; }
+
+        ::-webkit-scrollbar { width: 16px; height: 16px; }
         ::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid #ccc; }
         ::-webkit-scrollbar-thumb { background: #cdcdcd; border: 1px solid #f0f0f0; }
         ::-webkit-scrollbar-thumb:hover { background: #a6a6a6; }
 
         .hidden-view { display: none !important; }
-
-        /* Struttura Pannelli */
-        .erp-pane { border: 1px solid var(--sys-border); background-color: var(--sys-bg); display: flex; flex-direction: column; }
-        .erp-pane-header { background-color: var(--sys-header); padding: 4px 8px; font-weight: bold; font-size: 11px; color: #000; border-bottom: 1px solid var(--sys-border); text-transform: uppercase; }
         
-        /* Navbar Superiore Uniformata */
-        .erp-navbar { background-color: var(--sys-bg); border-bottom: 1px solid var(--sys-border); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 12px; height: 42px; }
-        .nav-modules { display: flex; height: 28px; gap: 2px; }
-        .nav-tab { background-color: #e1e1e1; border: 1px solid var(--sys-border); border-bottom: none; color: #444; padding: 0 16px; font-weight: bold; font-size: 11px; text-transform: uppercase; height: 100%; display: flex; align-items: center; }
-        .nav-tab:hover { background-color: #e5f1fb; }
-        .nav-tab.active { background-color: var(--sys-bg); color: #000; border-top: 3px solid var(--sys-highlight); padding-bottom: 2px; margin-bottom: -1px; z-index: 2; position: relative; }
-
+        /* Finestre Modali Stile OS */
+        .native-window { border: 1px solid #000; background: var(--sys-bg); outline: 1px solid #fff; outline-offset: -2px; }
+        .native-titlebar { background: linear-gradient(to right, #000080, #1084d0); color: white; padding: 3px 4px; font-weight: bold; font-size: 11px; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body class="h-screen flex flex-col">
 
-    <div id="loginScreen" class="fixed inset-0 bg-[#0f172a] z-[100] flex items-center justify-center hidden-view">
-        <div class="erp-pane w-[320px] shadow-2xl border-2 border-slate-600">
-            <div class="erp-pane-header bg-slate-800 text-white text-center py-2 border-b-slate-900">SECURITY GATEWAY</div>
-            <div class="p-6 bg-[#f8fafc] flex flex-col gap-3">
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase">Operator ID</label><input type="text" id="adminUser" class="erp-input font-mono"></div>
-                <div><label class="text-[10px] font-bold text-slate-500 uppercase">Access Key</label><input type="password" id="adminPass" class="erp-input font-mono"></div>
-                <button onclick="verifyLogin()" id="loginBtn" class="erp-btn erp-btn-primary mt-4 py-1.5">INITIALIZE SESSION</button>
+    <div id="loginScreen" class="fixed inset-0 bg-[#e0e0e0] z-50 flex items-center justify-center hidden-view">
+        <div class="native-window w-[320px] shadow-lg">
+            <div class="native-titlebar"><span><i class="fa-solid fa-lock mr-1 text-[#ffd700]"></i> Security Login</span></div>
+            <div class="p-5 flex flex-col gap-3 bg-[#f0f0f0]">
+                <div class="flex items-center gap-4 mb-2">
+                    <i class="fa-solid fa-server text-4xl text-[#0078d7]"></i>
+                    <div>
+                        <h2 class="font-bold text-sm">WMS Accesso</h2>
+                        <p class="text-[10px] text-gray-600">Inserire credenziali di sistema</p>
+                    </div>
+                </div>
+                <div><label class="text-[11px]">User ID:</label><input type="text" id="adminUser" class="win-input font-mono"></div>
+                <div><label class="text-[11px]">Password:</label><input type="password" id="adminPass" class="win-input font-mono"></div>
+                <div class="flex justify-end mt-2"><button onclick="verifyLogin()" id="loginBtn" class="win-btn win-btn-primary w-24">OK</button></div>
             </div>
         </div>
     </div>
-    
-    <div id="authScreen" class="fixed inset-0 bg-[#0f172a] z-[100] flex items-center justify-center hidden-view">
-        <div class="erp-pane w-[400px] shadow-2xl border-2 border-slate-600">
-            <div class="erp-pane-header bg-blue-800 text-white text-center py-2">DATA PERSISTENCE MOUNT</div>
-            <div class="p-8 text-center bg-[#f8fafc]">
-                <i class="fa-solid fa-server text-4xl text-blue-900 mb-4"></i>
-                <p class="text-xs font-bold text-slate-700 mb-6">Connessione al File System richiesta.<br>Procedere con l'autorizzazione OAuth2.</p>
-                <button onclick="loginDropbox()" id="dbBtn" class="erp-btn erp-btn-primary w-full py-1.5">MOUNT DATABASE</button>
+    <div id="authScreen" class="fixed inset-0 bg-[#e0e0e0] z-50 flex items-center justify-center hidden-view">
+        <div class="native-window w-[350px] shadow-lg">
+            <div class="native-titlebar"><span><i class="fa-solid fa-database mr-1 text-[#ffd700]"></i> Data Mount</span></div>
+            <div class="p-6 text-center bg-[#f0f0f0]">
+                <i class="fa-brands fa-dropbox text-4xl text-[#0078d7] mb-4"></i>
+                <p class="text-xs">Database non connesso.<br>Montare il file system remoto per continuare.</p>
+                <div class="flex justify-end mt-6"><button onclick="loginDropbox()" id="dbBtn" class="win-btn win-btn-primary">Esegui Mount</button></div>
             </div>
         </div>
     </div>
 
     <div id="mainWorkspace" class="flex flex-col h-full hidden-view">
         
-        <header class="erp-navbar shrink-0">
-            <div class="flex items-center h-full">
-                <div class="font-black text-lg tracking-widest mr-8 flex items-center text-slate-800 mb-1"><i class="fa-solid fa-cube text-[var(--sys-highlight)] mr-2"></i>WMS</div>
-                <div class="nav-modules">
-                    <button onclick="switchModule('mod-sintesi', this)" class="nav-tab active">Sintesi Operativa</button>
-                    <button onclick="switchModule('mod-anagrafica', this)" class="nav-tab">Anagrafica SKU</button>
-                    <button onclick="switchModule('mod-registro', this)" class="nav-tab">Registro Movimenti</button>
-                    <button onclick="switchModule('mod-setup', this)" class="nav-tab">Configurazioni</button>
+        <div class="bg-[var(--sys-bg)] shrink-0 z-10 flex justify-between items-end border-b border-[var(--sys-border)]">
+            <div class="flex items-end">
+                <div class="font-bold text-[16px] text-[#0078d7] tracking-wider px-4 pb-1.5"><i class="fa-solid fa-cube mr-1"></i> WMS</div>
+                <div class="win-tabs border-b-0">
+                    <button onclick="switchModule('mod-sintesi', this)" class="win-tab active">Sintesi</button>
+                    <button onclick="switchModule('mod-inventario', this)" class="win-tab">Inventario & Giacenze</button>
+                    <button onclick="switchModule('mod-registro', this)" class="win-tab">Magazzino (Log)</button>
+                    <button onclick="switchModule('mod-impostazioni', this)" class="win-tab">Impostazioni</button>
                 </div>
             </div>
-            <div class="flex items-center gap-4 text-xs font-mono mb-1">
-                <div id="liveConnectionStatus" class="flex items-center gap-2 bg-white px-2 py-0.5 border border-gray-400 text-gray-700 font-bold">
-                    <div class="w-2 h-2 bg-gray-400"></div> OFFLINE
-                </div>
-                <span class="text-gray-700 font-bold">OP: ADMIN</span>
-                <button onclick="hardLogout()" class="text-red-600 hover:text-red-500 ml-2 bg-gray-200 px-2 border border-gray-400" title="Termina Sessione"><i class="fa-solid fa-power-off text-sm"></i></button>
-            </div>
-        </header>
-
-        <main class="flex-1 overflow-hidden relative p-1">
             
-            <div id="mod-sintesi" class="wms-module w-full h-full flex flex-col gap-1 hidden-view">
-                <div class="grid grid-cols-4 gap-1 shrink-0 h-20">
-                    <div class="erp-pane"><div class="erp-pane-header">MASTER DATA (SKU)</div><div class="flex-1 flex items-center justify-center text-3xl font-mono font-bold" id="kpi-sku">0</div></div>
-                    <div class="erp-pane"><div class="erp-pane-header">ON-HAND (PEZZI)</div><div class="flex-1 flex items-center justify-center text-3xl font-mono font-bold text-[#005a9e]" id="kpi-qty">0</div></div>
-                    <div class="erp-pane"><div class="erp-pane-header">TRANSAZIONI LOGGATE</div><div class="flex-1 flex items-center justify-center text-3xl font-mono font-bold" id="kpi-tx">0</div></div>
-                    <div class="erp-pane border-red-500"><div class="erp-pane-header bg-red-100 text-red-800 border-red-300">OUT OF STOCK (ESAURITI)</div><div class="flex-1 flex items-center justify-center text-3xl font-mono font-bold text-red-600" id="kpi-oos">0</div></div>
+            <div class="flex items-center gap-4 px-4 pb-1.5 text-xs">
+                <div id="liveConnectionStatus" class="font-mono font-bold text-gray-500">[ OFFLINE ]</div>
+                <span class="text-gray-700">User: ADMIN</span>
+                <button onclick="hardLogout()" class="text-red-600 hover:text-red-500 font-bold ml-2" title="Termina Sessione">[ X ] ESCI</button>
+            </div>
+        </div>
+
+        <div class="win-toolbar z-20 shrink-0">
+            <button class="toolbar-btn" onclick="initNewItem()" id="tb-new"><i class="fa-solid fa-file-circle-plus text-[#107c10]"></i><span>Nuovo</span></button>
+            <button class="toolbar-btn" onclick="saveMasterData()" id="tb-save" disabled><i class="fa-solid fa-floppy-disk text-[#0078d7]"></i><span>Salva</span></button>
+            <button class="toolbar-btn" onclick="cancelEdit()" id="tb-cancel" disabled><i class="fa-solid fa-ban text-[#d83b01]"></i><span>Annulla</span></button>
+            <button class="toolbar-btn" onclick="deleteCurrentItem()" id="tb-delete" disabled><i class="fa-solid fa-trash-can text-[#d13438]"></i><span>Elimina</span></button>
+            <div class="w-px h-10 bg-gray-300 mx-1"></div>
+            <button class="toolbar-btn" onclick="loadData(false, true)"><i class="fa-solid fa-rotate text-[#0078d7]"></i><span>Sync F5</span></button>
+        </div>
+
+        <main class="flex-1 overflow-hidden relative bg-[#a0a0a0] p-1">
+            
+            <div id="mod-sintesi" class="wms-module w-full h-full flex flex-col gap-1 hidden-view bg-[var(--sys-panel)] p-2">
+                <div class="grid grid-cols-4 gap-2 shrink-0 h-24">
+                    <div class="win-pane"><div class="win-pane-header">SKU A Sistema</div><div class="flex-1 flex items-center justify-center text-4xl font-mono text-gray-700" id="kpi-sku">0</div></div>
+                    <div class="win-pane"><div class="win-pane-header">Giacenza Totale (Pz)</div><div class="flex-1 flex items-center justify-center text-4xl font-mono font-bold text-[#0078d7]" id="kpi-qty">0</div></div>
+                    <div class="win-pane"><div class="win-pane-header">Volume Transazioni</div><div class="flex-1 flex items-center justify-center text-4xl font-mono text-gray-700" id="kpi-tx">0</div></div>
+                    <div class="win-pane border-red-500"><div class="win-pane-header bg-[#fce4e4] text-[#d13438]">Articoli Esauriti (OOS)</div><div class="flex-1 flex items-center justify-center text-4xl font-mono font-bold text-[#d13438]" id="kpi-oos">0</div></div>
                 </div>
-                <div class="flex-1 grid grid-cols-2 gap-1">
-                    <div class="erp-pane flex flex-col"><div class="erp-pane-header">PESO MERCEOLOGICO (STOCK)</div><div class="flex-1 p-2 bg-white"><canvas id="dashboardChart"></canvas></div></div>
-                    <div class="erp-pane flex flex-col"><div class="erp-pane-header">ULTIME OPERAZIONI DI MAGAZZINO</div>
+                <div class="flex-1 grid grid-cols-2 gap-2">
+                    <div class="win-pane flex flex-col"><div class="win-pane-header">Distribuzione Giacenze</div><div class="flex-1 p-2"><canvas id="dashboardChart"></canvas></div></div>
+                    <div class="win-pane flex flex-col"><div class="win-pane-header">Ultime Operazioni Fisiche</div>
                         <div class="flex-1 overflow-auto bg-white border-t border-[var(--sys-border)]">
-                            <table class="erp-grid">
-                                <thead><tr><th class="w-20">ORARIO</th><th>SKU CODE</th><th class="w-20 text-center">TIPO</th><th class="w-16 text-right">Q.TÁ</th></tr></thead>
+                            <table class="win-grid">
+                                <thead><tr><th class="w-20">Ora</th><th>SKU</th><th class="w-24 text-center">Tipo</th><th class="w-16 text-right">Q.tà</th></tr></thead>
                                 <tbody id="kpi-recent-tx"></tbody>
                             </table>
                         </div>
@@ -161,57 +191,70 @@
                 </div>
             </div>
 
-            <div id="mod-anagrafica" class="wms-module w-full h-full flex flex-col gap-1 hidden-view">
-                <div class="bg-[var(--sys-header)] border border-[var(--sys-border)] p-1 flex gap-1 shrink-0">
-                    <button class="erp-btn" onclick="initNewItem()" id="tb-new"><i class="fa-solid fa-asterisk text-blue-600 mr-1"></i>Nuovo Censimento</button>
-                    <button class="erp-btn" onclick="saveMasterData()" id="tb-save" disabled><i class="fa-solid fa-floppy-disk text-green-600 mr-1"></i>Salva Dati</button>
-                    <button class="erp-btn" onclick="cancelEdit()" id="tb-cancel" disabled><i class="fa-solid fa-ban text-orange-600 mr-1"></i>Annulla</button>
-                    <button class="erp-btn" onclick="deleteCurrentItem()" id="tb-delete" disabled><i class="fa-solid fa-trash text-red-600 mr-1"></i>Elimina</button>
+            <div id="mod-inventario" class="wms-module w-full h-full flex gap-1">
+                <div class="w-2/3 win-pane h-full border border-gray-500">
+                    <div class="win-pane-header flex justify-between">
+                        <span>Anagrafiche e Disponibilità</span>
+                        <input type="text" id="searchInv" onkeyup="filterTable('inventoryTableBody', this.value)" placeholder="Filtra Codice..." class="win-input w-48 h-4 text-[10px] py-0">
+                    </div>
+                    <div class="flex-1 overflow-auto bg-[var(--sys-panel)] relative">
+                        <table class="win-grid">
+                            <thead><tr><th style="width:25%">SKU Code</th><th style="width:35%">Descrizione</th><th style="width:20%">Categoria</th><th style="width:10%" class="text-right">Giacenza</th><th style="width:10%" class="text-center">Stato</th></tr></thead>
+                            <tbody id="inventoryTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="flex-1 flex gap-1 overflow-hidden">
-                    <div class="w-2/3 erp-pane h-full">
-                        <div class="erp-pane-header flex justify-between items-center bg-white border-b-0 pb-1 pt-2 px-2">
-                            <span class="text-xs">CATALOGO SKU</span>
-                            <input type="text" id="searchInv" onkeyup="filterTable('inventoryTableBody', this.value)" placeholder="Filtra Codice/Descrizione..." class="erp-input w-48 h-5 text-[10px] py-0">
-                        </div>
-                        <div class="flex-1 overflow-auto bg-white border-t border-[var(--sys-border)]">
-                            <table class="erp-grid">
-                                <thead><tr><th style="width:25%">SKU CODE</th><th style="width:35%">DESCRIZIONE</th><th style="width:20%">ITEM FAMILY</th><th style="width:10%" class="text-right">ON-HAND</th><th style="width:10%" class="text-center">STATUS</th></tr></thead>
-                                <tbody id="inventoryTableBody"></tbody>
-                            </table>
+                <div class="w-1/3 flex flex-col gap-1">
+                    <div class="win-pane flex-1 border border-gray-500">
+                        <div class="win-pane-header bg-[#fff29e]" id="inspHeader">Nessun Record Selezionato</div>
+                        <div class="p-3 bg-[var(--sys-bg)] flex flex-col gap-3 h-full overflow-y-auto">
+                            <input type="hidden" id="inspOriginalBarcode">
+                            
+                            <div class="flex items-center">
+                                <label class="w-24 text-right pr-2">SKU Code:</label>
+                                <input type="text" id="inspBarcode" class="win-input font-mono font-bold text-blue-800 flex-1 uppercase" disabled>
+                            </div>
+                            <div class="flex items-center">
+                                <label class="w-24 text-right pr-2">Descrizione:</label>
+                                <input type="text" id="inspName" class="win-input flex-1" disabled>
+                            </div>
+                            <div class="flex items-center">
+                                <label class="w-24 text-right pr-2">Categoria:</label>
+                                <select id="inspCategory" class="win-input flex-1" disabled></select>
+                            </div>
+
+                            <div id="inspInitBlock" class="mt-4 border border-[#8f8f8f] p-2 bg-white hidden-view">
+                                <p class="font-bold text-[#0078d7] mb-2 border-b border-[#eee] pb-1">Carico Iniziale (Stock di Partenza)</p>
+                                <div class="flex items-center">
+                                    <label class="w-24 text-right pr-2">Pezzi Fisici:</label>
+                                    <input type="number" id="inspInitQty" value="0" min="0" class="win-input text-right font-mono w-24">
+                                </div>
+                            </div>
+                            
+                            <div id="inspStatusMsg" class="mt-auto text-center font-bold text-[#107c10] h-4"></div>
                         </div>
                     </div>
 
-                    <div class="w-1/3 flex flex-col gap-1">
-                        <div class="erp-pane flex-1">
-                            <div class="erp-pane-header" id="inspHeader">INSPECTOR: NESSUNA SELEZIONE</div>
-                            <div class="p-3 bg-[var(--sys-bg)] flex flex-col gap-2 h-full overflow-y-auto">
-                                <input type="hidden" id="inspOriginalBarcode">
-                                
-                                <div><label class="block text-[10px] font-bold text-gray-600">SKU CODE (PK)</label><input type="text" id="inspBarcode" class="erp-input font-mono font-bold text-blue-900 uppercase" disabled></div>
-                                <div><label class="block text-[10px] font-bold text-gray-600 mt-1">DESCRIZIONE ARTICOLO</label><input type="text" id="inspName" class="erp-input" disabled></div>
-                                <div><label class="block text-[10px] font-bold text-gray-600 mt-1">ITEM FAMILY (CATEGORIA)</label><select id="inspCategory" class="erp-input" disabled></select></div>
-
-                                <div id="inspInitBlock" class="mt-4 border border-blue-400 bg-blue-50 p-2 hidden-view">
-                                    <label class="block text-[10px] font-bold text-blue-800">GIACENZA DI PARTENZA (INBOUND INIZIALE)</label>
-                                    <input type="number" id="inspInitQty" value="0" min="0" class="erp-input text-right font-mono w-24 mt-1 border-blue-400">
+                    <div id="inspTxBlock" class="win-pane h-40 border border-gray-500 hidden-view opacity-50 pointer-events-none">
+                        <div class="win-pane-header bg-gray-300">Movimentazione Manuale</div>
+                        <div class="p-3 bg-[var(--sys-bg)] flex flex-col gap-2 h-full justify-center">
+                            <div class="flex gap-2">
+                                <div class="flex-1">
+                                    <label class="text-[10px]">Operazione</label>
+                                    <select id="txType" class="win-input"><option value="IN">Carico IN (+)</option><option value="OUT">Scarico OUT (-)</option></select>
                                 </div>
-                                <div id="inspStatusMsg" class="mt-auto text-center font-bold text-[#005a9e] h-4 text-[10px]"></div>
+                                <div class="w-16">
+                                    <label class="text-[10px]">Quantità</label>
+                                    <input type="number" id="txQty" value="1" min="1" class="win-input text-right font-mono">
+                                </div>
                             </div>
-                        </div>
-
-                        <div id="inspTxBlock" class="erp-pane h-40 opacity-50 pointer-events-none hidden-view">
-                            <div class="erp-pane-header bg-gray-300">RETTIFICA MANUALE (TX)</div>
-                            <div class="p-3 bg-white flex flex-col gap-2 h-full justify-center">
-                                <div class="flex gap-2">
-                                    <div class="flex-1"><label class="text-[9px] font-bold">OPERAZIONE</label><select id="txType" class="erp-input font-bold"><option value="IN">INBOUND (+)</option><option value="OUT">OUTBOUND (-)</option></select></div>
-                                    <div class="w-16"><label class="text-[9px] font-bold">DELTA QTY</label><input type="number" id="txQty" value="1" min="1" class="erp-input text-right font-mono"></div>
+                            <div class="flex gap-2 items-end">
+                                <div class="flex-1">
+                                    <label class="text-[10px]">Causale</label>
+                                    <input type="text" id="txLoc" placeholder="Es. Rettifica Inv." class="win-input">
                                 </div>
-                                <div class="flex gap-2 items-end">
-                                    <div class="flex-1"><label class="text-[9px] font-bold">CAUSALE / LOCATION</label><input type="text" id="txLoc" placeholder="Es. Rettifica" class="erp-input"></div>
-                                    <button onclick="executeManualTx()" class="erp-btn erp-btn-primary">ESEGUI</button>
-                                </div>
+                                <button onclick="executeManualTx()" class="win-btn win-btn-primary w-24">Applica</button>
                             </div>
                         </div>
                     </div>
@@ -219,29 +262,26 @@
             </div>
 
             <div id="mod-registro" class="wms-module w-full h-full hidden-view">
-                <div class="erp-pane h-full">
-                    <div class="erp-pane-header flex justify-between items-center bg-white border-b-0 pb-1 pt-2 px-2">
-                        <span class="text-xs">STOCK LEDGER (AUDIT TRAIL)</span>
-                        <input type="text" id="searchLog" onkeyup="filterTable('globalLogTableBody', this.value)" placeholder="Ricerca globale..." class="erp-input w-48 h-5 text-[10px] py-0">
-                    </div>
-                    <div class="flex-1 overflow-auto bg-white border-t border-[var(--sys-border)]">
-                        <table class="erp-grid">
-                            <thead><tr><th style="width:15%">TIMESTAMP</th><th style="width:15%">TX ID</th><th style="width:20%">SKU CODE</th><th style="width:10%" class="text-center">OP TYPE</th><th style="width:10%" class="text-right">DELTA QTY</th><th style="width:15%">LOCATION / CAUSALE</th><th style="width:15%">OPERATORE</th></tr></thead>
-                            <tbody id="globalLogTableBody" class="font-mono text-[10px]"></tbody>
+                <div class="win-pane h-full border border-gray-500">
+                    <div class="win-pane-header flex justify-between"><span>Registro Contabile Movimentazioni (Audit)</span><input type="text" id="searchLog" onkeyup="filterTable('globalLogTableBody', this.value)" placeholder="Filtra..." class="win-input w-48 h-4 text-[10px] py-0"></div>
+                    <div class="flex-1 overflow-auto bg-[var(--sys-panel)]">
+                        <table class="win-grid">
+                            <thead><tr><th style="width:15%">Data / Ora</th><th style="width:15%">Transazione ID</th><th style="width:20%">SKU</th><th style="width:10%" class="text-center">Tipo</th><th style="width:10%" class="text-right">Q.tà</th><th style="width:15%">Causale</th><th style="width:15%">Utente</th></tr></thead>
+                            <tbody id="globalLogTableBody" class="font-mono text-[11px]"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <div id="mod-setup" class="wms-module w-full h-full hidden-view">
-                <div class="erp-pane w-1/2">
-                    <div class="erp-pane-header">SETUP: ITEM FAMILIES (CLASSI MERCEOLOGICHE)</div>
-                    <div class="p-2 border-b border-[var(--sys-border)] flex gap-2 bg-white">
-                        <input type="text" id="newCatInput" class="erp-input flex-1" placeholder="Nuova famiglia merceologica...">
-                        <button onclick="addCategory()" class="erp-btn erp-btn-primary">AGGIUNGI</button>
+            <div id="mod-impostazioni" class="wms-module w-full h-full hidden-view p-2 bg-[var(--sys-bg)]">
+                <div class="win-pane w-1/2 shadow">
+                    <div class="win-pane-header">Categorie Merceologiche</div>
+                    <div class="p-2 border-b border-[var(--sys-border)] flex gap-2">
+                        <input type="text" id="newCatInput" class="win-input flex-1" placeholder="Nuova categoria...">
+                        <button onclick="addCategory()" class="win-btn">Aggiungi</button>
                     </div>
-                    <div class="bg-[var(--sys-bg)] h-64 overflow-auto p-2">
-                        <ul id="categoryList" class="flex flex-col gap-1"></ul>
+                    <div class="bg-white h-64 overflow-auto p-1">
+                        <ul id="categoryList" class="flex flex-col gap-1 border border-gray-300 bg-gray-100"></ul>
                     </div>
                 </div>
             </div>
@@ -254,13 +294,13 @@
     let isAdminUnlocked = localStorage.getItem("wms_admin_unlocked") === "true";
     let accessToken = localStorage.getItem("wms_admin_db_token");
     let refreshToken = localStorage.getItem("wms_admin_refresh_token");
-    let configCategories = JSON.parse(localStorage.getItem("wms_categories")) || ["MATERIA PRIMA", "SEMILAVORATO", "PRODOTTO FINITO", "IMBALLAGGIO"];
+    let configCategories = JSON.parse(localStorage.getItem("wms_categories")) || ["ELETTRONICA", "FERRAMENTA", "IMBALLAGGI"];
     
     let inventario = []; let movimenti = [];
     let autoRefreshTimer = null;
     let mainChartInstance = null;
-    let currentMode = 'VIEW'; // Modalità Inspector ('VIEW', 'INSERT', 'EDIT')
-    let lastDataHash = ""; // MOTORE ANTI-BLOCCO: Memorizza lo stato dei dati
+    let currentMode = 'VIEW'; // 'VIEW', 'INSERT', 'EDIT'
+    let lastDataHash = "";    // Motore Anti-Blocco
 
     document.addEventListener('DOMContentLoaded', () => { 
         handleRedirect(); checkAppStatus(); renderConfigCategories();
@@ -269,12 +309,12 @@
     // ================= NAV & AUTH =================
     function switchModule(moduleId, btnElement) {
         if(currentMode !== 'VIEW') {
-            if(!confirm("ATTENZIONE: Modifiche non salvate. Abbandonare l'operazione?")) return;
+            if(!confirm("Attenzione: Hai modifiche non salvate. Vuoi abbandonare l'inserimento?")) return;
             cancelEdit();
         }
         document.querySelectorAll('.wms-module').forEach(el => el.classList.add('hidden-view'));
         document.getElementById(moduleId).classList.remove('hidden-view');
-        document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.win-tab').forEach(btn => btn.classList.remove('active'));
         btnElement.classList.add('active');
         if(moduleId === 'mod-sintesi') renderDashboard();
     }
@@ -284,7 +324,7 @@
         else if (!accessToken) { showScreen('authScreen'); }
         else { 
             showScreen('mainWorkspace'); 
-            loadData(false, true); // Primo caricamento forzato
+            loadData(false, true); 
             if(autoRefreshTimer) clearInterval(autoRefreshTimer); 
             autoRefreshTimer = setInterval(() => { loadData(true, false); }, 15000); 
         }
@@ -298,9 +338,9 @@
 
     function updateBadge(status) {
         const badge = document.getElementById('liveConnectionStatus');
-        if(status === 'sync') badge.innerHTML = `<div class="w-2 h-2 bg-blue-500 animate-pulse"></div> SYNC_REQ`;
-        else if(status === 'online') badge.innerHTML = `<div class="w-2 h-2 bg-green-500"></div> ONLINE`;
-        else badge.innerHTML = `<div class="w-2 h-2 bg-red-500"></div> FAULT`;
+        if(status === 'sync') { badge.innerHTML = `[ SYNC ]`; badge.style.color = '#0078d7'; }
+        else if(status === 'online') { badge.innerHTML = `[ ONLINE ]`; badge.style.color = '#107c10'; }
+        else { badge.innerHTML = `[ FAULT ]`; badge.style.color = '#d13438'; }
     }
 
     // Auth Calls
@@ -314,24 +354,21 @@
         }
         if (!res.ok) throw new Error(data.error); return data;
     }
-    async function verifyLogin() { const u = document.getElementById('adminUser').value; const p = document.getElementById('adminPass').value; if(!u||!p)return; document.getElementById('loginBtn').innerText='WAIT...'; try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user: u, pass: p }) }); if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Access Denied"); } catch(e){ alert("Net Error"); } document.getElementById('loginBtn').innerText='INITIALIZE SESSION';}
+    async function verifyLogin() { const u = document.getElementById('adminUser').value; const p = document.getElementById('adminPass').value; if(!u||!p)return; document.getElementById('loginBtn').innerText='ATTENDI...'; try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user: u, pass: p }) }); if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Credenziali Errate"); } catch(e){ alert("Errore di Rete"); } document.getElementById('loginBtn').innerText='OK';}
     async function loginDropbox() { try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) }); const data = await res.json(); if (data.success && data.url) window.location.href = data.url; } catch(e){} }
-    async function handleRedirect() { const code = new URLSearchParams(window.location.search).get("code"); if(code) { window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('authScreen').classList.remove('hidden-view'); try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); const data = await res.json(); if(data.success) { accessToken = data.access_token; refreshToken = data.refresh_token; localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken); checkAppStatus(); } } catch(e){} } }
+    async function handleRedirect() { const code = newSearchParams(window.location.search).get("code"); if(code) { window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('authScreen').classList.remove('hidden-view'); try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); const data = await res.json(); if(data.success) { accessToken = data.access_token; refreshToken = data.refresh_token; localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken); checkAppStatus(); } } catch(e){} } }
 
-    // ================= DATI & SMART RENDERING (Il Fix del Blocco) =================
+    // ================= DATI & SMART RENDERING (Il Motore che non blocca) =================
     function getStock(barcode) { return movimenti.filter(m => m.barcode === barcode).reduce((acc, m) => { const q = parseInt(m.qty) || 1; return (m.type === 'IN' || m.type === 'STOCK') ? acc + q : acc - q; }, 0); }
 
-    // Motore intelligente: Aggiorna il DOM SOLO se i dati sono cambiati e non stai modificando nulla
     async function loadData(isSilent = false, forceRender = false) {
         if(!isSilent) updateBadge('sync');
         try {
             const data = await apiCall("getDashboardData");
-            
-            // Generazione firma hash basica per confronto
             const newDataHash = JSON.stringify(data.inventario.length) + "_" + JSON.stringify(data.movimenti.length);
             
-            // Se i dati sono identici all'ultimo controllo, non toccare il DOM. 
-            // Se l'utente sta scrivendo (INSERT/EDIT), mettiamo in pausa il render per non cancellargli il lavoro.
+            // Renderizza solo se c'è un cambiamento REALE nei dati o se forzato.
+            // Ignora il render se l'utente sta modificando dati (INSERT/EDIT).
             if ((newDataHash !== lastDataHash && currentMode === 'VIEW') || forceRender) {
                 inventario = data.inventario || []; movimenti = data.movimenti || []; 
                 lastDataHash = newDataHash;
@@ -348,12 +385,12 @@
         updateBadge('sync');
         try {
             await apiCall("saveAdminData", payload);
-            await loadData(true, true); // Forza il ricaricamento e il render dopo la scrittura
+            await loadData(true, true); // Ricarica post-scrittura
             return true;
-        } catch (e) { alert(`DB Error:\n${e.message}`); return false; }
+        } catch (e) { alert(`Errore DB:\n${e.message}`); return false; }
     }
 
-    // ================= INSPECTOR LOGIC =================
+    // ================= INSPECTOR & TOOLBAR LOGIC =================
     function setFormEnabled(enabled) {
         document.getElementById('inspBarcode').disabled = !enabled;
         document.getElementById('inspName').disabled = !enabled;
@@ -373,6 +410,7 @@
     }
 
     function initNewItem() {
+        // Se c'era già un inserimento in corso, svuota tutto
         currentMode = 'INSERT';
         document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
         
@@ -382,14 +420,20 @@
         
         setFormEnabled(true);
         document.getElementById('inspInitBlock').classList.remove('hidden-view');
-        document.getElementById('inspHeader').innerHTML = 'CENSIMENTO NUOVO SKU';
+        
+        document.getElementById('inspHeader').innerHTML = '<i class="fa-solid fa-asterisk text-blue-800 mr-1"></i> INSERIMENTO NUOVO ARTICOLO';
         document.getElementById('inspHeader').style.backgroundColor = '#bfdbfe'; 
+        
+        // Passa automaticamente al tab Inventario se ero altrove
+        if(document.getElementById('mod-inventario').classList.contains('hidden-view')) {
+            switchModule('mod-inventario', document.querySelectorAll('.win-tab')[1]);
+        }
         
         updateToolbar(); document.getElementById('inspBarcode').focus(); 
     }
 
     function inspectItem(barcode, rowElement) {
-        if(currentMode !== 'VIEW') { if(!confirm("Abbandonare l'operazione in corso?")) return; }
+        if(currentMode !== 'VIEW') { if(!confirm("Abbandonare le modifiche in corso?")) return; }
         currentMode = 'EDIT';
         
         document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
@@ -404,7 +448,7 @@
         
         setFormEnabled(true);
         document.getElementById('inspInitBlock').classList.add('hidden-view');
-        document.getElementById('inspHeader').innerHTML = 'MODIFICA ANAGRAFICA';
+        document.getElementById('inspHeader').innerHTML = '<i class="fa-solid fa-pen text-orange-600 mr-1"></i> MODIFICA ANAGRAFICA';
         document.getElementById('inspHeader').style.backgroundColor = '#fef08a'; 
         
         updateToolbar();
@@ -415,7 +459,7 @@
         document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
         setFormEnabled(false); document.getElementById('inspInitBlock').classList.add('hidden-view');
         document.getElementById('inspBarcode').value = ''; document.getElementById('inspName').value = '';
-        document.getElementById('inspHeader').innerHTML = 'INSPECTOR: NESSUNA SELEZIONE'; document.getElementById('inspHeader').style.backgroundColor = 'var(--sys-header)';
+        document.getElementById('inspHeader').innerHTML = 'NESSUN RECORD SELEZIONATO'; document.getElementById('inspHeader').style.backgroundColor = '#d4d4d4';
         updateToolbar();
     }
 
@@ -425,8 +469,8 @@
         const category = document.getElementById('inspCategory').value;
         const originalBcode = document.getElementById('inspOriginalBarcode').value;
 
-        if (!bcode || !name) return alert("SKU e DESCRIZIONE obbligatori.");
-        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Violazione Univocità: SKU esistente.");
+        if (!bcode || !name) return alert("Codice SKU e Descrizione sono obbligatori.");
+        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Questo codice SKU è già utilizzato.");
 
         let updatedMovimenti = false;
         const newItem = { barcode: bcode, name: name, category: category };
@@ -438,14 +482,14 @@
             inventario.push(newItem); 
             const initQty = parseInt(document.getElementById('inspInitQty').value) || 0;
             if (initQty > 0) {
-                movimenti.push({ id: Date.now().toString(), barcode: bcode, type: 'IN', qty: initQty, location: 'SYS_INIT_INBOUND', timestamp: new Date().toISOString(), operatore: 'SYS_ADMIN' });
+                movimenti.push({ id: Date.now().toString(), barcode: bcode, type: 'IN', qty: initQty, location: 'Carico Iniziale', timestamp: new Date().toISOString(), operatore: 'ADMIN' });
                 updatedMovimenti = true;
             }
         }
 
         const payload = { inventario: inventario }; if (updatedMovimenti) payload.movimenti = movimenti;
         if (await syncDataToServer(payload)) {
-            const msgBox = document.getElementById('inspStatusMsg'); msgBox.innerText = "DB AGGIORNATO.";
+            const msgBox = document.getElementById('inspStatusMsg'); msgBox.innerText = "DATI SALVATI CORRETTAMENTE.";
             setTimeout(() => { msgBox.innerText = ""; cancelEdit(); }, 2000);
         }
     }
@@ -453,23 +497,23 @@
     async function executeManualTx() {
         const barcode = document.getElementById('inspOriginalBarcode').value;
         const type = document.getElementById('txType').value; const qty = parseInt(document.getElementById('txQty').value);
-        const loc = document.getElementById('txLoc').value.trim() || 'MANUAL_TX';
+        const loc = document.getElementById('txLoc').value.trim() || 'Rettifica Manuale';
 
-        if (isNaN(qty) || qty <= 0) return alert("Q.tà non valida.");
-        if (type === 'OUT' && qty > getStock(barcode)) return alert("FAULT: ON-HAND insufficiente per l'OUTBOUND.");
+        if (isNaN(qty) || qty <= 0) return alert("Inserire una quantità valida.");
+        if (type === 'OUT' && qty > getStock(barcode)) return alert("Errore: Impossibile scaricare. Giacenza insufficiente.");
 
-        movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'SYS_ADMIN' });
+        movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'ADMIN' });
         if (await syncDataToServer({ movimenti: movimenti })) { document.getElementById('txQty').value = 1; document.getElementById('txLoc').value = ''; }
     }
     
     async function deleteCurrentItem() {
         const barcode = document.getElementById('inspOriginalBarcode').value;
-        if (!confirm(`SYS_WARN: Confermi il DROP logico dell'SKU [${barcode}]?`)) return;
+        if (!confirm(`Sei sicuro di voler rimuovere l'articolo [${barcode}] dal database?`)) return;
         inventario = inventario.filter(i => i.barcode !== barcode);
         if (await syncDataToServer({ inventario: inventario })) cancelEdit();
     }
 
-    // ================= RENDERIZAZIONI DOM =================
+    // ================= RENDER GRID & KPI =================
     function filterTable(tbodyId, query) {
         const rows = document.getElementById(tbodyId).getElementsByTagName('tr'); query = query.toLowerCase();
         for (let row of rows) row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
@@ -479,8 +523,8 @@
         const tbody = document.getElementById('inventoryTableBody');
         tbody.innerHTML = inventario.map(item => {
             const qty = getStock(item.barcode);
-            const status = qty > 0 ? `AVAIL` : `OOS`; // OOS = Out of stock
-            return `<tr onclick="inspectItem('${item.barcode}', this)"><td class="font-bold text-blue-900">${item.barcode}</td><td>${item.name}</td><td>${item.category||'-'}</td><td class="text-right font-mono font-bold">${qty}</td><td class="text-center">${status}</td></tr>`;
+            const status = qty > 0 ? `DISPONIBILE` : `<span class="text-red-600 font-bold">ESAURITO</span>`;
+            return `<tr onclick="inspectItem('${item.barcode}', this)"><td class="font-bold text-[#005a9e]">${item.barcode}</td><td>${item.name}</td><td>${item.category||'-'}</td><td class="text-right font-mono font-bold">${qty}</td><td class="text-center">${status}</td></tr>`;
         }).join('');
     }
 
@@ -488,20 +532,17 @@
         document.getElementById('globalLogTableBody').innerHTML = [...movimenti].reverse().map(m => {
             const isIN = m.type === 'IN' || m.type === 'STOCK';
             const d = new Date(m.timestamp);
-            return `<tr><td class="text-gray-600">${d.toISOString().replace('T',' ').substring(0,19)}</td><td class="text-gray-400">${m.id}</td><td class="font-bold">${m.barcode}</td><td class="text-center font-bold ${isIN?'text-green-700':'text-red-700'}">${isIN?'INBOUND':'OUTBOUND'}</td><td class="text-right font-mono font-bold">${isIN?'+':'-'}${m.qty||1}</td><td>${m.location||"-"}</td><td>${m.operatore}</td></tr>`;
+            return `<tr><td class="text-gray-600">${d.toLocaleString('it-IT')}</td><td class="text-gray-400">${m.id}</td><td class="font-bold">${m.barcode}</td><td class="text-center font-bold ${isIN?'text-[#107c10]':'text-[#d13438]'}">${isIN?'CARICO (IN)':'SCARICO (OUT)'}</td><td class="text-right font-mono font-bold">${isIN?'+':'-'}${m.qty||1}</td><td>${m.location||"-"}</td><td>${m.operatore}</td></tr>`;
         }).join('');
     }
 
     function renderDashboard() {
-        let oosCount = 0;
-        let totalQty = 0;
-        const catData = {}; 
+        let oosCount = 0; let totalQty = 0; const catData = {}; 
         
         inventario.forEach(item => { 
-            const q = getStock(item.barcode);
-            totalQty += q;
+            const q = getStock(item.barcode); totalQty += q;
             if(q === 0) oosCount++;
-            const cat = item.category || 'N/A'; catData[cat] = (catData[cat] || 0) + q; 
+            const cat = item.category || 'Non Categorizzato'; catData[cat] = (catData[cat] || 0) + q; 
         });
 
         document.getElementById('kpi-sku').innerText = inventario.length;
@@ -511,19 +552,19 @@
 
         document.getElementById('kpi-recent-tx').innerHTML = [...movimenti].reverse().slice(0, 10).map(m => {
             const isIN = m.type === 'IN' || m.type === 'STOCK';
-            return `<tr><td class="font-mono text-[10px] text-gray-500">${new Date(m.timestamp).toLocaleTimeString()}</td><td class="font-bold text-[11px] truncate">${m.barcode}</td><td class="text-center text-[10px] font-bold ${isIN?'text-green-700':'text-red-700'}">${isIN?'IN':'OUT'}</td><td class="text-right font-mono font-bold">${m.qty||1}</td></tr>`;
+            return `<tr><td class="text-gray-500">${new Date(m.timestamp).toLocaleTimeString()}</td><td class="font-bold">${m.barcode}</td><td class="text-center font-bold ${isIN?'text-[#107c10]':'text-[#d13438]'}">${isIN?'IN':'OUT'}</td><td class="text-right font-mono font-bold">${m.qty||1}</td></tr>`;
         }).join('');
         
         if(mainChartInstance) mainChartInstance.destroy();
         mainChartInstance = new Chart(document.getElementById('dashboardChart').getContext('2d'), {
-            type: 'bar', data: { labels: Object.keys(catData), datasets: [{ data: Object.values(catData), backgroundColor: '#005a9e', borderRadius: 0 }] },
+            type: 'bar', data: { labels: Object.keys(catData), datasets: [{ data: Object.values(catData), backgroundColor: '#0078d7', borderRadius: 0 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#e4e4e7' } }, x: { grid: { display: false } } } }
         });
     }
 
     // ================= CONFIGURAZIONI =================
     function renderConfigCategories() {
-        document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<li class="p-2 bg-white border border-gray-300 flex justify-between items-center text-xs font-bold text-gray-700"><span>${c}</span> <button onclick="deleteCategory(${i})" class="text-red-600 px-2 py-1 hover:bg-red-100">DROP</button></li>`).join('');
+        document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<li class="p-2 bg-white border border-gray-300 flex justify-between items-center text-xs font-bold text-gray-700"><span>${c}</span> <button onclick="deleteCategory(${i})" class="text-red-600 px-2 py-1 hover:bg-red-100">Rimuovi</button></li>`).join('');
     }
     function addCategory() {
         const val = document.getElementById('newCatInput').value.trim().toUpperCase();
