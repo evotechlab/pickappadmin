@@ -85,12 +85,12 @@
         .erp-pane { border: 1px solid var(--sys-border); background-color: var(--sys-bg); display: flex; flex-direction: column; }
         .erp-pane-header { background-color: var(--sys-header); padding: 4px 8px; font-weight: bold; font-size: 11px; color: #000; border-bottom: 1px solid var(--sys-border); text-transform: uppercase; }
         
-        /* Navbar Superiore */
-        .erp-navbar { background-color: #1e1e1e; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 40px; border-bottom: 2px solid var(--sys-highlight); }
-        .nav-modules { display: flex; height: 100%; }
-        .nav-tab { background: transparent; border: none; color: #aaa; padding: 0 16px; font-weight: bold; font-size: 11px; text-transform: uppercase; height: 100%; display: flex; align-items: center; border-bottom: 3px solid transparent; }
-        .nav-tab:hover { color: #fff; background-color: #2d2d2d; }
-        .nav-tab.active { color: #fff; border-bottom-color: var(--sys-highlight); background-color: #2d2d2d; }
+        /* Navbar Superiore Uniformata */
+        .erp-navbar { background-color: var(--sys-bg); border-bottom: 1px solid var(--sys-border); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 12px; height: 42px; }
+        .nav-modules { display: flex; height: 28px; gap: 2px; }
+        .nav-tab { background-color: #e1e1e1; border: 1px solid var(--sys-border); border-bottom: none; color: #444; padding: 0 16px; font-weight: bold; font-size: 11px; text-transform: uppercase; height: 100%; display: flex; align-items: center; }
+        .nav-tab:hover { background-color: #e5f1fb; }
+        .nav-tab.active { background-color: var(--sys-bg); color: #000; border-top: 3px solid var(--sys-highlight); padding-bottom: 2px; margin-bottom: -1px; z-index: 2; position: relative; }
 
     </style>
 </head>
@@ -121,8 +121,8 @@
     <div id="mainWorkspace" class="flex flex-col h-full hidden-view">
         
         <header class="erp-navbar shrink-0">
-            <div class="flex items-center h-10">
-                <div class="font-black text-lg tracking-widest mr-8 flex items-center"><i class="fa-solid fa-cube text-[var(--sys-highlight)] mr-2"></i>WMS</div>
+            <div class="flex items-center h-full">
+                <div class="font-black text-lg tracking-widest mr-8 flex items-center text-slate-800 mb-1"><i class="fa-solid fa-cube text-[var(--sys-highlight)] mr-2"></i>WMS</div>
                 <div class="nav-modules">
                     <button onclick="switchModule('mod-sintesi', this)" class="nav-tab active">Sintesi Operativa</button>
                     <button onclick="switchModule('mod-anagrafica', this)" class="nav-tab">Anagrafica SKU</button>
@@ -130,12 +130,12 @@
                     <button onclick="switchModule('mod-setup', this)" class="nav-tab">Configurazioni</button>
                 </div>
             </div>
-            <div class="flex items-center gap-4 text-xs font-mono">
-                <div id="liveConnectionStatus" class="flex items-center gap-2 bg-[#2d2d2d] px-2 py-1 border border-[#444] text-[#aaa]">
-                    <div class="w-2 h-2 bg-gray-500"></div> OFFLINE
+            <div class="flex items-center gap-4 text-xs font-mono mb-1">
+                <div id="liveConnectionStatus" class="flex items-center gap-2 bg-white px-2 py-0.5 border border-gray-400 text-gray-700 font-bold">
+                    <div class="w-2 h-2 bg-gray-400"></div> OFFLINE
                 </div>
-                <span class="text-gray-400">OP: ADMIN</span>
-                <button onclick="hardLogout()" class="text-red-400 hover:text-red-300 ml-2" title="Termina Sessione"><i class="fa-solid fa-power-off text-sm"></i></button>
+                <span class="text-gray-700 font-bold">OP: ADMIN</span>
+                <button onclick="hardLogout()" class="text-red-600 hover:text-red-500 ml-2 bg-gray-200 px-2 border border-gray-400" title="Termina Sessione"><i class="fa-solid fa-power-off text-sm"></i></button>
             </div>
         </header>
 
@@ -298,7 +298,7 @@
 
     function updateBadge(status) {
         const badge = document.getElementById('liveConnectionStatus');
-        if(status === 'sync') badge.innerHTML = `<div class="w-2 h-2 bg-blue-400"></div> SYNC_REQ`;
+        if(status === 'sync') badge.innerHTML = `<div class="w-2 h-2 bg-blue-500 animate-pulse"></div> SYNC_REQ`;
         else if(status === 'online') badge.innerHTML = `<div class="w-2 h-2 bg-green-500"></div> ONLINE`;
         else badge.innerHTML = `<div class="w-2 h-2 bg-red-500"></div> FAULT`;
     }
@@ -345,7 +345,7 @@
     }
 
     async function syncDataToServer(payload) {
-        document.getElementById('liveConnectionStatus').innerHTML = 'WRITING...';
+        updateBadge('sync');
         try {
             await apiCall("saveAdminData", payload);
             await loadData(true, true); // Forza il ricaricamento e il render dopo la scrittura
@@ -415,7 +415,7 @@
         document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
         setFormEnabled(false); document.getElementById('inspInitBlock').classList.add('hidden-view');
         document.getElementById('inspBarcode').value = ''; document.getElementById('inspName').value = '';
-        document.getElementById('inspHeader').innerHTML = 'NESSUNA SELEZIONE'; document.getElementById('inspHeader').style.backgroundColor = 'var(--sys-header)';
+        document.getElementById('inspHeader').innerHTML = 'INSPECTOR: NESSUNA SELEZIONE'; document.getElementById('inspHeader').style.backgroundColor = 'var(--sys-header)';
         updateToolbar();
     }
 
