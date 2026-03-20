@@ -46,7 +46,7 @@
         
         /* Tab speciali per comandi e status */
         .tab-status { font-family: monospace; font-weight: bold; cursor: default; }
-        .tab-status:hover { background-color: #e8e8e8; } /* Niente hover effect per gli stati */
+        .tab-status:hover { background-color: #e8e8e8; } 
         .tab-danger { color: #d13438; font-weight: bold; }
         .tab-danger:hover { background-color: #fce4e4; border-color: #d13438; }
 
@@ -247,24 +247,24 @@
     let accessToken = localStorage.getItem("wms_admin_db_token");
     let refreshToken = localStorage.getItem("wms_admin_refresh_token");
     
-    // Setup Default
     let configCategories = JSON.parse(localStorage.getItem("wms_categories")) || ["MATERIE PRIME", "PRODOTTI FINITI"];
-    let configWarehouses = JSON.parse(localStorage.getItem("wms_warehouses")) || ["MAGAZZINO CENTRALE", "MAGAZZINO ESTERNO 1"];
+    let configWarehouses = JSON.parse(localStorage.getItem("wms_warehouses")) || ["MAGAZZINO 1", "MAGAZZINO 2"];
     
-    let inventario = []; // Format: { barcode, name, category, warehouse }
-    let movimenti = [];  // Format: { id, barcode, type, qty, location, timestamp, operatore, warehouse }
+    let inventario = []; 
+    let movimenti = [];  
     
     let autoRefreshTimer = null;
     let mainChartInstance = null;
     let activeModule = 'mod-sintesi';
-    let activeWarehouseTab = null; // Memorizza quale magazzino stiamo guardando
-    let currentMode = 'VIEW'; // 'VIEW', 'SELECTED', 'INSERT', 'EDIT'
+    let activeWarehouseTab = null; 
+    let currentMode = 'VIEW'; 
     let lastDataHash = "";    
 
     document.addEventListener('DOMContentLoaded', () => { 
         handleRedirect(); 
+        checkAppStatus(); // <-- COMANDO RIPRISTINATO
         renderConfig(); 
-        buildDynamicNavbar(); // Costruisce le tab magazzini
+        buildDynamicNavbar(); 
         setInterval(() => { const d = new Date(); document.getElementById('sysClock').innerText = d.toLocaleTimeString(); }, 1000);
     });
 
@@ -292,7 +292,7 @@
         
         activeModule = moduleId;
         activeWarehouseTab = warehouseName;
-        buildDynamicNavbar(); // Ridisegna i tab con quello giusto attivo
+        buildDynamicNavbar(); 
         
         document.querySelectorAll('.wms-module').forEach(el => el.classList.add('hidden-view'));
         document.getElementById(moduleId).classList.remove('hidden-view');
@@ -300,7 +300,7 @@
         updateToolbar();
         
         if(moduleId === 'mod-sintesi') renderDashboard();
-        if(moduleId === 'mod-inventario') renderMasterData(); // Filtra automaticamente i dati
+        if(moduleId === 'mod-inventario') renderMasterData(); 
     }
 
     // ================= SYSTEM AUTH =================
@@ -344,9 +344,28 @@
         }
         if (!res.ok) throw new Error(data.error); return data;
     }
+    
     async function verifyLogin() { const u = document.getElementById('adminUser').value; const p = document.getElementById('adminPass').value; if(!u||!p)return; document.getElementById('loginBtn').innerText='ATTENDI...'; try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user: u, pass: p }) }); if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Credenziali Errate"); } catch(e){ alert("Errore di Rete"); } document.getElementById('loginBtn').innerText='OK';}
     async function loginDropbox() { try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) }); const data = await res.json(); if (data.success && data.url) window.location.href = data.url; } catch(e){} }
-    async function handleRedirect() { const code = new URLSearchParams(window.location.search).get("code"); if(code) { window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('authScreen').classList.remove('hidden-view'); try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); const data = await res.json(); if(data.success) { accessToken = data.access_token; refreshToken = data.refresh_token; localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken); checkAppStatus(); } } catch(e){} } }
+    
+    async function handleRedirect() { 
+        const code = new URLSearchParams(window.location.search).get("code"); 
+        if(code) { 
+            window.history.replaceState({}, document.title, window.location.pathname); 
+            document.getElementById('authScreen').classList.remove('hidden-view'); 
+            try { 
+                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); 
+                const data = await res.json(); 
+                if(data.success) { 
+                    accessToken = data.access_token; 
+                    refreshToken = data.refresh_token; 
+                    localStorage.setItem("wms_admin_db_token", accessToken); 
+                    localStorage.setItem("wms_admin_refresh_token", refreshToken); 
+                    checkAppStatus(); 
+                } 
+            } catch(e){} 
+        } 
+    }
 
     // ================= SMART SYNC & LOGIC =================
     function getStock(barcode) { return movimenti.filter(m => m.barcode === barcode).reduce((acc, m) => { const q = parseInt(m.qty) || 1; return (m.type === 'IN' || m.type === 'STOCK') ? acc + q : acc - q; }, 0); }
@@ -405,7 +424,7 @@
         document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
         
         document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
-        document.getElementById('inspWarehouse').value = activeWarehouseTab; // Vincolato al magazzino corrente
+        document.getElementById('inspWarehouse').value = activeWarehouseTab; 
         
         document.getElementById('inspOriginalBarcode').value = ''; document.getElementById('inspBarcode').value = '';
         document.getElementById('inspName').value = ''; document.getElementById('inspInitQty').value = '0';
@@ -494,7 +513,6 @@
         if (isNaN(qty) || qty <= 0) return alert("Inserire una quantità valida.");
         if (type === 'OUT' && qty > getStock(barcode)) return alert("Errore: Impossibile scaricare. Giacenza insufficiente.");
 
-        // Includiamo il magazzino nella traccia del movimento
         movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'ADMIN', warehouse: activeWarehouseTab });
         if (await syncDataToServer({ movimenti: movimenti })) { document.getElementById('txQty').value = 1; document.getElementById('txLoc').value = ''; }
     }
@@ -513,7 +531,6 @@
     }
 
     function renderMasterData() {
-        // Filtra la tabella in base al TAB Magazzino Selezionato
         const tbody = document.getElementById('inventoryTableBody');
         document.getElementById('invGridTitle').innerText = `DataGrid - ${activeWarehouseTab}`;
         
