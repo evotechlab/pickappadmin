@@ -3,214 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WMS Admin Pro | Terminal</title>
+    <title>WMS Terminal ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Stile Industriale: Font compatti, assenza di arrotondamenti eccessivi, focus sui dati */
-        body { background-color: #f1f5f9; color: #1e293b; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
-        .modal { transition: opacity 0.15s ease; }
-        body.modal-active { overflow: hidden; }
+        /* TEMA INDUSTRIALE ERP: Austero, zero arrotondamenti morbidi, alta densità dati */
+        body { background-color: #e2e8f0; color: #1e293b; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 13px; margin: 0; overflow: hidden; }
+        .modal { transition: opacity 0.1s ease-in-out; }
         
-        /* Tabelle rigorose */
-        th { background-color: #e2e8f0; color: #334155; text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
-        td, th { border: 1px solid #cbd5e1; padding: 8px 12px; }
+        /* Tabelle DataGrid ERP */
+        table { width: 100%; border-collapse: collapse; background-color: #ffffff; }
+        th { background-color: #f1f5f9; color: #475569; text-transform: uppercase; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; padding: 10px 12px; border: 1px solid #cbd5e1; position: sticky; top: 0; z-index: 10; }
+        td { border: 1px solid #cbd5e1; padding: 8px 12px; vertical-align: middle; }
         tr:hover td { background-color: #f8fafc; }
         
-        /* Scrollbar tecnica */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        /* Layout Componenti */
+        .erp-panel { background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .erp-input { border: 1px solid #94a3b8; padding: 6px 10px; font-size: 13px; width: 100%; outline: none; border-radius: 0; background-color: #f8fafc; transition: border 0.1s; }
+        .erp-input:focus { border-color: #2563eb; background-color: #ffffff; }
+        .erp-btn { padding: 6px 14px; font-size: 12px; font-weight: bold; text-transform: uppercase; cursor: pointer; border: 1px solid transparent; transition: all 0.1s; }
+        .erp-btn-primary { background-color: #1e40af; border-color: #1e3a8a; color: white; }
+        .erp-btn-primary:hover { background-color: #1d4ed8; }
+        .erp-btn-secondary { background-color: #f1f5f9; border-color: #cbd5e1; color: #334155; }
+        .erp-btn-secondary:hover { background-color: #e2e8f0; }
+
+        /* Scrollbar Tecnica */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-left: 1px solid #cbd5e1; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
     </style>
 </head>
-<body class="flex flex-col min-h-screen">
+<body class="h-screen flex flex-col">
 
-    <header class="bg-slate-900 text-slate-200 h-12 flex items-center justify-between px-4 shadow-md z-20 sticky top-0 border-b-4 border-blue-600">
+    <header class="bg-slate-900 text-slate-300 h-10 flex items-center justify-between px-4 shrink-0 border-b border-slate-950 z-30">
         <div class="flex items-center gap-4">
-            <i class="fa-solid fa-industry text-lg text-blue-400"></i>
-            <h1 class="text-sm font-bold tracking-widest uppercase">PickApp <span class="text-slate-400 font-normal">WMS Terminal</span></h1>
-            
-            <div id="liveConnectionStatus" class="ml-6 flex items-center text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-1 rounded border border-slate-700 transition-all duration-300">
-                <span class="relative flex h-2 w-2 mr-2"><span class="relative inline-flex rounded-full h-2 w-2 bg-slate-500"></span></span>
+            <i class="fa-solid fa-server text-blue-500"></i>
+            <span class="font-bold tracking-widest text-xs text-white">WMS <span class="text-slate-500">TERMINAL</span> v2.0</span>
+            <div id="liveConnectionStatus" class="ml-4 flex items-center text-[9px] font-bold text-slate-500 bg-slate-800 px-2 py-0.5 border border-slate-700">
                 OFFLINE
             </div>
         </div>
-        <div class="flex items-center gap-4 text-xs">
-            <div id="syncStatus" class="hidden items-center gap-2">
-                <span id="lastSyncTime" class="font-mono text-slate-400">Sincronizzato</span>
-            </div>
-            <div class="h-4 w-px bg-slate-700 mx-2"></div>
-            <button onclick="hardLogout()" class="hover:text-white transition flex items-center gap-2" title="Disconnetti">
-                <i class="fa-solid fa-power-off"></i> LOGOUT
-            </button>
+        <div class="flex items-center gap-4 text-[10px] font-mono uppercase tracking-wider">
+            <span id="syncStatus" class="hidden text-slate-400">Ultimo Sync: <span id="lastSyncTime" class="text-white">N/A</span></span>
+            <div class="h-4 w-px bg-slate-700"></div>
+            <span class="text-slate-400"><i class="fa-solid fa-user text-slate-500 mr-1"></i> ADMIN</span>
+            <button onclick="hardLogout()" class="hover:text-white ml-2"><i class="fa-solid fa-power-off"></i> LOGOUT</button>
         </div>
     </header>
 
-    <div id="loginScreen" class="fixed inset-0 top-12 bg-slate-200 z-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 w-full max-w-sm border border-slate-300 shadow-lg rounded-sm">
-            <div class="flex items-center gap-3 border-b border-slate-200 pb-4 mb-4">
-                <i class="fa-solid fa-lock text-slate-400 text-xl"></i>
-                <h2 class="text-lg font-bold text-slate-700 uppercase">Autenticazione</h2>
-            </div>
-            <input type="text" id="adminUser" placeholder="Codice Utente" class="w-full bg-slate-50 border border-slate-300 p-2.5 mb-3 outline-none focus:border-blue-600 font-mono text-sm rounded-sm">
-            <input type="password" id="adminPass" placeholder="Password" class="w-full bg-slate-50 border border-slate-300 p-2.5 mb-5 outline-none focus:border-blue-600 font-mono text-sm rounded-sm">
-            <button onclick="verifyLogin()" id="loginBtn" class="w-full bg-slate-800 text-white font-bold p-2.5 hover:bg-slate-900 transition text-sm uppercase rounded-sm">
-                Accedi al Sistema
-            </button>
+    <div id="loginScreen" class="fixed inset-0 top-10 bg-slate-200 z-50 flex items-center justify-center hidden">
+        <div class="erp-panel p-8 w-[400px]">
+            <h2 class="text-lg font-bold text-slate-800 uppercase mb-4 border-b border-slate-200 pb-2"><i class="fa-solid fa-lock mr-2 text-slate-400"></i> Auth Gateway</h2>
+            <input type="text" id="adminUser" placeholder="ID Operatore" class="erp-input mb-3 font-mono">
+            <input type="password" id="adminPass" placeholder="Codice Segreto" class="erp-input mb-4 font-mono">
+            <button onclick="verifyLogin()" id="loginBtn" class="erp-btn erp-btn-primary w-full py-3">Inizializza Sessione</button>
         </div>
     </div>
 
-    <div id="authScreen" class="fixed inset-0 top-12 bg-slate-200 z-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 w-full max-w-sm border border-slate-300 shadow-lg rounded-sm text-center">
-            <i class="fa-solid fa-database text-4xl text-slate-400 mb-4"></i>
-            <h2 class="text-lg font-bold text-slate-700 uppercase mb-2">Connessione Node</h2>
-            <p class="text-slate-500 mb-6 text-xs">Richiesta autorizzazione OAuth2 per l'accesso ai dati persistenti.</p>
-            <button onclick="loginDropbox()" id="dbBtn" class="w-full bg-blue-600 text-white font-bold p-2.5 hover:bg-blue-700 transition text-sm uppercase rounded-sm">
-                Inizializza Database
-            </button>
+    <div id="authScreen" class="fixed inset-0 top-10 bg-slate-200 z-50 flex items-center justify-center hidden">
+        <div class="erp-panel p-8 w-[400px] text-center">
+            <i class="fa-solid fa-database text-4xl text-blue-600 mb-4"></i>
+            <h2 class="text-lg font-bold text-slate-800 uppercase mb-2">Connessione Master Data</h2>
+            <p class="text-xs text-slate-500 mb-6">Autorizzazione OAuth2 richiesta per montare il file system.</p>
+            <button onclick="loginDropbox()" id="dbBtn" class="erp-btn erp-btn-primary w-full py-3">Monta Database</button>
         </div>
     </div>
 
-    <div id="dashboardScreen" class="flex-1 flex flex-col hidden bg-slate-100">
+    <div id="dashboardScreen" class="flex-1 flex overflow-hidden hidden">
         
-        <div class="bg-white border-b border-slate-300 px-6 py-3 flex justify-between items-center shadow-sm">
-            <div class="flex items-center gap-6">
-                <h2 class="text-lg font-bold text-slate-800 uppercase tracking-tight">Anagrafica & Giacenze</h2>
-                <div class="h-6 w-px bg-slate-300"></div>
-                <div class="flex gap-4 text-sm font-medium">
-                    <span class="text-slate-500">Totale Articoli: <span id="statTotalItems" class="font-bold text-slate-800 font-mono">0</span></span>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="loadData()" class="bg-white border border-slate-300 text-slate-700 font-bold py-1.5 px-4 rounded-sm hover:bg-slate-50 transition text-xs uppercase flex items-center gap-2">
-                    <i class="fa-solid fa-rotate"></i> Refresh
+        <aside class="w-56 bg-slate-800 text-slate-300 flex flex-col shrink-0 border-r border-slate-900">
+            <div class="p-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-700">Navigazione Moduli</div>
+            <nav class="flex-1 overflow-y-auto py-2">
+                <button onclick="switchView('view-dashboard')" id="nav-dashboard" class="w-full text-left px-4 py-3 text-sm font-medium hover:bg-slate-700 border-l-4 border-transparent hover:text-white transition-colors focus:outline-none nav-btn">
+                    <i class="fa-solid fa-chart-line w-6 text-center text-slate-400"></i> Dashboard Analitica
                 </button>
-                <button onclick="openItemModal()" class="bg-blue-600 border border-blue-700 text-white font-bold py-1.5 px-4 rounded-sm hover:bg-blue-700 transition text-xs uppercase flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Nuovo Articolo
+                <button onclick="switchView('view-inventory')" id="nav-inventory" class="w-full text-left px-4 py-3 text-sm font-medium hover:bg-slate-700 border-l-4 border-transparent hover:text-white transition-colors focus:outline-none nav-btn">
+                    <i class="fa-solid fa-boxes-stacked w-6 text-center text-slate-400"></i> Anagrafica & Giacenze
                 </button>
-            </div>
-        </div>
+                <button onclick="switchView('view-log')" id="nav-log" class="w-full text-left px-4 py-3 text-sm font-medium hover:bg-slate-700 border-l-4 border-transparent hover:text-white transition-colors focus:outline-none nav-btn">
+                    <i class="fa-solid fa-list-ol w-6 text-center text-slate-400"></i> Log Transazioni
+                </button>
+                <div class="my-2 border-t border-slate-700 mx-4"></div>
+                <button onclick="switchView('view-config')" id="nav-config" class="w-full text-left px-4 py-3 text-sm font-medium hover:bg-slate-700 border-l-4 border-transparent hover:text-white transition-colors focus:outline-none nav-btn">
+                    <i class="fa-solid fa-gears w-6 text-center text-slate-400"></i> Impostazioni Categorie
+                </button>
+            </nav>
+            <div class="p-4 text-[10px] text-slate-500 border-t border-slate-700">WMS Environment: PROD</div>
+        </aside>
 
-        <main class="flex-1 p-6 overflow-auto">
-            <div class="bg-white border border-slate-300 shadow-sm rounded-sm">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr>
-                            <th class="w-48">Codice / SKU</th>
-                            <th>Descrizione Articolo</th>
-                            <th class="w-48">Categoria</th>
-                            <th class="w-24 text-right">Giacenza</th>
-                            <th class="w-32 text-center">Stato</th>
-                            <th class="w-24 text-center">Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventoryTableBody" class="divide-y divide-slate-200"></tbody>
-                </table>
-                <div id="emptyState" class="hidden p-12 text-center text-slate-400 bg-slate-50">
-                    <i class="fa-solid fa-inbox text-4xl mb-3 opacity-50"></i>
-                    <p class="text-sm uppercase tracking-wider font-bold">Nessun record trovato</p>
+        <main class="flex-1 bg-slate-100 flex flex-col overflow-hidden relative">
+            
+            <div id="view-dashboard" class="view-panel h-full flex flex-col p-4 overflow-y-auto hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-slate-800 uppercase tracking-tight">Dashboard Analitica</h2>
+                    <button onclick="loadData()" class="erp-btn erp-btn-secondary"><i class="fa-solid fa-rotate mr-1"></i> Forza Sync</button>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="erp-panel p-4 flex items-center gap-4">
+                        <div class="bg-blue-100 text-blue-700 p-3"><i class="fa-solid fa-barcode text-2xl"></i></div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-500">Totale SKU Registrati</p>
+                            <p class="text-2xl font-black font-mono text-slate-800" id="kpi-items">0</p>
+                        </div>
+                    </div>
+                    <div class="erp-panel p-4 flex items-center gap-4">
+                        <div class="bg-emerald-100 text-emerald-700 p-3"><i class="fa-solid fa-boxes-packing text-2xl"></i></div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-500">Volume Stock Totale (PZ)</p>
+                            <p class="text-2xl font-black font-mono text-slate-800" id="kpi-qty">0</p>
+                        </div>
+                    </div>
+                    <div class="erp-panel p-4 flex items-center gap-4">
+                        <div class="bg-amber-100 text-amber-700 p-3"><i class="fa-solid fa-right-left text-2xl"></i></div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-500">Transazioni Totali Loggate</p>
+                            <p class="text-2xl font-black font-mono text-slate-800" id="kpi-tx">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 flex-1 min-h-[300px]">
+                    <div class="erp-panel p-4 flex flex-col">
+                        <h3 class="text-xs font-bold text-slate-600 uppercase border-b border-slate-200 pb-2 mb-2">Trend Volumi per Categoria</h3>
+                        <div class="flex-1 relative"><canvas id="chartCategory"></canvas></div>
+                    </div>
+                    <div class="erp-panel p-4 flex flex-col">
+                        <h3 class="text-xs font-bold text-slate-600 uppercase border-b border-slate-200 pb-2 mb-2">Flusso Transazioni (Ultimi 10)</h3>
+                        <div class="flex-1 overflow-y-auto">
+                            <table class="w-full text-xs">
+                                <tbody id="kpi-recent-tx" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <div id="view-inventory" class="view-panel h-full flex flex-col hidden">
+                <div class="bg-white border-b border-slate-300 px-4 py-2 flex justify-between items-center shrink-0">
+                    <h2 class="text-sm font-bold text-slate-800 uppercase">Gestione Anagrafiche (Master Data)</h2>
+                    <div class="flex gap-2">
+                        <input type="text" id="searchInv" onkeyup="filterTable('inventoryTableBody', this.value)" placeholder="Filtra SKU/Nome..." class="erp-input w-64 text-xs py-1">
+                        <button onclick="openItemModal()" class="erp-btn erp-btn-primary"><i class="fa-solid fa-plus mr-1"></i> Nuovo Articolo</button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-auto bg-white relative">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th class="w-40">Codice Identificativo</th>
+                                <th>Descrizione Base</th>
+                                <th class="w-40">Classificazione</th>
+                                <th class="w-24 text-right">Giacenza</th>
+                                <th class="w-32 text-center">Stato Naturale</th>
+                                <th class="w-24 text-center">Gestione</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody" class="divide-y divide-slate-200 text-xs"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="view-log" class="view-panel h-full flex flex-col hidden">
+                <div class="bg-white border-b border-slate-300 px-4 py-2 flex justify-between items-center shrink-0">
+                    <h2 class="text-sm font-bold text-slate-800 uppercase">Registro Transazioni (Audit Log)</h2>
+                    <input type="text" id="searchLog" onkeyup="filterTable('globalLogTableBody', this.value)" placeholder="Cerca nel log..." class="erp-input w-64 text-xs py-1">
+                </div>
+                <div class="flex-1 overflow-auto bg-white">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th class="w-40">Timestamp</th>
+                                <th class="w-32">SKU Riferimento</th>
+                                <th class="w-24 text-center">Operazione</th>
+                                <th class="w-20 text-right">Q.tà</th>
+                                <th>Ubicazione</th>
+                                <th class="w-32">Terminale/Op.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="globalLogTableBody" class="divide-y divide-slate-200 text-xs font-mono"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="view-config" class="view-panel h-full flex flex-col p-6 hidden overflow-y-auto">
+                <h2 class="text-xl font-bold text-slate-800 uppercase tracking-tight mb-4 border-b border-slate-300 pb-2">Parametri di Sistema</h2>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="erp-panel p-0 flex flex-col max-h-[400px]">
+                        <div class="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-slate-700 uppercase">Classificazioni (Categorie)</h3>
+                        </div>
+                        <div class="p-3 flex gap-2 border-b border-slate-200 bg-white">
+                            <input type="text" id="newCategoryInput" placeholder="Nuova Categoria..." class="erp-input text-xs">
+                            <button onclick="addCategory()" class="erp-btn erp-btn-secondary whitespace-nowrap"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                        <div class="flex-1 overflow-y-auto bg-white p-2">
+                            <ul id="categoryList" class="flex flex-col gap-1 text-sm"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <div id="itemModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/40 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg border border-slate-300 shadow-2xl rounded-sm transform scale-95 transition-transform" id="itemModalContent">
-            <div class="p-4 border-b border-slate-200 bg-slate-100 flex justify-between items-center">
-                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider" id="itemModalTitle">Gestione Anagrafica</h3>
-                <button onclick="closeModal('itemModal', 'itemModalContent')" class="text-slate-400 hover:text-slate-800"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <div id="itemModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/40">
+        <div class="erp-panel w-[550px] transform scale-95 transition-transform" id="itemModalContent">
+            <div class="bg-slate-800 text-white p-3 flex justify-between items-center">
+                <h3 class="text-xs font-bold uppercase tracking-wider" id="itemModalTitle">Maschera Inserimento Dati</h3>
+                <button onclick="closeModal('itemModal', 'itemModalContent')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-6 flex flex-col gap-4">
+            <div class="p-5 flex flex-col gap-4">
                 <input type="hidden" id="editOriginalBarcode">
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Codice Identificativo (SKU)*</label>
-                        <input type="text" id="itemBarcode" class="w-full bg-white border border-slate-300 p-2 focus:border-blue-500 outline-none font-mono uppercase text-sm rounded-sm">
-                        <p class="text-[10px] text-rose-500 mt-1 hidden font-bold" id="barcodeWarning">⚠ Modifica a cascata abilitata.</p>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">SKU Code (Univoco)*</label>
+                        <input type="text" id="itemBarcode" class="erp-input font-mono uppercase font-bold text-blue-700">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Categoria Merceologica</label>
-                        <input type="text" id="itemCategory" placeholder="Es. Elettronica, Ferramenta" class="w-full bg-white border border-slate-300 p-2 focus:border-blue-500 outline-none text-sm rounded-sm">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Categoria Merceologica</label>
+                        <select id="itemCategory" class="erp-input py-[7px]"></select>
                     </div>
                 </div>
                 
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nome Articolo*</label>
-                    <input type="text" id="itemName" class="w-full bg-white border border-slate-300 p-2 focus:border-blue-500 outline-none text-sm font-bold rounded-sm">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Descrizione Primaria*</label>
+                    <input type="text" id="itemName" class="erp-input font-bold">
                 </div>
                 
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Descrizione Dettagliata (Opzionale)</label>
-                    <textarea id="itemDesc" rows="2" class="w-full bg-white border border-slate-300 p-2 focus:border-blue-500 outline-none text-sm rounded-sm resize-none"></textarea>
+                <div id="initQtyContainer" class="bg-amber-50 border border-amber-200 p-3 mt-2">
+                    <label class="block text-[10px] font-bold text-amber-800 uppercase mb-1"><i class="fa-solid fa-scale-balanced mr-1"></i> Giacenza Iniziale (Opzionale)</label>
+                    <p class="text-[9px] text-amber-700 mb-2">Imposta un valore se l'articolo è già presente fisicamente. Genererà un movimento logico [SYS_INIT].</p>
+                    <input type="number" id="itemInitQty" value="0" min="0" class="erp-input font-mono w-32 text-right border-amber-300">
                 </div>
 
-                <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-100">
-                    <button onclick="closeModal('itemModal', 'itemModalContent')" class="px-4 py-2 border border-slate-300 text-slate-600 text-xs font-bold uppercase hover:bg-slate-50 rounded-sm">Annulla</button>
-                    <button onclick="saveItem()" id="saveItemBtn" class="px-4 py-2 bg-blue-600 text-white border border-blue-700 text-xs font-bold uppercase hover:bg-blue-700 rounded-sm">Salva Dati</button>
+                <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-200">
+                    <button onclick="closeModal('itemModal', 'itemModalContent')" class="erp-btn erp-btn-secondary">Annulla</button>
+                    <button onclick="saveItem()" id="saveItemBtn" class="erp-btn erp-btn-primary">Salva a Database</button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="historyModal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none bg-slate-900/40 backdrop-blur-sm p-4">
-        <div class="bg-white w-full max-w-4xl h-[85vh] flex flex-col border border-slate-300 shadow-2xl rounded-sm transform scale-95 transition-transform" id="historyModalContent">
-            
-            <div class="p-4 border-b border-slate-300 bg-slate-800 text-white flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <i class="fa-solid fa-file-invoice text-2xl text-slate-400"></i>
-                    <div>
-                        <h3 class="text-lg font-black font-mono tracking-wider" id="historyBarcode">SKU</h3>
-                        <p class="text-xs font-medium text-slate-400" id="historyName">Descrizione</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-6">
-                    <div class="text-right">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Giacenza Calcolata</p>
-                        <p class="text-2xl font-mono font-bold text-emerald-400" id="historyCurrentStock">0</p>
-                    </div>
-                    <div class="h-8 w-px bg-slate-600"></div>
-                    <button onclick="closeModal('historyModal', 'historyModalContent')" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
-                </div>
-            </div>
-
-            <div class="p-4 bg-slate-100 border-b border-slate-300 flex items-end gap-3">
-                <div class="w-32">
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Operazione</label>
-                    <select id="forceType" class="w-full border border-slate-300 p-1.5 text-sm rounded-sm">
-                        <option value="IN">STOCK (Ingresso)</option>
-                        <option value="OUT">PICK (Uscita)</option>
-                    </select>
-                </div>
-                <div class="w-24">
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Quantità</label>
-                    <input type="number" id="forceQty" value="1" min="1" class="w-full border border-slate-300 p-1.5 text-sm rounded-sm text-right font-mono">
-                </div>
-                <div class="flex-1">
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Magazzino / Ubicazione</label>
-                    <input type="text" id="forceLocation" placeholder="Es. Mag. Principale - Corsia A" class="w-full border border-slate-300 p-1.5 text-sm rounded-sm">
-                </div>
-                <button onclick="forceMovement()" class="bg-slate-800 text-white px-4 py-1.5 border border-slate-900 font-bold text-xs uppercase rounded-sm hover:bg-slate-700">
-                    Esegui Transazione
-                </button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto p-4 bg-white">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr>
-                            <th class="w-32">Data / Ora</th>
-                            <th class="w-24 text-center">Tipo</th>
-                            <th class="w-24 text-right">Q.tà</th>
-                            <th>Ubicazione / Note</th>
-                            <th class="w-32">Operatore</th>
-                            <th class="w-16 text-center">Del</th>
-                        </tr>
-                    </thead>
-                    <tbody id="timelineContainer" class="divide-y divide-slate-100 font-mono text-xs">
-                        </tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -222,20 +256,39 @@
     let accessToken = localStorage.getItem("wms_admin_db_token");
     let refreshToken = localStorage.getItem("wms_admin_refresh_token");
     
+    // Configurazione locale (Categorie)
+    let configCategories = JSON.parse(localStorage.getItem("wms_categories")) || ["Elettronica", "Ferramenta", "Consumabili", "Abbigliamento", "Varie"];
+    
     let inventario = [];
     let movimenti = [];
-    let currentHistoryBarcode = null;
     let autoRefreshTimer = null;
+    let categoryChartInstance = null;
 
-    document.addEventListener('DOMContentLoaded', () => { handleRedirect(); checkAppStatus(); });
+    document.addEventListener('DOMContentLoaded', () => { handleRedirect(); checkAppStatus(); renderConfigCategories(); });
 
-    // ================= ROUTING & AUTO-REFRESH =================
+    // ================= GUI & ROUTING =================
+    function switchView(viewId) {
+        document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+        document.getElementById(viewId).classList.remove('hidden');
+        
+        // Stile bottoni menu
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('bg-slate-700', 'border-blue-500', 'text-white');
+            btn.classList.add('border-transparent');
+        });
+        const activeBtn = document.getElementById('nav-' + viewId.replace('view-', ''));
+        if(activeBtn) activeBtn.classList.add('bg-slate-700', 'border-blue-500', 'text-white');
+        
+        if(viewId === 'view-dashboard') renderDashboard();
+    }
+
     function checkAppStatus() {
-        if (!isAdminUnlocked) showScreen('loginScreen');
-        else if (!accessToken) showScreen('authScreen');
+        if (!isAdminUnlocked) { showScreen('loginScreen'); }
+        else if (!accessToken) { showScreen('authScreen'); }
         else { 
             showScreen('dashboardScreen'); 
             document.getElementById('syncStatus').classList.remove('hidden'); 
+            switchView('view-dashboard'); // Vista di default
             loadData(); 
             startAutoRefresh();
         }
@@ -243,6 +296,15 @@
     
     function showScreen(id) { ['loginScreen', 'authScreen', 'dashboardScreen'].forEach(s => document.getElementById(s).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 
+    function filterTable(tbodyId, query) {
+        const rows = document.getElementById(tbodyId).getElementsByTagName('tr');
+        query = query.toLowerCase();
+        for (let row of rows) {
+            row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
+        }
+    }
+
+    // ================= CORE DATA API =================
     function startAutoRefresh() {
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
         autoRefreshTimer = setInterval(() => {
@@ -250,152 +312,165 @@
         }, 15000); 
     }
 
-    // ================= AUTH =================
+    // Le funzioni di Auth rimangono identiche (verifyLogin, loginDropbox, handleRedirect, apiCall)
     async function verifyLogin() {
         const user = document.getElementById('adminUser').value.trim(); const pass = document.getElementById('adminPass').value.trim(); const btn = document.getElementById('loginBtn');
-        if(!user || !pass) return; btn.innerText = 'VERIFICA...'; btn.disabled = true;
+        if(!user || !pass) return; btn.innerText = 'VERIFICA IN CORSO...'; btn.disabled = true;
         try {
             const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user, pass }) });
-            if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Credenziali Errate!");
-        } catch (e) { alert("Errore di rete."); } finally { btn.innerText = 'ACCEDI AL SISTEMA'; btn.disabled = false; }
+            if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Credenziali Errate.");
+        } catch (e) { alert("Errore di Rete."); } finally { btn.innerText = 'INIZIALIZZA SESSIONE'; btn.disabled = false; }
     }
-
-    async function loginDropbox() {
-        document.getElementById('dbBtn').innerText = 'ATTENDERE...';
-        try {
-            const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) });
-            const data = await res.json(); if (data.success && data.url) window.location.href = data.url;
-        } catch (e) { alert("Errore API Dropbox"); document.getElementById('dbBtn').innerText = 'INIZIALIZZA DATABASE'; }
-    }
-
-    async function handleRedirect() {
-        const params = new URLSearchParams(window.location.search); const code = params.get("code");
-        if (code) {
-            window.history.replaceState({}, document.title, window.location.pathname); 
-            document.getElementById('authScreen').classList.remove('hidden'); 
-            document.getElementById('dbBtn').innerText = 'GENERAZIONE CHIAVI...';
-            try {
-                const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) });
-                const data = await res.json();
-                if(data.success) {
-                    accessToken = data.access_token; refreshToken = data.refresh_token;
-                    localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken);
-                    checkAppStatus();
-                } else alert("Errore generazione chiavi.");
-            } catch(e) { alert("Errore di rete nello scambio codice."); }
-        }
-    }
-
+    async function loginDropbox() { document.getElementById('dbBtn').innerText = 'RICHIESTA TOKEN...'; try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) }); const data = await res.json(); if (data.success && data.url) window.location.href = data.url; } catch (e) { alert("Errore API Dropbox"); document.getElementById('dbBtn').innerText = 'MONTA DATABASE'; } }
+    async function handleRedirect() { const params = new URLSearchParams(window.location.search); const code = params.get("code"); if (code) { window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('authScreen').classList.remove('hidden'); document.getElementById('dbBtn').innerText = 'SCAMBIO CHIAVI IN CORSO...'; try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); const data = await res.json(); if(data.success) { accessToken = data.access_token; refreshToken = data.refresh_token; localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken); checkAppStatus(); } else alert("Errore autorizzazione."); } catch(e) { alert("Errore di rete."); } } }
+    
     async function apiCall(actionName, payload = {}) {
         let fetchOptions = { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` }, body: JSON.stringify({ action: actionName, ...payload }) };
-        let res = await fetch(WORKER_URL, fetchOptions);
-        let data = await res.json();
-
+        let res = await fetch(WORKER_URL, fetchOptions); let data = await res.json();
         if (!res.ok && data.error === "EXPIRED_TOKEN" && refreshToken) {
             const refreshRes = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "refreshToken", refresh_token: refreshToken }) });
             const refreshData = await refreshRes.json();
-            if (refreshData.success) {
-                accessToken = refreshData.access_token; localStorage.setItem("wms_admin_db_token", accessToken);
-                fetchOptions.headers["Authorization"] = `Bearer ${accessToken}`;
-                res = await fetch(WORKER_URL, fetchOptions); data = await res.json();
-            } else { hardLogout(); throw new Error("Sessione scaduta."); }
+            if (refreshData.success) { accessToken = refreshData.access_token; localStorage.setItem("wms_admin_db_token", accessToken); fetchOptions.headers["Authorization"] = `Bearer ${accessToken}`; res = await fetch(WORKER_URL, fetchOptions); data = await res.json(); } else { hardLogout(); throw new Error("Sessione scaduta."); }
         }
         if (!res.ok) throw new Error(data.error || "Errore API."); return data;
     }
 
-    // ================= LOGICA QUANTITÁ (LEDGER) =================
-    // Questa è la nuova formula matematica. Legge lo storico e somma IN, sottrae OUT.
+    // ================= LOGICA GIACENZA E RENDER TABS =================
     function getStock(barcode) {
-        const itemMoves = movimenti.filter(m => m.barcode === barcode);
-        let total = 0;
-        itemMoves.forEach(m => {
-            // Retrocompatibilità: se non c'è qty nei vecchi json, assume 1
-            const q = parseInt(m.qty) || 1; 
-            if (m.type === 'IN' || m.type === 'STOCK') total += q;
-            if (m.type === 'OUT' || m.type === 'PICK') total -= q;
-        });
-        return total;
+        return movimenti.filter(m => m.barcode === barcode).reduce((acc, m) => {
+            const q = parseInt(m.qty) || 1;
+            return (m.type === 'IN' || m.type === 'STOCK') ? acc + q : acc - q;
+        }, 0);
     }
 
-    // ================= DATI & UI DASHBOARD =================
     async function loadData(isSilent = false) {
-        const statusBadge = document.getElementById('liveConnectionStatus');
-        const timeBadge = document.getElementById('lastSyncTime');
-        
-        if (statusBadge) {
-            statusBadge.className = "ml-6 flex items-center text-[10px] font-bold text-blue-400 bg-blue-900/50 px-2 py-1 rounded border border-blue-700 transition-all duration-300";
-            statusBadge.innerHTML = `<span class="relative flex h-2 w-2 mr-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span></span> SYNC...`;
-        }
+        const badge = document.getElementById('liveConnectionStatus');
+        if (badge) { badge.className = "ml-4 flex items-center text-[9px] font-bold text-blue-300 bg-blue-900 border border-blue-700 px-2 py-0.5"; badge.innerHTML = `SYNC_REQ`; }
         
         try {
             const data = await apiCall("getDashboardData");
             inventario = data.inventario || []; movimenti = data.movimenti || []; 
-            renderTable();
             
-            if (statusBadge) {
-                statusBadge.className = "ml-6 flex items-center text-[10px] font-bold text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded border border-emerald-700 transition-all duration-300 shadow-[0_0_8px_rgba(16,185,129,0.2)]";
-                statusBadge.innerHTML = `<span class="relative flex h-2 w-2 mr-2"><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span> ONLINE`;
-            }
-            if(timeBadge) { const d = new Date(); timeBadge.innerText = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`; }
-            document.getElementById('statTotalItems').innerText = inventario.length;
+            // Refresh di tutte le view visibili
+            renderInventoryTable();
+            renderGlobalLogTable();
+            if(!document.getElementById('view-dashboard').classList.contains('hidden')) renderDashboard();
 
+            if (badge) { badge.className = "ml-4 flex items-center text-[9px] font-bold text-emerald-400 bg-emerald-900 border border-emerald-700 px-2 py-0.5"; badge.innerHTML = `ONLINE`; }
+            const d = new Date(); document.getElementById('lastSyncTime').innerText = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
         } catch (e) { 
-            if (statusBadge) {
-                statusBadge.className = "ml-6 flex items-center text-[10px] font-bold text-rose-400 bg-rose-900/50 px-2 py-1 rounded border border-rose-700 transition-all duration-300 animate-pulse";
-                statusBadge.innerHTML = `<span class="relative flex h-2 w-2 mr-2"><span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span></span> ERROR`;
-            }
+            if (badge) { badge.className = "ml-4 flex items-center text-[9px] font-bold text-rose-400 bg-rose-900 border border-rose-700 px-2 py-0.5 animate-pulse"; badge.innerHTML = `CONN_ERR`; }
         }
     }
 
-    async function syncDataToServer(payload, btnObj = null, modalId = null, contentId = null) {
-        try {
-            await apiCall("saveAdminData", payload);
-            renderTable(); if(modalId) closeModal(modalId, contentId);
-        } catch (e) { alert(`Operazione fallita:\n${e.message}`); }
-        if(btnObj) { btnObj.innerText = 'SALVA DATI'; btnObj.disabled = false; }
-    }
-
-    function renderTable() {
+    function renderInventoryTable() {
         const tbody = document.getElementById('inventoryTableBody');
-        document.getElementById('emptyState').classList.toggle('hidden', inventario.length > 0);
-        
         tbody.innerHTML = inventario.map(item => {
             const qty = getStock(item.barcode);
-            const statusBadge = qty > 0 
-                ? `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-1 text-[10px] font-bold uppercase rounded-sm">Disponibile</span>`
-                : `<span class="bg-rose-100 text-rose-800 border border-rose-300 px-2 py-1 text-[10px] font-bold uppercase rounded-sm">Esaurito</span>`;
+            const status = qty > 0 ? `<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 uppercase text-[10px] border border-emerald-200">Disponibile</span>` : `<span class="text-slate-500 font-bold bg-slate-100 px-2 py-1 uppercase text-[10px] border border-slate-300">Non Disponibile</span>`;
             
             return `
-            <tr class="cursor-pointer" onclick="openHistoryModal('${item.barcode}')">
-                <td class="font-mono font-bold text-blue-700 text-sm">${item.barcode}</td>
-                <td class="font-bold text-slate-800 text-sm">${item.name}</td>
-                <td class="text-slate-500 text-xs">${item.category || '-'}</td>
-                <td class="font-mono font-bold text-lg text-right ${qty>0 ? 'text-slate-800' : 'text-rose-600'}">${qty}</td>
-                <td class="text-center">${statusBadge}</td>
+            <tr>
+                <td class="font-mono font-bold text-blue-700">${item.barcode}</td>
+                <td class="font-bold text-slate-800">${item.name}</td>
+                <td class="text-slate-500">${item.category || '-'}</td>
+                <td class="font-mono font-bold text-[14px] text-right ${qty>0 ? 'text-slate-800' : 'text-slate-400'}">${qty}</td>
+                <td class="text-center">${status}</td>
                 <td class="text-center">
-                    <button onclick="event.stopPropagation(); openItemModal('${item.barcode}')" class="text-slate-400 hover:text-blue-600 mx-1 transition p-1"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="event.stopPropagation(); deleteItem('${item.barcode}')" class="text-slate-400 hover:text-rose-600 mx-1 transition p-1"><i class="fa-solid fa-trash"></i></button>
+                    <button onclick="openItemModal('${item.barcode}')" class="erp-btn erp-btn-secondary px-2 py-1 text-[10px]"><i class="fa-solid fa-pen"></i> Edit</button>
                 </td>
             </tr>`;
         }).join('');
     }
 
-    // ================= ANAGRAFICA (CRUD) =================
+    function renderGlobalLogTable() {
+        const tbody = document.getElementById('globalLogTableBody');
+        const reversedMoves = [...movimenti].reverse(); // Più recenti in alto
+        
+        tbody.innerHTML = reversedMoves.map(m => {
+            const isIN = m.type === 'IN' || m.type === 'STOCK';
+            const typeLabel = isIN ? `<span class="text-emerald-600 bg-emerald-50 px-1 border border-emerald-200">STOCK</span>` : `<span class="text-rose-600 bg-rose-50 px-1 border border-rose-200">PICK</span>`;
+            const q = m.qty || 1;
+            const d = new Date(m.timestamp);
+            const timeStr = `${d.toLocaleDateString('it-IT')} ${d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit', second:'2-digit'})}`;
+
+            return `
+            <tr>
+                <td class="text-slate-500">${timeStr}</td>
+                <td class="font-bold text-slate-800">${m.barcode}</td>
+                <td class="text-center">${typeLabel}</td>
+                <td class="text-right font-bold ${isIN ? 'text-emerald-600' : 'text-rose-600'}">${isIN ? '+' : '-'}${q}</td>
+                <td class="text-slate-600">${m.location || "-"}</td>
+                <td class="text-slate-500">${m.operatore}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    function renderDashboard() {
+        // Calcolo KPI
+        document.getElementById('kpi-items').innerText = inventario.length;
+        document.getElementById('kpi-tx').innerText = movimenti.length;
+        let totalQty = inventario.reduce((acc, item) => acc + getStock(item.barcode), 0);
+        document.getElementById('kpi-qty').innerText = totalQty;
+
+        // Render Ultimi Log
+        const recentTbody = document.getElementById('kpi-recent-tx');
+        recentTbody.innerHTML = [...movimenti].reverse().slice(0, 10).map(m => {
+            const isIN = m.type === 'IN' || m.type === 'STOCK';
+            return `<tr><td class="py-2 text-slate-500 font-mono text-[10px]">${new Date(m.timestamp).toLocaleTimeString('it-IT')}</td><td class="font-bold text-slate-800">${m.barcode}</td><td class="text-right font-mono ${isIN?'text-emerald-600':'text-rose-600'}">${isIN?'+':'-'}${m.qty||1}</td></tr>`;
+        }).join('');
+
+        // Generazione Dati Grafico Categorie
+        const categoryData = {};
+        inventario.forEach(item => {
+            const cat = item.category || 'Non Classificato';
+            categoryData[cat] = (categoryData[cat] || 0) + getStock(item.barcode);
+        });
+
+        const ctx = document.getElementById('chartCategory').getContext('2d');
+        if(categoryChartInstance) categoryChartInstance.destroy();
+        
+        categoryChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(categoryData),
+                datasets: [{
+                    label: 'Pezzi in Stock',
+                    data: Object.values(categoryData),
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 2
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } }
+        });
+    }
+
+    // ================= MODAL ANAGRAFICA (CRUD & INIT SYS) =================
+    function populateCategorySelect() {
+        const select = document.getElementById('itemCategory');
+        select.innerHTML = `<option value="">-- Seleziona Categoria --</option>` + configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
     function openItemModal(barcode = null) {
+        populateCategorySelect();
         document.getElementById('itemBarcode').value = ''; document.getElementById('itemName').value = ''; 
-        document.getElementById('itemCategory').value = ''; document.getElementById('itemDesc').value = '';
-        document.getElementById('editOriginalBarcode').value = '';
-        document.getElementById('itemModalTitle').innerText = 'NUOVA ANAGRAFICA'; 
-        document.getElementById('barcodeWarning').classList.add('hidden');
+        document.getElementById('editOriginalBarcode').value = ''; document.getElementById('itemInitQty').value = "0";
+        document.getElementById('itemModalTitle').innerText = 'CREAZIONE RECORD MASTER'; 
+        
+        // La giacenza iniziale si può mettere SOLO in creazione
+        const initBlock = document.getElementById('initQtyContainer');
         
         if (barcode) {
             const item = inventario.find(i => i.barcode === barcode);
             if(item) {
                 document.getElementById('itemBarcode').value = item.barcode; document.getElementById('itemName').value = item.name;
-                document.getElementById('itemCategory').value = item.category || ''; document.getElementById('itemDesc').value = item.description || '';
-                document.getElementById('editOriginalBarcode').value = item.barcode; document.getElementById('itemModalTitle').innerText = 'MODIFICA ANAGRAFICA';
-                document.getElementById('itemBarcode').oninput = (e) => { document.getElementById('barcodeWarning').classList.toggle('hidden', e.target.value.trim().toUpperCase() === item.barcode); };
+                document.getElementById('itemCategory').value = item.category || '';
+                document.getElementById('editOriginalBarcode').value = item.barcode; 
+                document.getElementById('itemModalTitle').innerText = 'MODIFICA RECORD MASTER';
+                initBlock.style.display = 'none'; // Nasconde input giacenza
             }
+        } else {
+            initBlock.style.display = 'block';
         }
         openModal('itemModal', 'itemModalContent');
     }
@@ -403,128 +478,66 @@
     async function saveItem() {
         const bcode = document.getElementById('itemBarcode').value.trim().toUpperCase();
         const name = document.getElementById('itemName').value.trim();
-        const category = document.getElementById('itemCategory').value.trim();
-        const desc = document.getElementById('itemDesc').value.trim();
+        const category = document.getElementById('itemCategory').value;
         const originalBcode = document.getElementById('editOriginalBarcode').value;
         const btn = document.getElementById('saveItemBtn');
 
-        if (!bcode || !name) return alert("SKU e Nome sono obbligatori.");
-        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("SKU già a sistema!");
+        if (!bcode || !name) return alert("Parametri incompleti: SKU e Nome richiesti.");
+        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Violazione Univocità: SKU esistente.");
 
-        btn.innerText = 'SALVATAGGIO...'; btn.disabled = true;
+        btn.innerText = 'PROCESSING...'; btn.disabled = true;
         let updatedMovimenti = false;
         
-        const newItemData = { barcode: bcode, name: name, category: category, description: desc };
+        const newItemData = { barcode: bcode, name: name, category: category };
 
         if (originalBcode) {
+            // Aggiornamento
             const idx = inventario.findIndex(i => i.barcode === originalBcode);
             if (idx > -1) inventario[idx] = newItemData;
-            // Modifica a cascata dello storico
-            if (originalBcode !== bcode) {
-                movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; });
+            // Modifica a cascata
+            if (originalBcode !== bcode) { movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; }); updatedMovimenti = true; }
+        } else { 
+            // Creazione Nuova
+            inventario.push(newItemData); 
+            // Generazione Movimento Automatico di Inizializzazione (La pura logica Ledger)
+            const initQty = parseInt(document.getElementById('itemInitQty').value) || 0;
+            if (initQty > 0) {
+                movimenti.push({
+                    id: Date.now().toString(), barcode: bcode, type: 'IN', qty: initQty, location: 'INIT_SYS', timestamp: new Date().toISOString(), operatore: 'SYSTEM'
+                });
                 updatedMovimenti = true;
             }
-        } else { inventario.push(newItemData); }
+        }
 
         const payload = { inventario: inventario };
         if (updatedMovimenti) payload.movimenti = movimenti;
-        await syncDataToServer(payload, btn, 'itemModal', 'itemModalContent');
+        
+        try {
+            await apiCall("saveAdminData", payload);
+            renderInventoryTable(); if(!document.getElementById('view-dashboard').classList.contains('hidden')) renderDashboard();
+            closeModal('itemModal', 'itemModalContent');
+        } catch (e) { alert(`DB Error:\n${e.message}`); }
+        btn.innerText = 'SALVA A DATABASE'; btn.disabled = false;
     }
 
-    async function deleteItem(barcode) {
-        if (!confirm(`ATTENZIONE:\nVuoi eliminare l'anagrafica ${barcode}?\nLo storico movimenti rimarrà integro ma l'oggetto non sarà più scansionabile.`)) return;
-        inventario = inventario.filter(i => i.barcode !== barcode);
-        await syncDataToServer({ inventario: inventario });
+    // ================= CONFIGURAZIONE CATEGORIE =================
+    function renderConfigCategories() {
+        const list = document.getElementById('categoryList');
+        list.innerHTML = configCategories.map((c, i) => `
+            <li class="flex justify-between items-center bg-slate-50 border border-slate-200 p-2">
+                <span class="font-bold text-slate-700"><i class="fa-solid fa-tag text-slate-400 mr-2"></i> ${c}</span>
+                <button onclick="deleteCategory(${i})" class="text-rose-500 hover:text-rose-700 px-2"><i class="fa-solid fa-trash"></i></button>
+            </li>
+        `).join('');
     }
-
-    // ================= ESTRATTO CONTO / REGISTRO =================
-    function openHistoryModal(barcode) {
-        currentHistoryBarcode = barcode;
-        const item = inventario.find(i => i.barcode === barcode);
-        document.getElementById('historyBarcode').innerText = barcode;
-        document.getElementById('historyName').innerText = item ? item.name : "N/D";
-        
-        // Reset campi form
-        document.getElementById('forceQty').value = "1";
-        document.getElementById('forceLocation').value = "";
-        
-        renderHistoryTimeline();
-        openModal('historyModal', 'historyModalContent');
+    function addCategory() {
+        const input = document.getElementById('newCategoryInput'); const val = input.value.trim();
+        if(!val || configCategories.includes(val)) return;
+        configCategories.push(val); localStorage.setItem("wms_categories", JSON.stringify(configCategories));
+        input.value = ''; renderConfigCategories();
     }
-
-    function renderHistoryTimeline() {
-        const container = document.getElementById('timelineContainer');
-        const itemMoves = movimenti.filter(m => m.barcode === currentHistoryBarcode);
-        
-        // Calcolo giacenza e aggiornamento header
-        const currentQty = getStock(currentHistoryBarcode);
-        document.getElementById('historyCurrentStock').innerText = currentQty;
-        document.getElementById('historyCurrentStock').className = `text-3xl font-mono font-black ${currentQty > 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-        if (itemMoves.length === 0) {
-            container.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Nessuna transazione registrata per questo SKU.</td></tr>`; return;
-        }
-
-        const reversedMoves = [...itemMoves].reverse();
-        
-        container.innerHTML = reversedMoves.map(m => {
-            const isIN = m.type === 'IN' || m.type === 'STOCK';
-            const typeLabel = isIN 
-                ? `<span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 border border-emerald-200 rounded-sm">STOCK IN</span>` 
-                : `<span class="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 border border-rose-200 rounded-sm">PICK OUT</span>`;
-            
-            const q = m.qty || 1; // Fallback per vecchi record
-            const loc = m.location || "-";
-            const d = new Date(m.timestamp);
-            const timeStr = `${d.toLocaleDateString('it-IT')} <span class="text-slate-400 ml-1">${d.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'})}</span>`;
-
-            return `
-            <tr class="hover:bg-blue-50/50">
-                <td class="p-3 border-b border-slate-200">${timeStr}</td>
-                <td class="p-3 border-b border-slate-200 text-center">${typeLabel}</td>
-                <td class="p-3 border-b border-slate-200 text-right font-bold text-sm ${isIN ? 'text-emerald-600' : 'text-rose-600'}">${isIN ? '+' : '-'}${q}</td>
-                <td class="p-3 border-b border-slate-200 text-slate-600">${loc}</td>
-                <td class="p-3 border-b border-slate-200 text-slate-500">${m.operatore}</td>
-                <td class="p-3 border-b border-slate-200 text-center">
-                    <button onclick="deleteMovement('${m.id}')" class="text-slate-300 hover:text-rose-600 transition" title="Annulla Transazione"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>`;
-        }).join('');
-    }
-
-    async function forceMovement() {
-        const type = document.getElementById('forceType').value;
-        const qty = parseInt(document.getElementById('forceQty').value);
-        const loc = document.getElementById('forceLocation').value.trim();
-
-        if (isNaN(qty) || qty <= 0) return alert("La quantità deve essere un numero maggiore di zero.");
-        
-        // Controllo "Giacenza Insufficiente" (Anti-Negativo)
-        if (type === 'OUT') {
-            const currentQty = getStock(currentHistoryBarcode);
-            if (qty > currentQty) return alert(`ERRORE: Giacenza insufficiente.\nStai cercando di prelevare ${qty} ma la giacenza attuale è ${currentQty}.`);
-        }
-
-        const newMove = { 
-            id: Date.now().toString(), 
-            barcode: currentHistoryBarcode, 
-            type: type, 
-            qty: qty, 
-            location: loc,
-            timestamp: new Date().toISOString(), 
-            operatore: "ADMIN" 
-        };
-        
-        movimenti.push(newMove);
-        await syncDataToServer({ movimenti: movimenti });
-        renderHistoryTimeline(); // Aggiorna in tempo reale senza chiudere il popup
-    }
-
-    async function deleteMovement(id) {
-        if(!confirm("CANCELLAZIONE TRANSZAIZONE\n\nAttenzione: eliminando questo movimento modificherai retroattivamente il calcolo della giacenza. Procedere?")) return;
-        movimenti = movimenti.filter(m => m.id !== id);
-        await syncDataToServer({ movimenti: movimenti });
-        renderHistoryTimeline();
+    function deleteCategory(idx) {
+        configCategories.splice(idx, 1); localStorage.setItem("wms_categories", JSON.stringify(configCategories)); renderConfigCategories();
     }
 
     // ================= UTILITY DI SISTEMA =================
