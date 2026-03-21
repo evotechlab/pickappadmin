@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* ========================================================
-           SAP FIORI "QUARTZ LIGHT" COMPACT THEME ENGINE
+           SAP FIORI "QUARTZ" COMPACT THEME ENGINE
            ======================================================== */
         :root {
             --sap-bg: #f3f4f5;
@@ -29,59 +29,59 @@
         input, select, textarea { user-select: text; cursor: text; }
         body { background-color: var(--sap-bg); color: var(--sap-text); font-family: "72", "Segoe UI", Roboto, Arial, sans-serif; font-size: 12px; margin: 0; overflow: hidden; }
 
-        /* SAP Inputs & Buttons */
+        /* Controlli Input e Bottoni */
         .sap-input { width: 100%; border: 1px solid var(--sap-border); background-color: #fff; padding: 0 8px; font-size: 12px; height: 26px; color: var(--sap-text); outline: none; }
         .sap-input:focus { border-color: var(--sap-primary); border-width: 2px; padding: 0 7px; }
-        .sap-input:disabled { background-color: #f3f4f5; color: var(--sap-text-muted); border-style: dotted; }
+        .sap-input:disabled { background-color: #f3f4f5; color: var(--sap-text-muted); border-style: dotted; cursor: not-allowed; }
         
         .sap-btn { background-color: transparent; border: 1px solid var(--sap-primary); color: var(--sap-primary); padding: 0 12px; height: 26px; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
         .sap-btn:hover:not(:disabled) { background-color: var(--sap-primary); color: #fff; }
         .sap-btn-solid { background-color: var(--sap-primary); color: #fff; }
         .sap-btn-solid:hover:not(:disabled) { background-color: var(--sap-primary-hover); }
+        .sap-btn-danger { border-color: var(--sap-error); color: var(--sap-error); }
+        .sap-btn-danger:hover:not(:disabled) { background-color: var(--sap-error); color: #fff; }
         .sap-btn:disabled { border-color: #cccccc; color: #cccccc; cursor: not-allowed; }
 
-        /* Struttura Shell e Navigazione */
+        /* Toolbar Interna (Sopra la scheda articolo) */
+        .sap-toolbar { background-color: #f9f9f9; border-bottom: 1px solid var(--sap-border); padding: 6px 12px; display: flex; gap: 6px; align-items: center; }
+
+        /* Struttura Top (Shell & Nav) */
         .sap-shellbar { background-color: var(--sap-header); color: #fff; height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
         .sap-logo { font-size: 16px; font-weight: bold; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
         
         .sap-navbar { background-color: var(--sap-panel); border-bottom: 1px solid var(--sap-border); display: flex; height: 40px; padding: 0 16px; gap: 24px; }
-        .sap-nav-tab { color: var(--sap-text-muted); font-size: 13px; font-weight: normal; display: flex; align-items: center; height: 100%; border-bottom: 3px solid transparent; cursor: pointer; text-transform: uppercase; }
+        .sap-nav-tab { color: var(--sap-text-muted); font-size: 12px; font-weight: normal; display: flex; align-items: center; height: 100%; border-bottom: 3px solid transparent; cursor: pointer; text-transform: uppercase; }
         .sap-nav-tab:hover { color: var(--sap-primary); }
         .sap-nav-tab.active { color: var(--sap-primary); font-weight: bold; border-bottom-color: var(--sap-primary); }
 
-        /* Pannelli FCL (Flexible Column Layout) */
+        /* Pannelli Generici */
         .sap-pane { background-color: var(--sap-panel); border: 1px solid var(--sap-border); display: flex; flex-direction: column; }
         .sap-pane-header { padding: 8px 12px; border-bottom: 1px solid var(--sap-border); display: flex; justify-content: space-between; align-items: center; background-color: #fff; }
         .sap-pane-title { font-size: 14px; font-weight: bold; color: var(--sap-text); }
 
-        /* DataGrid (List Report) */
+        /* Griglia Dati (Tabelloni) */
         .sap-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .sap-grid th { background-color: #f3f4f5; border-bottom: 1px solid var(--sap-border); padding: 6px 8px; text-align: left; font-weight: normal; color: var(--sap-text-muted); position: sticky; top: 0; z-index: 10; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; text-transform: uppercase; }
+        .sap-grid th { background-color: #f3f4f5; border-bottom: 1px solid var(--sap-border); padding: 6px 8px; text-align: left; font-weight: normal; color: var(--sap-text-muted); position: sticky; top: 0; z-index: 10; font-size: 11px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .sap-grid td { border-bottom: 1px solid #f0f0f0; padding: 6px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; vertical-align: middle; }
         .sap-grid tbody tr:hover td { background-color: #f5faff; cursor: pointer; }
-        .sap-grid tbody tr.selected td { background-color: var(--sap-selected); border-bottom-color: #b3d4f5; }
+        .sap-grid tbody tr.selected td { background-color: var(--sap-selected); border-bottom-color: #b3d4f5; font-weight: bold; }
 
-        /* Scrollbar sottili */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #c1c1c1; }
+        /* Scrollbar Desktop */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid var(--sap-border); }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border: 1px solid #f0f0f0; }
         ::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+        
         .hidden-view { display: none !important; }
-
-        /* Status Semantic Colors */
         .status-ok { color: var(--sap-success); font-weight: bold; }
         .status-err { color: var(--sap-error); font-weight: bold; }
 
-        /* ========================================================
-           2D WAREHOUSE MAP (Digital Twin CSS Grid)
-           ======================================================== */
-        .map-container { flex: 1; background-color: #fbfbfb; padding: 16px; overflow: auto; display: flex; flex-direction: column; gap: 24px; position: relative;}
-        .map-aisle { display: flex; gap: 8px; padding: 8px; background: #fff; border: 1px solid #e0e0e0; }
-        .map-rack { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; flex: 1; }
-        .map-bin { height: 16px; background-color: #d9d9d9; border: 1px solid #bfbfbf; cursor: pointer; }
-        .map-bin.active-bin { background-color: var(--sap-primary); border-color: #0854a0; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
+        /* Layout Mappa 2D */
+        .map-bg { background-image: radial-gradient(#d9d9d9 1px, transparent 1px); background-size: 20px 20px; background-color: #f9f9f9; }
+        .map-aisle { display: flex; gap: 8px; padding: 12px; background: #fff; border: 1px solid #ccc; }
+        .map-rack { display: grid; grid-template-columns: repeat(15, 1fr); gap: 2px; flex: 1; }
+        .map-bin { height: 20px; background-color: #e0e0e0; border: 1px solid #b0b0b0; cursor: pointer; }
+        .map-bin:hover { background-color: var(--sap-selected); border-color: var(--sap-primary); }
     </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -89,7 +89,7 @@
     <div id="loginScreen" class="fixed inset-0 bg-[#354a5f] z-50 flex items-center justify-center hidden-view">
         <div class="sap-pane w-[340px] border-0 shadow-2xl">
             <div class="p-6 flex flex-col gap-4">
-                <div class="text-xl font-bold text-[var(--sap-primary)] mb-2">Pickapp, WMS</div>
+                <div class="text-xl font-bold text-[var(--sap-primary)] mb-2"><i class="fa-solid fa-boxes-stacked mr-2"></i>Pickapp, WMS</div>
                 <div><label class="text-[11px] text-gray-500">Operator ID</label><input type="text" id="adminUser" class="sap-input font-mono mt-1"></div>
                 <div><label class="text-[11px] text-gray-500">Passcode</label><input type="password" id="adminPass" class="sap-input font-mono mt-1"></div>
                 <button onclick="verifyLogin()" id="loginBtn" class="sap-btn sap-btn-solid w-full mt-4">Log On</button>
@@ -101,8 +101,8 @@
         <div class="sap-pane w-[400px] border-0 shadow-2xl p-8 text-center">
             <i class="fa-solid fa-database text-4xl text-[var(--sap-primary)] mb-4"></i>
             <div class="text-lg font-bold mb-2">Database Mount Required</div>
-            <p class="text-xs text-gray-500 mb-6">OAuth2 validation needed to connect the master database.</p>
-            <button onclick="loginDropbox()" id="dbBtn" class="sap-btn sap-btn-solid w-full">Connect</button>
+            <p class="text-xs text-gray-500 mb-6">Autorizzazione File System richiesta per sincronizzare i dati Master.</p>
+            <button onclick="loginDropbox()" id="dbBtn" class="sap-btn sap-btn-solid w-full">Connect Database</button>
         </div>
     </div>
 
@@ -112,34 +112,46 @@
             <div class="sap-logo"><i class="fa-solid fa-boxes-stacked"></i> Pickapp, WMS</div>
             <div class="flex items-center gap-6 text-xs">
                 <div id="liveConnectionStatus" class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-gray-400"></div> OFFLINE</div>
-                <div class="flex items-center gap-2 border-l border-gray-500 pl-6"><i class="fa-solid fa-user-circle"></i> ADMIN</div>
-                <button onclick="hardLogout()" class="hover:text-red-300" title="Log Off"><i class="fa-solid fa-right-from-bracket"></i></button>
+                <div class="flex items-center gap-2 border-l border-gray-500 pl-6"><i class="fa-solid fa-user-circle text-[14px]"></i> ADMIN</div>
+                <button onclick="hardLogout()" class="hover:text-red-300" title="Log Off"><i class="fa-solid fa-right-from-bracket text-[14px]"></i></button>
             </div>
         </header>
 
         <nav class="sap-navbar shrink-0">
-            <div onclick="switchModule('mod-sintesi', this)" class="sap-nav-tab active">Dashboard</div>
-            <div onclick="switchModule('mod-inventario', this)" class="sap-nav-tab">Inventario e Movimenti</div>
-            <div onclick="switchModule('mod-setup', this)" class="sap-nav-tab">Setup Sistema</div>
+            <div onclick="switchModule('mod-dashboard', this)" class="sap-nav-tab active">Dashboard</div>
+            <div onclick="switchModule('mod-inventario', this)" class="sap-nav-tab">Inventario</div>
+            <div onclick="switchModule('mod-movimenti', this)" class="sap-nav-tab">Movimenti (Log)</div>
+            <div onclick="switchModule('mod-layout', this)" class="sap-nav-tab">Layout Magazzino</div>
+            <div onclick="switchModule('mod-setup', this)" class="sap-nav-tab">Impostazioni</div>
             <div class="ml-auto flex items-center">
-                <button onclick="loadData(false, true)" class="sap-btn border-transparent text-[var(--sap-text-muted)] hover:text-[var(--sap-primary)]"><i class="fa-solid fa-rotate"></i> Sync Dati</button>
+                <button onclick="loadData(false, true)" class="sap-btn border-transparent text-[var(--sap-text-muted)] hover:text-[var(--sap-primary)]"><i class="fa-solid fa-rotate"></i> Sync F5</button>
             </div>
         </nav>
 
         <main class="flex-1 overflow-hidden relative p-2 bg-[var(--sap-bg)]">
             
-            <div id="mod-sintesi" class="wms-module w-full h-full flex flex-col gap-2 hidden-view">
-                <div class="grid grid-cols-3 gap-2 shrink-0 h-24">
-                    <div class="sap-pane justify-center px-6"><div class="text-[var(--sap-text-muted)] text-xs uppercase mb-1">Totale Referenze (SKU)</div><div class="text-3xl font-bold" id="kpi-sku">0</div></div>
-                    <div class="sap-pane justify-center px-6"><div class="text-[var(--sap-text-muted)] text-xs uppercase mb-1">Volume Stoccato (Pezzi)</div><div class="text-3xl font-bold text-[var(--sap-primary)]" id="kpi-qty">0</div></div>
-                    <div class="sap-pane justify-center px-6 border-l-4 border-l-[var(--sap-error)]"><div class="text-[var(--sap-text-muted)] text-xs uppercase mb-1">Alert Sotto-Scorta (OOS)</div><div class="text-3xl font-bold text-[var(--sap-error)]" id="kpi-oos">0</div></div>
+            <div id="mod-dashboard" class="wms-module w-full h-full flex flex-col gap-2 hidden-view">
+                <div class="grid grid-cols-4 gap-2 shrink-0 h-24">
+                    <div class="sap-pane justify-center px-6"><div class="text-[var(--sap-text-muted)] text-xs uppercase mb-1">Referenze (SKU)</div><div class="text-3xl font-bold" id="kpi-sku">0</div></div>
+                    <div class="sap-pane justify-center px-6"><div class="text-[var(--sap-text-muted)] text-xs uppercase mb-1">Pezzi Totali (Vol.)</div><div class="text-3xl font-bold text-[var(--sap-primary)]" id="kpi-qty">0</div></div>
+                    <div class="sap-pane justify-center px-6"><div class="text-[var(--sap-text-muted)] text-xs uppercase mb-1">Transazioni Eseguite</div><div class="text-3xl font-bold text-gray-700" id="kpi-tx">0</div></div>
+                    <div class="sap-pane justify-center px-6 border-l-4 border-l-[var(--sap-error)]"><div class="text-[var(--sap-text-muted)] text-xs uppercase mb-1">Alert Sotto-Scorta</div><div class="text-3xl font-bold text-[var(--sap-error)]" id="kpi-oos">0</div></div>
                 </div>
-                <div class="flex-1 grid grid-cols-2 gap-2">
-                    <div class="sap-pane"><div class="sap-pane-header"><span class="sap-pane-title">Giacenze per Nodi Logistici</span></div><div class="flex-1 p-4"><canvas id="dashboardChart"></canvas></div></div>
-                    <div class="sap-pane"><div class="sap-pane-header"><span class="sap-pane-title">Audit Rapido (Ultimi Movimenti Globali)</span></div>
-                        <div class="flex-1 overflow-auto">
+                <div class="flex-1 grid grid-cols-3 gap-2">
+                    <div class="sap-pane flex flex-col"><div class="sap-pane-header"><span class="sap-pane-title">Capienza Magazzini</span></div>
+                        <div class="flex-1 p-4 flex flex-col items-center justify-center relative">
+                            <canvas id="chartStock"></canvas>
+                        </div>
+                    </div>
+                    <div class="sap-pane flex flex-col"><div class="sap-pane-header"><span class="sap-pane-title">Rapporto IN/OUT</span></div>
+                        <div class="flex-1 p-4 flex flex-col items-center justify-center relative">
+                            <canvas id="chartMoves"></canvas>
+                        </div>
+                    </div>
+                    <div class="sap-pane flex flex-col"><div class="sap-pane-header"><span class="sap-pane-title">Ultimi Movimenti</span></div>
+                        <div class="flex-1 overflow-auto border-t border-[var(--sap-border)]">
                             <table class="sap-grid">
-                                <thead><tr><th class="w-24">Data/Ora</th><th>SKU Code</th><th>Magazzino</th><th class="w-20 text-center">Operazione</th><th class="w-16 text-right">Q.tà</th></tr></thead>
+                                <thead><tr><th class="w-16">Ora</th><th>SKU</th><th class="w-16 text-center">OP</th><th class="w-12 text-right">Q.tà</th></tr></thead>
                                 <tbody id="kpi-recent-tx"></tbody>
                             </table>
                         </div>
@@ -148,98 +160,108 @@
             </div>
 
             <div id="mod-inventario" class="wms-module w-full h-full flex gap-2">
-                
-                <div class="sap-pane w-[30%] h-full">
-                    <div class="sap-pane-header flex-col items-start gap-2">
-                        <div class="flex justify-between w-full items-center">
-                            <span class="sap-pane-title">Master Data List</span>
-                            <button onclick="initNewItem()" class="sap-btn sap-btn-solid h-7 text-[10px]"><i class="fa-solid fa-plus"></i> Nuovo</button>
-                        </div>
-                        <div class="w-full flex gap-1">
-                            <input type="text" id="searchInv" onkeyup="filterTable('inventoryTableBody', this.value)" placeholder="Cerca SKU..." class="sap-input">
-                            <select id="filterWh" onchange="renderMasterData()" class="sap-input w-32"><option value="ALL">Tutti i Magazzini</option></select>
+                <div class="sap-pane w-1/2 h-full">
+                    <div class="sap-pane-header flex-col items-start gap-2 bg-[#f9f9f9]">
+                        <span class="sap-pane-title">Master Data Inventory</span>
+                        <div class="w-full flex gap-2">
+                            <input type="text" id="searchInv" onkeyup="filterTable('inventoryTableBody', this.value)" placeholder="Cerca SKU o Descrizione..." class="sap-input flex-1">
+                            <select id="filterWh" onchange="renderMasterData()" class="sap-input w-48"><option value="ALL">Tutti i Magazzini</option></select>
                         </div>
                     </div>
-                    <div class="flex-1 overflow-auto relative">
+                    <div class="flex-1 overflow-auto border-t border-[var(--sap-border)]">
                         <table class="sap-grid">
-                            <thead><tr><th>SKU Code</th><th class="text-right">Giacenza</th></tr></thead>
+                            <thead><tr><th style="width:25%">SKU Code</th><th style="width:35%">Descrizione</th><th style="width:25%">Magazzino</th><th style="width:15%" class="text-right">Giacenza</th></tr></thead>
                             <tbody id="inventoryTableBody"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <div class="sap-pane w-[40%] h-full">
-                    <div class="sap-pane-header">
-                        <span class="sap-pane-title">Layout Visivo (Digital Twin)</span>
-                        <span class="text-[10px] text-[var(--sap-text-muted)] font-mono" id="map-status">Seleziona un item per localizzarlo</span>
+                <div class="sap-pane w-1/2 h-full">
+                    <div class="sap-pane-header"><span class="sap-pane-title" id="inspTitle">Dettaglio Articolo</span></div>
+                    
+                    <div class="sap-toolbar shrink-0">
+                        <button onclick="initNewItem()" class="sap-btn"><i class="fa-solid fa-plus"></i> Nuovo Articolo</button>
+                        <button onclick="enableEdit()" id="btn-edit" class="sap-btn" disabled><i class="fa-solid fa-pen"></i> Modifica</button>
+                        <div class="w-px h-6 bg-[#ccc] mx-1"></div>
+                        <button onclick="toggleTxBox()" id="btn-tx" class="sap-btn sap-btn-solid" disabled><i class="fa-solid fa-box-open"></i> Carico/Scarico</button>
+                        <button onclick="jumpToLog()" id="btn-log" class="sap-btn" disabled><i class="fa-solid fa-clock-rotate-left"></i> Storico</button>
+                        <div class="w-px h-6 bg-[#ccc] mx-1 ml-auto"></div>
+                        <button onclick="deleteCurrentItem()" id="btn-delete" class="sap-btn sap-btn-danger border-transparent" disabled><i class="fa-solid fa-trash"></i></button>
                     </div>
-                    <div class="map-container" id="warehouse-map">
-                        <div class="text-[10px] text-gray-400 font-bold uppercase mb-[-16px]">Settore A (Inbound)</div>
-                        <div class="map-aisle"><div class="map-rack" id="rack-A1"></div></div>
-                        <div class="text-[10px] text-gray-400 font-bold uppercase mb-[-16px] mt-4">Settore B (Storage)</div>
-                        <div class="map-aisle"><div class="map-rack" id="rack-B1"></div></div>
-                        <div class="map-aisle"><div class="map-rack" id="rack-B2"></div></div>
-                        <div class="text-[10px] text-gray-400 font-bold uppercase mb-[-16px] mt-4">Settore C (Outbound)</div>
-                        <div class="map-aisle"><div class="map-rack" id="rack-C1"></div></div>
+
+                    <div id="tx-box" class="bg-[#e5f0fa] border-b border-[var(--sap-primary)] p-4 hidden-view shrink-0">
+                        <div class="flex gap-2 items-end">
+                            <div class="w-1/4"><label class="text-[10px] text-[var(--sap-text-muted)] font-bold uppercase">Operazione</label><select id="txType" class="sap-input font-bold"><option value="IN">CARICO (+)</option><option value="OUT">SCARICO (-)</option></select></div>
+                            <div class="w-1/5"><label class="text-[10px] text-[var(--sap-text-muted)] font-bold uppercase">Quantità</label><input type="number" id="txQty" value="1" min="1" class="sap-input text-right font-bold"></div>
+                            <div class="flex-1"><label class="text-[10px] text-[var(--sap-text-muted)] font-bold uppercase">Causale Documento / Nota</label><input type="text" id="txLoc" placeholder="Es. DDT n. 123" class="sap-input"></div>
+                            <button onclick="executeManualTx()" class="sap-btn sap-btn-solid">Conferma Movimento</button>
+                            <button onclick="toggleTxBox()" class="sap-btn border-transparent hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="p-6 flex flex-col gap-4 overflow-y-auto flex-1">
+                        <input type="hidden" id="inspOriginalBarcode">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase">Codice SKU (Univoco)</label><input type="text" id="inspBarcode" class="sap-input font-bold uppercase mt-1" disabled></div>
+                            <div><label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase">Magazzino di Stoccaggio</label><select id="inspWarehouse" class="sap-input mt-1" disabled></select></div>
+                        </div>
+                        
+                        <div><label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase">Descrizione Completa</label><input type="text" id="inspName" class="sap-input mt-1" disabled></div>
+                        <div><label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase">Classe Merceologica</label><select id="inspCategory" class="sap-input mt-1" disabled></select></div>
+
+                        <div id="save-box" class="mt-6 pt-4 border-t border-[var(--sap-border)] flex justify-end gap-2 hidden-view">
+                            <button onclick="cancelEdit()" class="sap-btn">Annulla</button>
+                            <button onclick="saveMasterData()" class="sap-btn sap-btn-solid">Salva Anagrafica</button>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="w-[30%] flex flex-col gap-2">
-                    
-                    <div class="sap-pane flex-shrink-0">
-                        <div class="sap-pane-header bg-[#f5faff] border-b-[var(--sap-primary)]">
-                            <span class="sap-pane-title text-[var(--sap-primary)]" id="inspHeader">Object Inspector</span>
-                            <button onclick="saveMasterData()" id="tb-save" class="sap-btn sap-btn-solid h-6 text-[10px]" disabled>Salva</button>
-                        </div>
-                        <div class="p-3 flex flex-col gap-2">
-                            <input type="hidden" id="inspOriginalBarcode">
-                            <div class="flex gap-2">
-                                <div class="flex-1"><label class="text-[10px] text-[var(--sap-text-muted)]">SKU Code</label><input type="text" id="inspBarcode" class="sap-input font-bold uppercase" disabled></div>
-                                <div class="flex-1"><label class="text-[10px] text-[var(--sap-text-muted)]">Magazzino</label><select id="inspWarehouse" class="sap-input" disabled></select></div>
-                            </div>
-                            <div><label class="text-[10px] text-[var(--sap-text-muted)]">Descrizione</label><input type="text" id="inspName" class="sap-input" disabled></div>
-                            <div><label class="text-[10px] text-[var(--sap-text-muted)]">Categoria</label><select id="inspCategory" class="sap-input" disabled></select></div>
-                        </div>
+            <div id="mod-movimenti" class="wms-module w-full h-full hidden-view">
+                <div class="sap-pane h-full">
+                    <div class="sap-pane-header flex-col items-start gap-2 bg-[#f9f9f9]">
+                        <span class="sap-pane-title">Registro Fiscale Movimentazioni (Audit Log)</span>
+                        <input type="text" id="searchLog" onkeyup="filterTable('globalLogTableBody', this.value)" placeholder="Ricerca globale per Data, SKU, Causale o Operatore..." class="sap-input w-1/3">
                     </div>
+                    <div class="flex-1 overflow-auto border-t border-[var(--sap-border)]">
+                        <table class="sap-grid">
+                            <thead><tr><th class="w-32">Timestamp</th><th class="w-32">ID Transazione</th><th class="w-40">Magazzino</th><th class="w-48">SKU Code</th><th class="w-24 text-center">Tipo (IN/OUT)</th><th class="w-24 text-right">Delta Q.tà</th><th>Causale / Posizione</th><th class="w-32">Operatore</th></tr></thead>
+                            <tbody id="globalLogTableBody" class="font-mono text-[11px]"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-                    <div class="sap-pane flex-shrink-0 opacity-50 pointer-events-none" id="inspTxBlock">
-                        <div class="sap-pane-header py-1"><span class="text-xs font-bold">Azione Rapida (Carico/Scarico)</span></div>
-                        <div class="p-3 flex gap-2 items-end">
-                            <div class="w-1/3"><label class="text-[10px] text-[var(--sap-text-muted)]">Operazione</label><select id="txType" class="sap-input"><option value="IN">CARICO (+)</option><option value="OUT">SCARICO (-)</option></select></div>
-                            <div class="w-1/4"><label class="text-[10px] text-[var(--sap-text-muted)]">Q.tà</label><input type="number" id="txQty" value="1" min="1" class="sap-input text-right"></div>
-                            <button onclick="executeManualTx()" class="sap-btn sap-btn-solid flex-1">Esegui TX</button>
-                        </div>
+            <div id="mod-layout" class="wms-module w-full h-full hidden-view">
+                <div class="sap-pane h-full">
+                    <div class="sap-pane-header bg-[#f9f9f9]">
+                        <span class="sap-pane-title">Planimetria Magazzini (Digital Twin)</span>
+                        <select id="mapWhSelector" onchange="drawWarehouseMap()" class="sap-input w-64"><option value="ALL">Seleziona un Magazzino...</option></select>
                     </div>
-
-                    <div class="sap-pane flex-1 overflow-hidden opacity-50 pointer-events-none" id="inspLogBlock">
-                        <div class="sap-pane-header py-1"><span class="text-xs font-bold">Item Ledger (Movimenti)</span></div>
-                        <div class="flex-1 overflow-auto">
-                            <table class="sap-grid">
-                                <thead><tr><th class="w-24">Data/Ora</th><th class="text-center">OP</th><th class="text-right">Q.tà</th><th>Causale</th></tr></thead>
-                                <tbody id="itemLogTableBody"></tbody>
-                            </table>
+                    <div class="map-bg flex-1 p-8 overflow-auto flex flex-col gap-6" id="warehouse-map">
                         </div>
-                    </div>
                 </div>
             </div>
 
             <div id="mod-setup" class="wms-module w-full h-full hidden-view flex gap-4">
-                <div class="sap-pane w-[400px]">
-                    <div class="sap-pane-header"><span class="sap-pane-title">Nodi Logistici (Magazzini)</span></div>
-                    <div class="p-2 border-b border-[var(--sap-border)] flex gap-2"><input type="text" id="newWhInput" class="sap-input flex-1" placeholder="Nome Magazzino..."><button onclick="addWarehouse()" class="sap-btn">Add</button></div>
+                <div class="sap-pane w-1/2">
+                    <div class="sap-pane-header"><span class="sap-pane-title">Gestione Nodi (Magazzini)</span></div>
+                    <div class="p-3 border-b border-[var(--sap-border)] bg-[#f9f9f9] flex gap-2"><input type="text" id="newWhInput" class="sap-input flex-1" placeholder="Es. MAGAZZINO CENTRALE"><button onclick="addWarehouse()" class="sap-btn">Aggiungi</button></div>
                     <div class="flex-1 overflow-auto"><table class="sap-grid"><tbody id="warehouseList"></tbody></table></div>
                 </div>
-                <div class="sap-pane w-[400px]">
+                <div class="sap-pane w-1/2">
                     <div class="sap-pane-header"><span class="sap-pane-title">Classi Merceologiche (Categorie)</span></div>
-                    <div class="p-2 border-b border-[var(--sap-border)] flex gap-2"><input type="text" id="newCatInput" class="sap-input flex-1" placeholder="Nuova categoria..."><button onclick="addCategory()" class="sap-btn">Add</button></div>
+                    <div class="p-3 border-b border-[var(--sap-border)] bg-[#f9f9f9] flex gap-2"><input type="text" id="newCatInput" class="sap-input flex-1" placeholder="Es. ELETTRONICA"><button onclick="addCategory()" class="sap-btn">Aggiungi</button></div>
                     <div class="flex-1 overflow-auto"><table class="sap-grid"><tbody id="categoryList"></tbody></table></div>
                 </div>
             </div>
+            
         </main>
     </div>
 
 <script>
-    // ================= GLOBAL CORE & DATA ARCHITECTURE =================
+    // ================= GLOBAL =================
     const WORKER_URL = "https://wild-feather-f74a.sviluppo-49a.workers.dev"; 
     let isAdminUnlocked = localStorage.getItem("wms_admin_unlocked") === "true";
     let accessToken = localStorage.getItem("wms_admin_db_token");
@@ -252,23 +274,30 @@
     let movimenti = [];  
     
     let autoRefreshTimer = null;
-    let mainChartInstance = null;
-    let currentMode = 'VIEW'; // 'VIEW', 'SELECTED', 'INSERT'
+    let chartStockInst = null;
+    let chartMovesInst = null;
+    let currentMode = 'VIEW'; // 'VIEW', 'SELECTED', 'INSERT', 'EDIT'
     let lastDataHash = "";    
 
     document.addEventListener('DOMContentLoaded', () => { 
-        handleRedirect(); checkAppStatus(); renderConfig(); drawWarehouseMap();
+        handleRedirect(); checkAppStatus(); renderConfig(); 
     });
 
     // ================= NAV & AUTH =================
     function switchModule(moduleId, btnElement) {
-        if(currentMode === 'INSERT') { if(!confirm("Abbandonare l'inserimento?")) return; cancelEdit(); }
+        if(currentMode === 'INSERT' || currentMode === 'EDIT') { if(!confirm("Attenzione: Hai modifiche in corso. Abbandonare l'operazione?")) return; cancelEdit(); }
+        
         document.querySelectorAll('.wms-module').forEach(el => el.classList.add('hidden-view'));
         document.getElementById(moduleId).classList.remove('hidden-view');
-        document.querySelectorAll('.sap-nav-tab').forEach(btn => btn.classList.remove('active'));
-        btnElement.classList.add('active');
-        if(moduleId === 'mod-sintesi') renderDashboard();
+        
+        if(btnElement) {
+            document.querySelectorAll('.sap-nav-tab').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
+        
+        if(moduleId === 'mod-dashboard') renderDashboard();
         if(moduleId === 'mod-inventario') renderMasterData();
+        if(moduleId === 'mod-layout') { populateMapSelector(); drawWarehouseMap(); }
     }
 
     function checkAppStatus() {
@@ -286,9 +315,9 @@
 
     function updateBadge(status) {
         const badge = document.getElementById('liveConnectionStatus');
-        if(status === 'sync') { badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-400"></div> SYNCING`; }
-        else if(status === 'online') { badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500"></div> ONLINE`; }
-        else { badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-500"></div> ERROR`; }
+        if(status === 'sync') { badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-[#0a6ed1]"></div> SYNCING`; }
+        else if(status === 'online') { badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-[#107e3e]"></div> ONLINE`; }
+        else { badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-[#bb0000]"></div> ERROR`; }
     }
 
     async function apiCall(actionName, payload = {}) {
@@ -302,11 +331,11 @@
         if (!res.ok) throw new Error(data.error); return data;
     }
     
-    async function verifyLogin() { const u = document.getElementById('adminUser').value; const p = document.getElementById('adminPass').value; if(!u||!p)return; document.getElementById('loginBtn').innerText='...'; try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user: u, pass: p }) }); if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Credenziali Errate"); } catch(e){} document.getElementById('loginBtn').innerText='Log On';}
+    async function verifyLogin() { const u = document.getElementById('adminUser').value; const p = document.getElementById('adminPass').value; if(!u||!p)return; document.getElementById('loginBtn').innerText='...'; try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user: u, pass: p }) }); if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Access Denied"); } catch(e){} document.getElementById('loginBtn').innerText='Log On';}
     async function loginDropbox() { try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) }); const data = await res.json(); if (data.success && data.url) window.location.href = data.url; } catch(e){} }
     async function handleRedirect() { const code = new URLSearchParams(window.location.search).get("code"); if(code) { window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('authScreen').classList.remove('hidden-view'); try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); const data = await res.json(); if(data.success) { accessToken = data.access_token; refreshToken = data.refresh_token; localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken); checkAppStatus(); } } catch(e){} } }
 
-    // ================= SMART SYNC & LOGIC =================
+    // ================= DATA SYNC =================
     function getStock(barcode) { return movimenti.filter(m => m.barcode === barcode).reduce((acc, m) => { const q = parseInt(m.qty) || 1; return (m.type === 'IN' || m.type === 'STOCK') ? acc + q : acc - q; }, 0); }
 
     async function loadData(isSilent = false, forceRender = false) {
@@ -315,15 +344,11 @@
             const data = await apiCall("getDashboardData");
             const newDataHash = JSON.stringify(data.inventario.length) + "_" + JSON.stringify(data.movimenti.length);
             
-            if ((newDataHash !== lastDataHash && currentMode !== 'INSERT') || forceRender) {
-                inventario = data.inventario || []; movimenti = data.movimenti || []; 
-                lastDataHash = newDataHash;
-                renderMasterData(); 
-                if(!document.getElementById('mod-sintesi').classList.contains('hidden-view')) renderDashboard();
+            if ((newDataHash !== lastDataHash && (currentMode === 'VIEW' || currentMode === 'SELECTED')) || forceRender) {
+                inventario = data.inventario || []; movimenti = data.movimenti || []; lastDataHash = newDataHash;
                 
-                // Se c'è un item selezionato, aggiorna anche il suo log e la sua giacenza
-                const selectedBarcode = document.getElementById('inspOriginalBarcode').value;
-                if(currentMode === 'SELECTED' && selectedBarcode) inspectItem(selectedBarcode, document.querySelector('.selected'));
+                renderMasterData(); renderGlobalLogTable();
+                if(!document.getElementById('mod-dashboard').classList.contains('hidden-view')) renderDashboard();
             }
             updateBadge('online');
         } catch (e) { updateBadge('fault'); }
@@ -331,13 +356,28 @@
 
     async function syncDataToServer(payload) {
         updateBadge('sync');
-        try {
-            await apiCall("saveAdminData", payload);
-            await loadData(true, true); return true;
-        } catch (e) { alert(`Errore DB:\n${e.message}`); return false; }
+        try { await apiCall("saveAdminData", payload); await loadData(true, true); return true; } 
+        catch (e) { alert(`DB Error:\n${e.message}`); return false; }
     }
 
-    // ================= INSPECTOR E VISTA INVENTARIO =================
+    // ================= INVENTARIO (CRUD & TX LOGIC) =================
+    function toggleTxBox() { document.getElementById('tx-box').classList.toggle('hidden-view'); }
+
+    function setFormState(enabled) {
+        ['inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).disabled = !enabled);
+        if(enabled) document.getElementById('save-box').classList.remove('hidden-view');
+        else document.getElementById('save-box').classList.add('hidden-view');
+    }
+
+    function updateToolbar() {
+        ['btn-edit', 'btn-tx', 'btn-log', 'btn-delete'].forEach(id => document.getElementById(id).disabled = true);
+        document.getElementById('tx-box').classList.add('hidden-view');
+        
+        if(currentMode === 'SELECTED') {
+            ['btn-edit', 'btn-tx', 'btn-log', 'btn-delete'].forEach(id => document.getElementById(id).disabled = false);
+        }
+    }
+
     function initNewItem() {
         currentMode = 'INSERT';
         document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
@@ -345,30 +385,18 @@
         document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
         document.getElementById('inspWarehouse').innerHTML = configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
         
-        document.getElementById('inspOriginalBarcode').value = ''; document.getElementById('inspBarcode').value = '';
-        document.getElementById('inspName').value = ''; 
+        ['inspOriginalBarcode', 'inspBarcode', 'inspName'].forEach(id => document.getElementById(id).value = '');
         
-        ['inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).disabled = false);
-        document.getElementById('inspHeader').innerHTML = 'CENSIMENTO NUOVO ITEM';
-        document.getElementById('tb-save').disabled = false;
-        
-        // Blocca i pannelli inferiori
-        document.getElementById('inspTxBlock').classList.add('opacity-50', 'pointer-events-none');
-        document.getElementById('inspLogBlock').classList.add('opacity-50', 'pointer-events-none');
-        document.getElementById('itemLogTableBody').innerHTML = '';
-        clearMapHighlight();
-        
+        setFormState(true); updateToolbar();
+        document.getElementById('inspTitle').innerHTML = 'Creazione Nuovo Articolo';
         document.getElementById('inspBarcode').focus(); 
     }
 
     function inspectItem(barcode, rowElement) {
-        if(currentMode === 'INSERT') { if(!confirm("Abbandonare l'inserimento?")) return; }
+        if(currentMode === 'INSERT' || currentMode === 'EDIT') { if(!confirm("Abbandonare le modifiche in corso?")) return; }
         currentMode = 'SELECTED';
         
-        if(rowElement) {
-            document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
-            rowElement.classList.add('selected');
-        }
+        if(rowElement) { document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected')); rowElement.classList.add('selected'); }
         
         document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
         document.getElementById('inspWarehouse').innerHTML = configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
@@ -379,27 +407,22 @@
         document.getElementById('inspName').value = item.name; document.getElementById('inspCategory').value = item.category || '';
         document.getElementById('inspWarehouse').value = item.warehouse || '';
         
-        ['inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).disabled = false);
-        document.getElementById('inspHeader').innerHTML = `ITEM: ${item.barcode}`;
-        document.getElementById('tb-save').disabled = false;
+        setFormState(false); updateToolbar();
+        document.getElementById('inspTitle').innerHTML = `SKU: ${item.barcode}`;
+    }
 
-        // Sblocca Azioni e renderizza il LOG SPECIFICO
-        document.getElementById('inspTxBlock').classList.remove('opacity-50', 'pointer-events-none');
-        document.getElementById('inspLogBlock').classList.remove('opacity-50', 'pointer-events-none');
-        renderItemLog(barcode);
-        highlightMapBin(barcode);
+    function enableEdit() {
+        if(currentMode !== 'SELECTED') return;
+        currentMode = 'EDIT'; setFormState(true); updateToolbar();
+        document.getElementById('inspTitle').innerHTML = 'Modifica Anagrafica';
     }
 
     function cancelEdit() {
         currentMode = 'VIEW';
         document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
-        ['inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => { document.getElementById(id).value = ''; document.getElementById(id).disabled = true; });
-        document.getElementById('inspHeader').innerHTML = 'Object Inspector';
-        document.getElementById('tb-save').disabled = true;
-        document.getElementById('inspTxBlock').classList.add('opacity-50', 'pointer-events-none');
-        document.getElementById('inspLogBlock').classList.add('opacity-50', 'pointer-events-none');
-        document.getElementById('itemLogTableBody').innerHTML = '';
-        clearMapHighlight();
+        setFormState(false); updateToolbar();
+        ['inspOriginalBarcode', 'inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('inspTitle').innerHTML = 'Dettaglio Articolo'; 
     }
 
     async function saveMasterData() {
@@ -409,44 +432,55 @@
         const targetWarehouse = document.getElementById('inspWarehouse').value;
         const originalBcode = document.getElementById('inspOriginalBarcode').value;
 
-        if (!bcode || !name) return alert("Codice e Descrizione obbligatori.");
-        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Codice SKU già in uso.");
+        if (!bcode || !name) return alert("Codice SKU e Descrizione sono obbligatori.");
+        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Questo codice SKU è già utilizzato.");
 
         let updatedMovimenti = false;
         const newItem = { barcode: bcode, name: name, category: category, warehouse: targetWarehouse };
 
-        if (currentMode === 'SELECTED' && originalBcode) {
+        if (currentMode === 'EDIT' && originalBcode) {
             inventario[inventario.findIndex(i => i.barcode === originalBcode)] = newItem;
             if (originalBcode !== bcode) { movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; }); updatedMovimenti = true; }
-        } else if (currentMode === 'INSERT') { 
-            inventario.push(newItem); 
-            // Rimossa InitQty dal form, l'operatore farà un Carico Manuale subito dopo la creazione
-        }
+        } else if (currentMode === 'INSERT') { inventario.push(newItem); }
 
         const payload = { inventario: inventario }; if (updatedMovimenti) payload.movimenti = movimenti;
-        if (await syncDataToServer(payload)) {
-            // Seleziona automaticamente il nuovo item creato
-            setTimeout(() => {
-                const rows = document.getElementById('inventoryTableBody').getElementsByTagName('tr');
-                for(let r of rows) { if(r.cells[0].innerText === bcode) { inspectItem(bcode, r); break; } }
-            }, 100);
-        }
+        if (await syncDataToServer(payload)) { cancelEdit(); setTimeout(()=>{renderMasterData();},100); }
     }
 
     async function executeManualTx() {
         const barcode = document.getElementById('inspOriginalBarcode').value;
         const type = document.getElementById('txType').value; const qty = parseInt(document.getElementById('txQty').value);
+        const loc = document.getElementById('txLoc').value.trim() || 'Movimento Manuale';
         const item = inventario.find(i => i.barcode === barcode);
-        const loc = document.getElementById('txLoc').value.trim() || 'Movimento Standard';
 
-        if (isNaN(qty) || qty <= 0) return alert("Quantità non valida.");
-        if (type === 'OUT' && qty > getStock(barcode)) return alert("Giacenza insufficiente.");
+        if (isNaN(qty) || qty <= 0) return alert("Inserire una quantità valida.");
+        if (type === 'OUT' && qty > getStock(barcode)) return alert("Errore: Giacenza insufficiente per lo scarico.");
 
         movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'ADMIN', warehouse: item.warehouse });
-        if (await syncDataToServer({ movimenti: movimenti })) { document.getElementById('txQty').value = 1; document.getElementById('txLoc').value = ''; }
+        if (await syncDataToServer({ movimenti: movimenti })) { 
+            document.getElementById('txQty').value = 1; document.getElementById('txLoc').value = ''; toggleTxBox(); 
+            // Aggiorna giacenza visiva
+            const selectedRow = document.querySelector('#inventoryTableBody tr.selected');
+            if(selectedRow) selectedRow.cells[1].innerHTML = `<span class="font-bold ${getStock(barcode)>0?'status-ok':'status-err'}">${getStock(barcode)}</span>`;
+        }
+    }
+    
+    async function deleteCurrentItem() {
+        const barcode = document.getElementById('inspOriginalBarcode').value;
+        if (!confirm(`ATTENZIONE:\nSei sicuro di voler eliminare l'articolo [${barcode}]?\nL'operazione è irreversibile.`)) return;
+        inventario = inventario.filter(i => i.barcode !== barcode);
+        if (await syncDataToServer({ inventario: inventario })) cancelEdit();
     }
 
-    // ================= DATA RENDERING (Split Screen) =================
+    // Passaggio rapido da Inventario a Log
+    function jumpToLog() {
+        const barcode = document.getElementById('inspOriginalBarcode').value;
+        switchModule('mod-movimenti', document.querySelectorAll('.sap-nav-tab')[2]);
+        document.getElementById('searchLog').value = barcode;
+        filterTable('globalLogTableBody', barcode);
+    }
+
+    // ================= RENDERIZAZIONI (Griglie e Dashboard) =================
     function filterTable(tbodyId, query) {
         const rows = document.getElementById(tbodyId).getElementsByTagName('tr'); query = query.toLowerCase();
         for (let row of rows) row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
@@ -455,10 +489,9 @@
     function renderMasterData() {
         const tbody = document.getElementById('inventoryTableBody');
         const filterWh = document.getElementById('filterWh');
-        
-        // Aggiorna tendina filtri
         const currentFilter = filterWh.value;
-        filterWh.innerHTML = `<option value="ALL">Tutti i Nodi</option>` + configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
+        
+        filterWh.innerHTML = `<option value="ALL">Tutti i Magazzini</option>` + configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
         filterWh.value = configWarehouses.includes(currentFilter) ? currentFilter : "ALL";
 
         const filteredItems = filterWh.value === "ALL" ? inventario : inventario.filter(i => i.warehouse === filterWh.value);
@@ -467,23 +500,21 @@
         tbody.innerHTML = filteredItems.map(item => {
             const qty = getStock(item.barcode);
             const isSel = selectedBarcode === item.barcode ? 'selected' : '';
-            return `<tr class="${isSel}" onclick="inspectItem('${item.barcode}', this)"><td class="font-bold text-[var(--sap-primary)]">${item.barcode} <span class="text-[9px] font-normal text-gray-400 block">${item.name}</span></td><td class="text-right font-bold text-sm ${qty>0?'status-ok':'status-err'}">${qty}</td></tr>`;
+            return `<tr class="${isSel}" onclick="inspectItem('${item.barcode}', this)"><td><div class="font-bold text-[var(--sap-primary)]">${item.barcode}</div></td><td title="${item.name}">${item.name}</td><td class="text-[10px] text-[var(--sap-text-muted)]">${item.warehouse||'-'}</td><td class="text-right"><span class="font-bold ${qty>0?'status-ok':'status-err'}">${qty}</span></td></tr>`;
         }).join('');
     }
 
-    function renderItemLog(barcode) {
-        const tbody = document.getElementById('itemLogTableBody');
-        const itemMoves = movimenti.filter(m => m.barcode === barcode).reverse();
-        
-        tbody.innerHTML = itemMoves.map(m => {
-            const isIN = m.type === 'IN' || m.type === 'STOCK';
-            const d = new Date(m.timestamp);
-            return `<tr><td class="text-[10px] text-gray-500">${d.toLocaleDateString('it-IT')} ${d.toLocaleTimeString('it-IT').substring(0,5)}</td><td class="text-center font-bold ${isIN?'status-ok':'status-err'}">${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${isIN?'+':'-'}${m.qty||1}</td><td class="text-[10px] truncate max-w-[80px]" title="${m.location}">${m.location||"-"}</td></tr>`;
+    function renderGlobalLogTable() {
+        document.getElementById('globalLogTableBody').innerHTML = [...movimenti].reverse().map(m => {
+            const isIN = m.type === 'IN' || m.type === 'STOCK'; const d = new Date(m.timestamp);
+            return `<tr><td>${d.toLocaleString('it-IT')}</td><td class="text-[var(--sap-text-muted)]">${m.id}</td><td>${m.warehouse||'N/A'}</td><td class="font-bold text-[var(--sap-primary)]">${m.barcode}</td><td class="text-center font-bold ${isIN?'status-ok':'status-err'}">${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${isIN?'+':'-'}${m.qty||1}</td><td>${m.location||"-"}</td><td>${m.operatore}</td></tr>`;
         }).join('');
     }
 
     function renderDashboard() {
-        let oosCount = 0; let totalQty = 0; const whData = {}; 
+        let oosCount = 0; let totalQty = 0; 
+        const whData = {}; 
+        let movesIN = 0; let movesOUT = 0;
         
         inventario.forEach(item => { 
             const q = getStock(item.barcode); totalQty += q;
@@ -491,65 +522,68 @@
             const wh = item.warehouse || 'N/A'; whData[wh] = (whData[wh] || 0) + q; 
         });
 
+        movimenti.forEach(m => { if(m.type==='IN' || m.type==='STOCK') movesIN++; else movesOUT++; });
+
         document.getElementById('kpi-sku').innerText = inventario.length;
         document.getElementById('kpi-qty').innerText = totalQty;
+        document.getElementById('kpi-tx').innerText = movimenti.length;
         document.getElementById('kpi-oos').innerText = oosCount;
 
-        document.getElementById('kpi-recent-tx').innerHTML = [...movimenti].reverse().slice(0, 10).map(m => {
+        document.getElementById('kpi-recent-tx').innerHTML = [...movimenti].reverse().slice(0, 8).map(m => {
             const isIN = m.type === 'IN' || m.type === 'STOCK';
-            return `<tr><td class="text-gray-500 text-[10px]">${new Date(m.timestamp).toLocaleTimeString()}</td><td class="font-bold">${m.barcode}</td><td class="text-[10px]">${m.warehouse||'-'}</td><td class="text-center font-bold ${isIN?'status-ok':'status-err'}">${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${m.qty||1}</td></tr>`;
+            return `<tr><td class="text-[10px] text-[var(--sap-text-muted)]">${new Date(m.timestamp).toLocaleTimeString()}</td><td class="font-bold text-xs">${m.barcode}</td><td class="text-center font-bold ${isIN?'status-ok':'status-err'}">${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${m.qty||1}</td></tr>`;
         }).join('');
         
-        if(mainChartInstance) mainChartInstance.destroy();
-        mainChartInstance = new Chart(document.getElementById('dashboardChart').getContext('2d'), {
-            type: 'bar', data: { labels: Object.keys(whData), datasets: [{ data: Object.values(whData), backgroundColor: '#0a6ed1' }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#e5e5e5' } }, x: { grid: { display: false } } } }
+        // Grafico 1: Stock per Magazzino (Doughnut)
+        if(chartStockInst) chartStockInst.destroy();
+        const colors1 = ['#0a6ed1', '#107e3e', '#e56100', '#6a6d70', '#bb0000'];
+        chartStockInst = new Chart(document.getElementById('chartStock').getContext('2d'), {
+            type: 'doughnut', data: { labels: Object.keys(whData), datasets: [{ data: Object.values(whData), backgroundColor: colors1, borderWidth: 2, borderColor: '#fff' }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } } } }
+        });
+
+        // Grafico 2: Ratio IN/OUT (Doughnut)
+        if(chartMovesInst) chartMovesInst.destroy();
+        chartMovesInst = new Chart(document.getElementById('chartMoves').getContext('2d'), {
+            type: 'doughnut', data: { labels: ['Flussi IN', 'Flussi OUT'], datasets: [{ data: [movesIN, movesOUT], backgroundColor: ['#107e3e', '#bb0000'], borderWidth: 2, borderColor: '#fff' }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } } } }
         });
     }
 
-    // ================= 2D MAP LOGIC =================
-    // Simulazione di "Bins" (Celle del magazzino) generati dinamicamente
+    // ================= LAYOUT MAGAZZINO (Mappa 2D) =================
+    function populateMapSelector() {
+        const sel = document.getElementById('mapWhSelector');
+        sel.innerHTML = `<option value="">-- Seleziona Nodo Logistico --</option>` + configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
+    }
+
     function drawWarehouseMap() {
-        ['A1', 'B1', 'B2', 'C1'].forEach(rackId => {
-            const rack = document.getElementById(`rack-${rackId}`);
-            let html = '';
-            for(let i=0; i<40; i++) { // 40 bins per rack
-                html += `<div class="map-bin" id="bin-${rackId}-${i}" title="Posizione: ${rackId}-${i}"></div>`;
+        const container = document.getElementById('warehouse-map');
+        const whName = document.getElementById('mapWhSelector').value;
+        if(!whName) { container.innerHTML = '<div class="text-center mt-20 text-gray-400">Selezionare un magazzino dalla tendina in alto.</div>'; return; }
+
+        // Layout geometrico demo (generazione corsie e bins via grid)
+        let html = '';
+        ['Zona Inbound (A)', 'Zona Stoccaggio Intensivo (B)', 'Zona Outbound / Picking (C)'].forEach((zona, idx) => {
+            html += `<div class="font-bold text-gray-500 uppercase text-xs tracking-wider">${zona}</div><div class="map-aisle">`;
+            for(let rack=1; rack<=(idx==1?3:2); rack++) { // Più scaffali nella zona B
+                html += `<div class="map-rack">`;
+                for(let bin=0; bin<30; bin++) { html += `<div class="map-bin" title="Posizione: ${zona.charAt(5)}${rack}-${bin}"></div>`; }
+                html += `</div>`;
             }
-            rack.innerHTML = html;
+            html += `</div>`;
         });
+        container.innerHTML = html;
     }
 
-    function clearMapHighlight() {
-        document.querySelectorAll('.map-bin').forEach(b => b.classList.remove('active-bin'));
-        document.getElementById('map-status').innerText = "Mappa Globale";
-    }
-
-    function highlightMapBin(barcode) {
-        clearMapHighlight();
-        // Logica di simulazione (in un sistema reale, il Bin ID sarebbe salvato in anagrafica)
-        // Usiamo un trucco hash stringa per assegnare pseudo-casualmente un bin fisso all'item
-        let hash = 0; for (let i = 0; i < barcode.length; i++) hash = barcode.charCodeAt(i) + ((hash << 5) - hash);
-        const racks = ['A1', 'B1', 'B2', 'C1'];
-        const targetRack = racks[Math.abs(hash) % racks.length];
-        const targetBin = Math.abs(hash) % 40;
-        
-        const binElement = document.getElementById(`bin-${targetRack}-${targetBin}`);
-        if(binElement) {
-            binElement.classList.add('active-bin');
-            document.getElementById('map-status').innerText = `Locazione calcolata: Settore ${targetRack.charAt(0)}, Rack ${targetRack}, Bin ${targetBin}`;
-        }
-    }
-
-    // ================= CONFIGURAZIONI =================
+    // ================= IMPOSTAZIONI (Setup & Config) =================
     function renderConfig() {
-        document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<tr><td>${c}</td><td class="w-12"><button onclick="deleteCategory(${i})" class="text-[var(--sap-error)] hover:font-bold"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
-        document.getElementById('warehouseList').innerHTML = configWarehouses.map((w, i) => `<tr><td><i class="fa-solid fa-building text-[var(--sap-text-muted)] mr-2"></i> ${w}</td><td class="w-12"><button onclick="deleteWarehouse(${i})" class="text-[var(--sap-error)] hover:font-bold"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+        document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<tr><td class="font-bold text-[var(--sap-text-muted)]">${c}</td><td class="w-12 text-center"><button onclick="deleteCategory(${i})" class="text-[var(--sap-error)]"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('');
+        document.getElementById('warehouseList').innerHTML = configWarehouses.map((w, i) => `<tr><td class="font-bold text-[var(--sap-primary)]"><i class="fa-solid fa-building mr-2"></i> ${w}</td><td class="w-12 text-center"><button onclick="deleteWarehouse(${i})" class="text-[var(--sap-error)]"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('');
     }
     function addCategory() { const val = document.getElementById('newCatInput').value.trim().toUpperCase(); if(!val || configCategories.includes(val)) return; configCategories.push(val); localStorage.setItem("wms_categories", JSON.stringify(configCategories)); document.getElementById('newCatInput').value = ''; renderConfig(); }
     function deleteCategory(idx) { configCategories.splice(idx, 1); localStorage.setItem("wms_categories", JSON.stringify(configCategories)); renderConfig(); }
-    function addWarehouse() { const val = document.getElementById('newWhInput').value.trim().toUpperCase(); if(!val || configWarehouses.includes(val)) return; configWarehouses.push(val); localStorage.setItem("wms_warehouses", JSON.stringify(configWarehouses)); document.getElementById('newWhInput').value = ''; renderConfig(); renderMasterData(); }
-    function deleteWarehouse(idx) { if(configWarehouses.length === 1) return alert("Necessario almeno un magazzino."); configWarehouses.splice(idx, 1); localStorage.setItem("wms_warehouses", JSON.stringify(configWarehouses)); renderConfig(); renderMasterData(); }
+    function addWarehouse() { const val = document.getElementById('newWhInput').value.trim().toUpperCase(); if(!val || configWarehouses.includes(val)) return; configWarehouses.push(val); localStorage.setItem("wms_warehouses", JSON.stringify(configWarehouses)); document.getElementById('newWhInput').value = ''; renderConfig(); }
+    function deleteWarehouse(idx) { if(configWarehouses.length === 1) return alert("Necessario almeno un magazzino a sistema."); configWarehouses.splice(idx, 1); localStorage.setItem("wms_warehouses", JSON.stringify(configWarehouses)); renderConfig(); }
 </script>
 </body>
 </html>
