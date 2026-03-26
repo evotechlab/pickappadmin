@@ -29,7 +29,6 @@
         input, select, textarea { user-select: text; cursor: text; }
         body { background-color: var(--sap-bg); color: var(--sap-text); font-family: "72", "Segoe UI", Roboto, Arial, sans-serif; font-size: 12px; margin: 0; overflow: hidden; }
 
-        /* Controlli Input e Bottoni */
         .sap-input { width: 100%; border: 1px solid var(--sap-border); background-color: #fff; padding: 0 8px; font-size: 12px; height: 26px; color: var(--sap-text); outline: none; }
         .sap-input:focus { border-color: var(--sap-primary); border-width: 2px; padding: 0 7px; }
         .sap-input:disabled { background-color: #f3f4f5; color: var(--sap-text-muted); border-style: dotted; cursor: not-allowed; }
@@ -42,10 +41,8 @@
         .sap-btn-danger:hover:not(:disabled) { background-color: var(--sap-error); color: #fff; }
         .sap-btn:disabled { border-color: #cccccc; color: #cccccc; cursor: not-allowed; }
 
-        /* Toolbar Interna (Sopra la scheda articolo) */
         .sap-toolbar { background-color: #f9f9f9; border-bottom: 1px solid var(--sap-border); padding: 6px 12px; display: flex; gap: 6px; align-items: center; }
 
-        /* Struttura Top (Shell & Nav) */
         .sap-shellbar { background-color: var(--sap-header); color: #fff; height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
         .sap-logo { font-size: 16px; font-weight: bold; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
         
@@ -54,19 +51,16 @@
         .sap-nav-tab:hover { color: var(--sap-primary); }
         .sap-nav-tab.active { color: var(--sap-primary); font-weight: bold; border-bottom-color: var(--sap-primary); }
 
-        /* Pannelli Generici */
         .sap-pane { background-color: var(--sap-panel); border: 1px solid var(--sap-border); display: flex; flex-direction: column; }
         .sap-pane-header { padding: 8px 12px; border-bottom: 1px solid var(--sap-border); display: flex; justify-content: space-between; align-items: center; background-color: #fff; }
-        .sap-pane-title { font-size: 14px; font-weight: bold; color: var(--sap-text); }
+        .sap-pane-title { font-size: 14px; font-weight: bold; color: var(--sap-text); text-transform: uppercase; }
 
-        /* Griglia Dati (Tabelloni) */
         .sap-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
         .sap-grid th { background-color: #f3f4f5; border-bottom: 1px solid var(--sap-border); padding: 6px 8px; text-align: left; font-weight: normal; color: var(--sap-text-muted); position: sticky; top: 0; z-index: 10; font-size: 11px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .sap-grid td { border-bottom: 1px solid #f0f0f0; padding: 6px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; vertical-align: middle; }
         .sap-grid tbody tr:hover td { background-color: #f5faff; cursor: pointer; }
         .sap-grid tbody tr.selected td { background-color: var(--sap-selected); border-bottom-color: #b3d4f5; font-weight: bold; }
 
-        /* Scrollbar Desktop */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid var(--sap-border); }
         ::-webkit-scrollbar-thumb { background: #c1c1c1; border: 1px solid #f0f0f0; }
@@ -76,12 +70,16 @@
         .status-ok { color: var(--sap-success); font-weight: bold; }
         .status-err { color: var(--sap-error); font-weight: bold; }
 
-        /* Layout Mappa 2D */
+        /* Mappa 2D */
         .map-bg { background-image: radial-gradient(#d9d9d9 1px, transparent 1px); background-size: 20px 20px; background-color: #f9f9f9; }
         .map-aisle { display: flex; gap: 8px; padding: 12px; background: #fff; border: 1px solid #ccc; }
         .map-rack { display: grid; grid-template-columns: repeat(15, 1fr); gap: 2px; flex: 1; }
         .map-bin { height: 20px; background-color: #e0e0e0; border: 1px solid #b0b0b0; cursor: pointer; }
         .map-bin:hover { background-color: var(--sap-selected); border-color: var(--sap-primary); }
+        
+        /* Modulo DPI */
+        .dpi-issue-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px dotted var(--sap-border); }
+        .dpi-issue-row:hover { background-color: #f5faff; }
     </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -119,7 +117,8 @@
 
         <nav class="sap-navbar shrink-0">
             <div onclick="switchModule('mod-dashboard', this)" class="sap-nav-tab active">Dashboard</div>
-            <div onclick="switchModule('mod-inventario', this)" class="sap-nav-tab">Inventario</div>
+            <div onclick="switchModule('mod-inventario', this)" class="sap-nav-tab">Inventario Master</div>
+            <div onclick="switchModule('mod-vestiario', this)" class="sap-nav-tab"><i class="fa-solid fa-shirt mr-2"></i>Vestiario & DPI</div>
             <div onclick="switchModule('mod-movimenti', this)" class="sap-nav-tab">Movimenti (Log)</div>
             <div onclick="switchModule('mod-layout', this)" class="sap-nav-tab">Layout Magazzino</div>
             <div onclick="switchModule('mod-setup', this)" class="sap-nav-tab">Impostazioni</div>
@@ -138,16 +137,8 @@
                     <div class="sap-pane justify-center px-6 border-l-4 border-l-[var(--sap-error)]"><div class="text-[var(--sap-text-muted)] text-xs uppercase mb-1">Alert Sotto-Scorta</div><div class="text-3xl font-bold text-[var(--sap-error)]" id="kpi-oos">0</div></div>
                 </div>
                 <div class="flex-1 grid grid-cols-3 gap-2">
-                    <div class="sap-pane flex flex-col"><div class="sap-pane-header"><span class="sap-pane-title">Capienza Magazzini</span></div>
-                        <div class="flex-1 p-4 flex flex-col items-center justify-center relative">
-                            <canvas id="chartStock"></canvas>
-                        </div>
-                    </div>
-                    <div class="sap-pane flex flex-col"><div class="sap-pane-header"><span class="sap-pane-title">Rapporto IN/OUT</span></div>
-                        <div class="flex-1 p-4 flex flex-col items-center justify-center relative">
-                            <canvas id="chartMoves"></canvas>
-                        </div>
-                    </div>
+                    <div class="sap-pane flex flex-col"><div class="sap-pane-header"><span class="sap-pane-title">Capienza Magazzini</span></div><div class="flex-1 p-4 relative"><canvas id="chartStock"></canvas></div></div>
+                    <div class="sap-pane flex flex-col"><div class="sap-pane-header"><span class="sap-pane-title">Rapporto IN/OUT</span></div><div class="flex-1 p-4 relative"><canvas id="chartMoves"></canvas></div></div>
                     <div class="sap-pane flex flex-col"><div class="sap-pane-header"><span class="sap-pane-title">Ultimi Movimenti</span></div>
                         <div class="flex-1 overflow-auto border-t border-[var(--sap-border)]">
                             <table class="sap-grid">
@@ -159,12 +150,12 @@
                 </div>
             </div>
 
-            <div id="mod-inventario" class="wms-module w-full h-full flex gap-2">
+            <div id="mod-inventario" class="wms-module w-full h-full flex gap-2 hidden-view">
                 <div class="sap-pane w-1/2 h-full">
                     <div class="sap-pane-header flex-col items-start gap-2 bg-[#f9f9f9]">
                         <span class="sap-pane-title">Master Data Inventory</span>
                         <div class="w-full flex gap-2">
-                            <input type="text" id="searchInv" onkeyup="filterTable('inventoryTableBody', this.value)" placeholder="Cerca SKU o Descrizione..." class="sap-input flex-1">
+                            <input type="text" id="searchInv" onkeyup="filterTable('inventoryTableBody', this.value)" placeholder="Cerca SKU..." class="sap-input flex-1">
                             <select id="filterWh" onchange="renderMasterData()" class="sap-input w-48"><option value="ALL">Tutti i Magazzini</option></select>
                         </div>
                     </div>
@@ -183,7 +174,7 @@
                         <button onclick="initNewItem()" class="sap-btn"><i class="fa-solid fa-plus"></i> Nuovo Articolo</button>
                         <button onclick="enableEdit()" id="btn-edit" class="sap-btn" disabled><i class="fa-solid fa-pen"></i> Modifica</button>
                         <div class="w-px h-6 bg-[#ccc] mx-1"></div>
-                        <button onclick="toggleTxBox()" id="btn-tx" class="sap-btn sap-btn-solid" disabled><i class="fa-solid fa-box-open"></i> Carico/Scarico</button>
+                        <button onclick="toggleTxBox('tx-box')" id="btn-tx" class="sap-btn sap-btn-solid" disabled><i class="fa-solid fa-box-open"></i> Carico/Scarico</button>
                         <button onclick="jumpToLog()" id="btn-log" class="sap-btn" disabled><i class="fa-solid fa-clock-rotate-left"></i> Storico</button>
                         <div class="w-px h-6 bg-[#ccc] mx-1 ml-auto"></div>
                         <button onclick="deleteCurrentItem()" id="btn-delete" class="sap-btn sap-btn-danger border-transparent" disabled><i class="fa-solid fa-trash"></i></button>
@@ -193,20 +184,18 @@
                         <div class="flex gap-2 items-end">
                             <div class="w-1/4"><label class="text-[10px] text-[var(--sap-text-muted)] font-bold uppercase">Operazione</label><select id="txType" class="sap-input font-bold"><option value="IN">CARICO (+)</option><option value="OUT">SCARICO (-)</option></select></div>
                             <div class="w-1/5"><label class="text-[10px] text-[var(--sap-text-muted)] font-bold uppercase">Quantità</label><input type="number" id="txQty" value="1" min="1" class="sap-input text-right font-bold"></div>
-                            <div class="flex-1"><label class="text-[10px] text-[var(--sap-text-muted)] font-bold uppercase">Causale Documento / Nota</label><input type="text" id="txLoc" placeholder="Es. DDT n. 123" class="sap-input"></div>
-                            <button onclick="executeManualTx()" class="sap-btn sap-btn-solid">Conferma Movimento</button>
-                            <button onclick="toggleTxBox()" class="sap-btn border-transparent hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button>
+                            <div class="flex-1"><label class="text-[10px] text-[var(--sap-text-muted)] font-bold uppercase">Causale Documento</label><input type="text" id="txLoc" placeholder="Es. DDT n. 123" class="sap-input"></div>
+                            <button onclick="executeManualTx()" class="sap-btn sap-btn-solid">Conferma</button>
+                            <button onclick="toggleTxBox('tx-box')" class="sap-btn border-transparent hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </div>
 
                     <div class="p-6 flex flex-col gap-4 overflow-y-auto flex-1">
                         <input type="hidden" id="inspOriginalBarcode">
-                        
                         <div class="grid grid-cols-2 gap-4">
                             <div><label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase">Codice SKU (Univoco)</label><input type="text" id="inspBarcode" class="sap-input font-bold uppercase mt-1" disabled></div>
                             <div><label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase">Magazzino di Stoccaggio</label><select id="inspWarehouse" class="sap-input mt-1" disabled></select></div>
                         </div>
-                        
                         <div><label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase">Descrizione Completa</label><input type="text" id="inspName" class="sap-input mt-1" disabled></div>
                         <div><label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase">Classe Merceologica</label><select id="inspCategory" class="sap-input mt-1" disabled></select></div>
 
@@ -214,6 +203,52 @@
                             <button onclick="cancelEdit()" class="sap-btn">Annulla</button>
                             <button onclick="saveMasterData()" class="sap-btn sap-btn-solid">Salva Anagrafica</button>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mod-vestiario" class="wms-module w-full h-full flex gap-2 hidden-view">
+                
+                <div class="sap-pane w-1/2 h-full">
+                    <div class="sap-pane-header bg-[#f9f9f9] border-b-[var(--sap-primary)]">
+                        <span class="sap-pane-title text-[var(--sap-primary)]"><i class="fa-solid fa-shirt mr-2"></i>Giacenze Magazzino Vestiario</span>
+                    </div>
+                    <div class="p-2 border-b border-[var(--sap-border)] flex gap-2">
+                        <input type="text" id="searchDPI" onkeyup="filterTable('dpiStockBody', this.value)" placeholder="Filtra Articolo o Taglia..." class="sap-input">
+                    </div>
+                    <div class="flex-1 overflow-auto">
+                        <table class="sap-grid">
+                            <thead><tr><th>Articolo</th><th class="text-center">Taglia</th><th class="text-right">Giacenza</th><th class="w-20"></th></tr></thead>
+                            <tbody id="dpiStockBody"></tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="dpi-carico-box" class="bg-[#f0f0f0] border-t border-[var(--sap-border)] p-3 hidden-view shrink-0">
+                        <div class="text-xs font-bold mb-2">Carico Fornitura: <span id="lblCaricoDpi" class="text-[var(--sap-primary)]"></span></div>
+                        <div class="flex gap-2 items-end">
+                            <input type="hidden" id="dpiCaricoArticolo">
+                            <input type="hidden" id="dpiCaricoTaglia">
+                            <div class="w-1/4"><label class="text-[10px] text-[var(--sap-text-muted)]">Q.tà in Entrata</label><input type="number" id="dpiCaricoQty" value="1" min="1" class="sap-input text-right"></div>
+                            <div class="flex-1"><label class="text-[10px] text-[var(--sap-text-muted)]">Causale (es. Lavanderia)</label><input type="text" id="dpiCaricoLoc" class="sap-input"></div>
+                            <button onclick="eseguiCaricoDPI()" class="sap-btn sap-btn-solid"><i class="fa-solid fa-plus"></i> Carica</button>
+                            <button onclick="document.getElementById('dpi-carico-box').classList.add('hidden-view')" class="sap-btn border-transparent hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sap-pane w-1/2 h-full">
+                    <div class="sap-pane-header bg-[#f9f9f9]">
+                        <span class="sap-pane-title"><i class="fa-solid fa-id-card mr-2"></i>Scheda Dipendente & Erogazione</span>
+                    </div>
+                    <div class="p-4 bg-white border-b border-[var(--sap-border)]">
+                        <label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase block mb-1">Seleziona Dipendente</label>
+                        <select id="dpiSelectDipendente" class="sap-input font-bold text-lg h-8" onchange="renderSchedaDipendente()">
+                            <option value="">-- Seleziona un nominativo --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex-1 overflow-auto bg-[#fbfbfb] p-4" id="dpiSchedaContainer">
+                        <div class="text-center text-gray-400 mt-20">Selezionare un dipendente per visualizzare il fabbisogno taglie.</div>
                     </div>
                 </div>
             </div>
@@ -226,7 +261,7 @@
                     </div>
                     <div class="flex-1 overflow-auto border-t border-[var(--sap-border)]">
                         <table class="sap-grid">
-                            <thead><tr><th class="w-32">Timestamp</th><th class="w-32">ID Transazione</th><th class="w-40">Magazzino</th><th class="w-48">SKU Code</th><th class="w-24 text-center">Tipo (IN/OUT)</th><th class="w-24 text-right">Delta Q.tà</th><th>Causale / Posizione</th><th class="w-32">Operatore</th></tr></thead>
+                            <thead><tr><th class="w-32">Timestamp</th><th class="w-32">ID Transazione</th><th class="w-40">Magazzino</th><th class="w-48">SKU Code</th><th class="w-24 text-center">Tipo</th><th class="w-24 text-right">Delta Q.tà</th><th>Causale</th><th class="w-32">Operatore</th></tr></thead>
                             <tbody id="globalLogTableBody" class="font-mono text-[11px]"></tbody>
                         </table>
                     </div>
@@ -239,87 +274,82 @@
                         <span class="sap-pane-title">Planimetria Magazzini (Digital Twin)</span>
                         <select id="mapWhSelector" onchange="drawWarehouseMap()" class="sap-input w-64"><option value="ALL">Seleziona un Magazzino...</option></select>
                     </div>
-                    <div class="map-bg flex-1 p-8 overflow-auto flex flex-col gap-6" id="warehouse-map">
-                        </div>
+                    <div class="map-bg flex-1 p-8 overflow-auto flex flex-col gap-6" id="warehouse-map"></div>
                 </div>
             </div>
 
             <div id="mod-setup" class="wms-module w-full h-full hidden-view flex gap-4">
-                <div class="sap-pane w-1/2">
-                    <div class="sap-pane-header"><span class="sap-pane-title">Gestione Nodi (Magazzini)</span></div>
-                    <div class="p-3 border-b border-[var(--sap-border)] bg-[#f9f9f9] flex gap-2"><input type="text" id="newWhInput" class="sap-input flex-1" placeholder="Es. MAGAZZINO CENTRALE"><button onclick="addWarehouse()" class="sap-btn">Aggiungi</button></div>
-                    <div class="flex-1 overflow-auto"><table class="sap-grid"><tbody id="warehouseList"></tbody></table></div>
-                </div>
-                <div class="sap-pane w-1/2">
-                    <div class="sap-pane-header"><span class="sap-pane-title">Classi Merceologiche (Categorie)</span></div>
-                    <div class="p-3 border-b border-[var(--sap-border)] bg-[#f9f9f9] flex gap-2"><input type="text" id="newCatInput" class="sap-input flex-1" placeholder="Es. ELETTRONICA"><button onclick="addCategory()" class="sap-btn">Aggiungi</button></div>
-                    <div class="flex-1 overflow-auto"><table class="sap-grid"><tbody id="categoryList"></tbody></table></div>
-                </div>
+                <div class="sap-pane w-1/2"><div class="sap-pane-header"><span class="sap-pane-title">Nodi Logistici (Magazzini)</span></div><div class="p-3 bg-[#f9f9f9] flex gap-2"><input type="text" id="newWhInput" class="sap-input flex-1" placeholder="Es. MAGAZZINO 1"><button onclick="addWarehouse()" class="sap-btn">Aggiungi</button></div><div class="flex-1 overflow-auto"><table class="sap-grid"><tbody id="warehouseList"></tbody></table></div></div>
+                <div class="sap-pane w-1/2"><div class="sap-pane-header"><span class="sap-pane-title">Classi Merceologiche (Categorie)</span></div><div class="p-3 bg-[#f9f9f9] flex gap-2"><input type="text" id="newCatInput" class="sap-input flex-1" placeholder="Es. ELETTRONICA"><button onclick="addCategory()" class="sap-btn">Aggiungi</button></div><div class="flex-1 overflow-auto"><table class="sap-grid"><tbody id="categoryList"></tbody></table></div></div>
             </div>
             
         </main>
     </div>
 
 <script>
-    // ================= GLOBAL =================
+    // ================= GLOBAL CORE & DATA =================
     const WORKER_URL = "https://wild-feather-f74a.sviluppo-49a.workers.dev"; 
     let isAdminUnlocked = localStorage.getItem("wms_admin_unlocked") === "true";
     let accessToken = localStorage.getItem("wms_admin_db_token");
     let refreshToken = localStorage.getItem("wms_admin_refresh_token");
     
-    let configCategories = JSON.parse(localStorage.getItem("wms_categories")) || ["MATERIE PRIME", "PRODOTTI FINITI"];
-    let configWarehouses = JSON.parse(localStorage.getItem("wms_warehouses")) || ["MAGAZZINO 1", "MAGAZZINO 2"];
+    let configCategories = JSON.parse(localStorage.getItem("wms_categories")) || ["MATERIE PRIME", "PRODOTTI FINITI", "VESTIARIO DPI"];
+    let configWarehouses = JSON.parse(localStorage.getItem("wms_warehouses")) || ["MAGAZZINO CENTRALE", "SPOGLIATOIO DPI"];
     
     let inventario = []; 
     let movimenti = [];  
     
-    let autoRefreshTimer = null;
-    let chartStockInst = null;
-    let chartMovesInst = null;
-    let currentMode = 'VIEW'; // 'VIEW', 'SELECTED', 'INSERT', 'EDIT'
-    let lastDataHash = "";    
+    // ================= DATI VESTIARIO (Mockup basato sul tuo CSV) =================
+    // Nel WMS reale, questi dati andrebbero salvati nel database cloud. Per ora li gestiamo in LocalStorage.
+    let dpiDipendenti = JSON.parse(localStorage.getItem("wms_dpi_dipendenti")) || [
+        { nome: "ROBERTO FI.", scarpe: "44", pant_est: "46", pant_inv: "46", maglia_mc: "L", polo: "XL", felpa: "L", giub_est: "L", giub_inv: "L" },
+        { nome: "ALESSANDRO M.", scarpe: "42", pant_est: "46", pant_inv: "46", maglia_mc: "M", polo: "L", felpa: "L", giub_est: "L", giub_inv: "L" },
+        { nome: "GABRIELE", scarpe: "44", pant_est: "48", pant_inv: "48", maglia_mc: "L", polo: "L", felpa: "XL", giub_est: "XL", giub_inv: "XL" }
+    ];
+    
+    // L'inventario vestiario è una matrice (Articolo + Taglia)
+    let dpiMagazzino = JSON.parse(localStorage.getItem("wms_dpi_magazzino")) || [
+        { articolo: "PANTALONI ESTIVI", taglia: "46", qty: 5 },
+        { articolo: "PANTALONI ESTIVI", taglia: "48", qty: 2 },
+        { articolo: "POLO", taglia: "L", qty: 10 },
+        { articolo: "POLO", taglia: "XL", qty: 8 },
+        { articolo: "SCARPE", taglia: "42", qty: 3 },
+        { articolo: "SCARPE", taglia: "44", qty: 4 }
+    ];
+    
+    let autoRefreshTimer = null; let chartStockInst = null; let chartMovesInst = null;
+    let currentMode = 'VIEW'; let lastDataHash = "";    
 
     document.addEventListener('DOMContentLoaded', () => { 
         handleRedirect(); checkAppStatus(); renderConfig(); 
+        initVestiarioData();
     });
 
     // ================= NAV & AUTH =================
     function switchModule(moduleId, btnElement) {
         if(currentMode === 'INSERT' || currentMode === 'EDIT') { if(!confirm("Attenzione: Hai modifiche in corso. Abbandonare l'operazione?")) return; cancelEdit(); }
-        
         document.querySelectorAll('.wms-module').forEach(el => el.classList.add('hidden-view'));
         document.getElementById(moduleId).classList.remove('hidden-view');
-        
-        if(btnElement) {
-            document.querySelectorAll('.sap-nav-tab').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-        }
+        if(btnElement) { document.querySelectorAll('.sap-nav-tab').forEach(btn => btn.classList.remove('active')); btnElement.classList.add('active'); }
         
         if(moduleId === 'mod-dashboard') renderDashboard();
         if(moduleId === 'mod-inventario') renderMasterData();
+        if(moduleId === 'mod-vestiario') renderVestiarioModule();
         if(moduleId === 'mod-layout') { populateMapSelector(); drawWarehouseMap(); }
     }
 
     function checkAppStatus() {
         if (!isAdminUnlocked) { showScreen('loginScreen'); }
         else if (!accessToken) { showScreen('authScreen'); }
-        else { 
-            showScreen('mainWorkspace'); loadData(false, true); 
-            if(autoRefreshTimer) clearInterval(autoRefreshTimer); 
-            autoRefreshTimer = setInterval(() => { loadData(true, false); }, 15000); 
-        }
+        else { showScreen('mainWorkspace'); loadData(false, true); if(autoRefreshTimer) clearInterval(autoRefreshTimer); autoRefreshTimer = setInterval(() => { loadData(true, false); }, 15000); }
     }
     
     function showScreen(id) { ['loginScreen', 'authScreen', 'mainWorkspace'].forEach(s => document.getElementById(s).classList.add('hidden-view')); document.getElementById(id).classList.remove('hidden-view'); }
     function hardLogout() { if(autoRefreshTimer) clearInterval(autoRefreshTimer); localStorage.removeItem("wms_admin_unlocked"); window.location.reload(); }
+    function updateBadge(status) { const badge = document.getElementById('liveConnectionStatus'); if(status === 'sync') badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-[#0a6ed1]"></div> SYNCING`; else if(status === 'online') badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-[#107e3e]"></div> ONLINE`; else badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-[#bb0000]"></div> ERROR`; }
+    function toggleTxBox(boxId) { document.getElementById(boxId).classList.toggle('hidden-view'); }
 
-    function updateBadge(status) {
-        const badge = document.getElementById('liveConnectionStatus');
-        if(status === 'sync') { badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-[#0a6ed1]"></div> SYNCING`; }
-        else if(status === 'online') { badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-[#107e3e]"></div> ONLINE`; }
-        else { badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-[#bb0000]"></div> ERROR`; }
-    }
-
+    // API Calls
     async function apiCall(actionName, payload = {}) {
         let fetchOptions = { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` }, body: JSON.stringify({ action: actionName, ...payload }) };
         let res = await fetch(WORKER_URL, fetchOptions); let data = await res.json();
@@ -335,7 +365,7 @@
     async function loginDropbox() { try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) }); const data = await res.json(); if (data.success && data.url) window.location.href = data.url; } catch(e){} }
     async function handleRedirect() { const code = new URLSearchParams(window.location.search).get("code"); if(code) { window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('authScreen').classList.remove('hidden-view'); try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); const data = await res.json(); if(data.success) { accessToken = data.access_token; refreshToken = data.refresh_token; localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken); checkAppStatus(); } } catch(e){} } }
 
-    // ================= DATA SYNC =================
+    // ================= DATA SYNC MASTER =================
     function getStock(barcode) { return movimenti.filter(m => m.barcode === barcode).reduce((acc, m) => { const q = parseInt(m.qty) || 1; return (m.type === 'IN' || m.type === 'STOCK') ? acc + q : acc - q; }, 0); }
 
     async function loadData(isSilent = false, forceRender = false) {
@@ -344,11 +374,11 @@
             const data = await apiCall("getDashboardData");
             const newDataHash = JSON.stringify(data.inventario.length) + "_" + JSON.stringify(data.movimenti.length);
             
-            if ((newDataHash !== lastDataHash && (currentMode === 'VIEW' || currentMode === 'SELECTED')) || forceRender) {
+            if ((newDataHash !== lastDataHash && currentMode !== 'INSERT') || forceRender) {
                 inventario = data.inventario || []; movimenti = data.movimenti || []; lastDataHash = newDataHash;
-                
                 renderMasterData(); renderGlobalLogTable();
                 if(!document.getElementById('mod-dashboard').classList.contains('hidden-view')) renderDashboard();
+                if(currentMode === 'SELECTED') inspectItem(document.getElementById('inspOriginalBarcode').value, document.querySelector('.selected'));
             }
             updateBadge('online');
         } catch (e) { updateBadge('fault'); }
@@ -360,226 +390,198 @@
         catch (e) { alert(`DB Error:\n${e.message}`); return false; }
     }
 
-    // ================= INVENTARIO (CRUD & TX LOGIC) =================
-    function toggleTxBox() { document.getElementById('tx-box').classList.toggle('hidden-view'); }
-
-    function setFormState(enabled) {
-        ['inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).disabled = !enabled);
-        if(enabled) document.getElementById('save-box').classList.remove('hidden-view');
-        else document.getElementById('save-box').classList.add('hidden-view');
+    // ================= MODULO VESTIARIO DPI =================
+    function initVestiarioData() {
+        const sel = document.getElementById('dpiSelectDipendente');
+        sel.innerHTML = `<option value="">-- Seleziona un nominativo --</option>` + dpiDipendenti.map(d => `<option value="${d.nome}">${d.nome}</option>`).join('');
     }
 
-    function updateToolbar() {
-        ['btn-edit', 'btn-tx', 'btn-log', 'btn-delete'].forEach(id => document.getElementById(id).disabled = true);
-        document.getElementById('tx-box').classList.add('hidden-view');
-        
-        if(currentMode === 'SELECTED') {
-            ['btn-edit', 'btn-tx', 'btn-log', 'btn-delete'].forEach(id => document.getElementById(id).disabled = false);
-        }
-    }
-
-    function initNewItem() {
-        currentMode = 'INSERT';
-        document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
-        
-        document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
-        document.getElementById('inspWarehouse').innerHTML = configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
-        
-        ['inspOriginalBarcode', 'inspBarcode', 'inspName'].forEach(id => document.getElementById(id).value = '');
-        
-        setFormState(true); updateToolbar();
-        document.getElementById('inspTitle').innerHTML = 'Creazione Nuovo Articolo';
-        document.getElementById('inspBarcode').focus(); 
-    }
-
-    function inspectItem(barcode, rowElement) {
-        if(currentMode === 'INSERT' || currentMode === 'EDIT') { if(!confirm("Abbandonare le modifiche in corso?")) return; }
-        currentMode = 'SELECTED';
-        
-        if(rowElement) { document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected')); rowElement.classList.add('selected'); }
-        
-        document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
-        document.getElementById('inspWarehouse').innerHTML = configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
-        const item = inventario.find(i => i.barcode === barcode);
-        if(!item) return;
-
-        document.getElementById('inspOriginalBarcode').value = item.barcode; document.getElementById('inspBarcode').value = item.barcode;
-        document.getElementById('inspName').value = item.name; document.getElementById('inspCategory').value = item.category || '';
-        document.getElementById('inspWarehouse').value = item.warehouse || '';
-        
-        setFormState(false); updateToolbar();
-        document.getElementById('inspTitle').innerHTML = `SKU: ${item.barcode}`;
-    }
-
-    function enableEdit() {
-        if(currentMode !== 'SELECTED') return;
-        currentMode = 'EDIT'; setFormState(true); updateToolbar();
-        document.getElementById('inspTitle').innerHTML = 'Modifica Anagrafica';
-    }
-
-    function cancelEdit() {
-        currentMode = 'VIEW';
-        document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
-        setFormState(false); updateToolbar();
-        ['inspOriginalBarcode', 'inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('inspTitle').innerHTML = 'Dettaglio Articolo'; 
-    }
-
-    async function saveMasterData() {
-        const bcode = document.getElementById('inspBarcode').value.trim().toUpperCase();
-        const name = document.getElementById('inspName').value.trim();
-        const category = document.getElementById('inspCategory').value;
-        const targetWarehouse = document.getElementById('inspWarehouse').value;
-        const originalBcode = document.getElementById('inspOriginalBarcode').value;
-
-        if (!bcode || !name) return alert("Codice SKU e Descrizione sono obbligatori.");
-        if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Questo codice SKU è già utilizzato.");
-
-        let updatedMovimenti = false;
-        const newItem = { barcode: bcode, name: name, category: category, warehouse: targetWarehouse };
-
-        if (currentMode === 'EDIT' && originalBcode) {
-            inventario[inventario.findIndex(i => i.barcode === originalBcode)] = newItem;
-            if (originalBcode !== bcode) { movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; }); updatedMovimenti = true; }
-        } else if (currentMode === 'INSERT') { inventario.push(newItem); }
-
-        const payload = { inventario: inventario }; if (updatedMovimenti) payload.movimenti = movimenti;
-        if (await syncDataToServer(payload)) { cancelEdit(); setTimeout(()=>{renderMasterData();},100); }
-    }
-
-    async function executeManualTx() {
-        const barcode = document.getElementById('inspOriginalBarcode').value;
-        const type = document.getElementById('txType').value; const qty = parseInt(document.getElementById('txQty').value);
-        const loc = document.getElementById('txLoc').value.trim() || 'Movimento Manuale';
-        const item = inventario.find(i => i.barcode === barcode);
-
-        if (isNaN(qty) || qty <= 0) return alert("Inserire una quantità valida.");
-        if (type === 'OUT' && qty > getStock(barcode)) return alert("Errore: Giacenza insufficiente per lo scarico.");
-
-        movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'ADMIN', warehouse: item.warehouse });
-        if (await syncDataToServer({ movimenti: movimenti })) { 
-            document.getElementById('txQty').value = 1; document.getElementById('txLoc').value = ''; toggleTxBox(); 
-            // Aggiorna giacenza visiva
-            const selectedRow = document.querySelector('#inventoryTableBody tr.selected');
-            if(selectedRow) selectedRow.cells[1].innerHTML = `<span class="font-bold ${getStock(barcode)>0?'status-ok':'status-err'}">${getStock(barcode)}</span>`;
-        }
-    }
-    
-    async function deleteCurrentItem() {
-        const barcode = document.getElementById('inspOriginalBarcode').value;
-        if (!confirm(`ATTENZIONE:\nSei sicuro di voler eliminare l'articolo [${barcode}]?\nL'operazione è irreversibile.`)) return;
-        inventario = inventario.filter(i => i.barcode !== barcode);
-        if (await syncDataToServer({ inventario: inventario })) cancelEdit();
-    }
-
-    // Passaggio rapido da Inventario a Log
-    function jumpToLog() {
-        const barcode = document.getElementById('inspOriginalBarcode').value;
-        switchModule('mod-movimenti', document.querySelectorAll('.sap-nav-tab')[2]);
-        document.getElementById('searchLog').value = barcode;
-        filterTable('globalLogTableBody', barcode);
-    }
-
-    // ================= RENDERIZAZIONI (Griglie e Dashboard) =================
-    function filterTable(tbodyId, query) {
-        const rows = document.getElementById(tbodyId).getElementsByTagName('tr'); query = query.toLowerCase();
-        for (let row of rows) row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
-    }
-
-    function renderMasterData() {
-        const tbody = document.getElementById('inventoryTableBody');
-        const filterWh = document.getElementById('filterWh');
-        const currentFilter = filterWh.value;
-        
-        filterWh.innerHTML = `<option value="ALL">Tutti i Magazzini</option>` + configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
-        filterWh.value = configWarehouses.includes(currentFilter) ? currentFilter : "ALL";
-
-        const filteredItems = filterWh.value === "ALL" ? inventario : inventario.filter(i => i.warehouse === filterWh.value);
-        const selectedBarcode = document.getElementById('inspOriginalBarcode').value;
-
-        tbody.innerHTML = filteredItems.map(item => {
-            const qty = getStock(item.barcode);
-            const isSel = selectedBarcode === item.barcode ? 'selected' : '';
-            return `<tr class="${isSel}" onclick="inspectItem('${item.barcode}', this)"><td><div class="font-bold text-[var(--sap-primary)]">${item.barcode}</div></td><td title="${item.name}">${item.name}</td><td class="text-[10px] text-[var(--sap-text-muted)]">${item.warehouse||'-'}</td><td class="text-right"><span class="font-bold ${qty>0?'status-ok':'status-err'}">${qty}</span></td></tr>`;
+    function renderVestiarioModule() {
+        const tbody = document.getElementById('dpiStockBody');
+        // Raggruppa e renderizza giacenze vestiario
+        tbody.innerHTML = dpiMagazzino.map(item => {
+            return `<tr><td class="font-bold text-[var(--sap-primary)]">${item.articolo}</td><td class="text-center font-bold">${item.taglia}</td><td class="text-right"><span class="font-bold ${item.qty>0?'status-ok':'status-err'}">${item.qty}</span></td><td class="text-center"><button onclick="apriCaricoDPI('${item.articolo}', '${item.taglia}')" class="sap-btn border-transparent hover:bg-[#e5f0fa]" title="Carica merce in arrivo"><i class="fa-solid fa-plus text-[var(--sap-primary)]"></i></button></td></tr>`;
         }).join('');
     }
 
+    function apriCaricoDPI(articolo, taglia) {
+        document.getElementById('dpi-carico-box').classList.remove('hidden-view');
+        document.getElementById('lblCaricoDpi').innerText = `${articolo} - Taglia ${taglia}`;
+        document.getElementById('dpiCaricoArticolo').value = articolo;
+        document.getElementById('dpiCaricoTaglia').value = taglia;
+        document.getElementById('dpiCaricoQty').value = 1;
+        document.getElementById('dpiCaricoLoc').value = "Ingresso Lavanderia/Fornitore";
+    }
+
+    function eseguiCaricoDPI() {
+        const art = document.getElementById('dpiCaricoArticolo').value;
+        const taglia = document.getElementById('dpiCaricoTaglia').value;
+        const qty = parseInt(document.getElementById('dpiCaricoQty').value);
+        if(isNaN(qty) || qty <= 0) return;
+
+        // Cerca item nell'array DPI, se c'è somma, sennò crea
+        let target = dpiMagazzino.find(i => i.articolo === art && i.taglia === taglia);
+        if(target) target.qty += qty;
+        else dpiMagazzino.push({articolo: art, taglia: taglia, qty: qty});
+        
+        localStorage.setItem("wms_dpi_magazzino", JSON.stringify(dpiMagazzino));
+        document.getElementById('dpi-carico-box').classList.add('hidden-view');
+        renderVestiarioModule();
+        
+        // Se la scheda del dipendente è aperta, aggiornala
+        if(document.getElementById('dpiSelectDipendente').value) renderSchedaDipendente();
+    }
+
+    function renderSchedaDipendente() {
+        const nome = document.getElementById('dpiSelectDipendente').value;
+        const container = document.getElementById('dpiSchedaContainer');
+        if(!nome) { container.innerHTML = '<div class="text-center text-gray-400 mt-20">Selezionare un dipendente per visualizzare il fabbisogno taglie.</div>'; return; }
+
+        const dip = dpiDipendenti.find(d => d.nome === nome);
+        
+        // Mappiamo le voci del JSON CSV alle categorie di vestiario
+        const dotazione = [
+            { label: "Scarpe Antinfortunistiche", articolo: "SCARPE", taglia: dip.scarpe },
+            { label: "Pantaloni Estivi", articolo: "PANTALONI ESTIVI", taglia: dip.pant_est },
+            { label: "Pantaloni Invernali", articolo: "PANTALONI INVERNALI", taglia: dip.pant_inv },
+            { label: "Maglia Manica Corta", articolo: "MAGLIA M. C.", taglia: dip.maglia_mc },
+            { label: "Polo", articolo: "POLO", taglia: dip.polo },
+            { label: "Felpa", articolo: "FELPA", taglia: dip.felpa },
+            { label: "Giubbino Estivo", articolo: "GIUBBINO EST.", taglia: dip.giub_est },
+            { label: "Giubbino Invernale", articolo: "GIUBBINO INV.", taglia: dip.giub_inv }
+        ];
+
+        let html = `<div class="font-bold text-lg mb-4 text-[var(--sap-header)] border-b border-[var(--sap-border)] pb-2">Distinta Base DPI: ${nome}</div>`;
+        
+        dotazione.forEach(d => {
+            if(!d.taglia || d.taglia.trim() === "") return; // Salta se non ha questa dotazione
+            
+            // Controlliamo se c'è disponibilità in magazzino per QUESTA taglia
+            const stock = dpiMagazzino.find(i => i.articolo === d.articolo && i.taglia === d.taglia);
+            const qtyDisp = stock ? stock.qty : 0;
+            const btnState = qtyDisp > 0 ? '' : 'disabled';
+            const btnColor = qtyDisp > 0 ? 'sap-btn-solid' : '';
+
+            html += `
+                <div class="dpi-issue-row bg-white shadow-sm mb-2 border border-[#eee]">
+                    <div class="w-1/3 font-bold text-[var(--sap-text)]">${d.label}</div>
+                    <div class="w-1/6 text-center text-[10px] text-gray-500 uppercase">Taglia<br><span class="text-[14px] font-bold text-black">${d.taglia}</span></div>
+                    <div class="w-1/4 text-center text-[10px] text-gray-500 uppercase">Disp. Magazzino<br><span class="text-[14px] font-bold ${qtyDisp>0?'status-ok':'status-err'}">${qtyDisp} pz</span></div>
+                    <div class="w-1/4 text-right">
+                        <button onclick="erogaDPI('${d.articolo}', '${d.taglia}', '${nome}')" class="sap-btn ${btnColor}" ${btnState}><i class="fa-solid fa-hand-holding-hand"></i> EROGA</button>
+                    </div>
+                </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function erogaDPI(articolo, taglia, dipendente) {
+        if(!confirm(`Consegnare 1 pz di ${articolo} (Taglia ${taglia}) a ${dipendente}?`)) return;
+
+        // 1. Riduciamo il magazzino DPI
+        let target = dpiMagazzino.find(i => i.articolo === articolo && i.taglia === taglia);
+        if(target && target.qty > 0) {
+            target.qty -= 1;
+            localStorage.setItem("wms_dpi_magazzino", JSON.stringify(dpiMagazzino));
+            
+            // 2. Registriamo un finto "Log" nel WMS principale per tracciabilità globale (opzionale ma utile)
+            const pseudoBarcode = `DPI-${articolo.substring(0,3)}-${taglia}`;
+            movimenti.push({ id: Date.now().toString(), barcode: pseudoBarcode, type: 'OUT', qty: 1, location: `Consegna DPI a ${dipendente}`, timestamp: new Date().toISOString(), operatore: 'ADMIN', warehouse: 'SPOGLIATOIO DPI' });
+            syncDataToServer({ movimenti: movimenti });
+
+            // 3. Ricarica la vista
+            renderVestiarioModule();
+            renderSchedaDipendente();
+        }
+    }
+
+    // ================= INVENTARIO MASTER (CRUD) =================
+    function setFormState(enabled) {
+        ['inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).disabled = !enabled);
+        if(enabled) document.getElementById('save-box').classList.remove('hidden-view'); else document.getElementById('save-box').classList.add('hidden-view');
+    }
+    function updateToolbar() {
+        ['btn-edit', 'btn-tx', 'btn-log', 'btn-delete'].forEach(id => document.getElementById(id).disabled = true);
+        document.getElementById('tx-box').classList.add('hidden-view');
+        if(currentMode === 'SELECTED') ['btn-edit', 'btn-tx', 'btn-log', 'btn-delete'].forEach(id => document.getElementById(id).disabled = false);
+    }
+    function initNewItem() {
+        currentMode = 'INSERT'; document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
+        document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+        document.getElementById('inspWarehouse').innerHTML = configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
+        ['inspOriginalBarcode', 'inspBarcode', 'inspName'].forEach(id => document.getElementById(id).value = '');
+        setFormState(true); updateToolbar(); document.getElementById('inspTitle').innerHTML = 'Creazione Nuovo Articolo'; document.getElementById('inspBarcode').focus(); 
+    }
+    function inspectItem(barcode, rowElement) {
+        if(currentMode === 'INSERT' || currentMode === 'EDIT') { if(!confirm("Abbandonare le modifiche in corso?")) return; }
+        currentMode = 'SELECTED';
+        if(rowElement) { document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected')); rowElement.classList.add('selected'); }
+        document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+        document.getElementById('inspWarehouse').innerHTML = configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
+        const item = inventario.find(i => i.barcode === barcode); if(!item) return;
+        document.getElementById('inspOriginalBarcode').value = item.barcode; document.getElementById('inspBarcode').value = item.barcode;
+        document.getElementById('inspName').value = item.name; document.getElementById('inspCategory').value = item.category || ''; document.getElementById('inspWarehouse').value = item.warehouse || '';
+        setFormState(false); updateToolbar(); document.getElementById('inspTitle').innerHTML = `SKU: ${item.barcode}`;
+    }
+    function enableEdit() { if(currentMode !== 'SELECTED') return; currentMode = 'EDIT'; setFormState(true); updateToolbar(); document.getElementById('inspTitle').innerHTML = 'Modifica Anagrafica'; }
+    function cancelEdit() { currentMode = 'VIEW'; document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected')); setFormState(false); updateToolbar(); ['inspOriginalBarcode', 'inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).value = ''); document.getElementById('inspTitle').innerHTML = 'Dettaglio Articolo'; }
+    async function saveMasterData() {
+        const bcode = document.getElementById('inspBarcode').value.trim().toUpperCase(); const name = document.getElementById('inspName').value.trim(); const category = document.getElementById('inspCategory').value; const targetWarehouse = document.getElementById('inspWarehouse').value; const originalBcode = document.getElementById('inspOriginalBarcode').value;
+        if (!bcode || !name) return alert("Codice e Descrizione obbligatori."); if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Codice SKU già in uso.");
+        let updatedMovimenti = false; const newItem = { barcode: bcode, name: name, category: category, warehouse: targetWarehouse };
+        if (currentMode === 'EDIT' && originalBcode) { inventario[inventario.findIndex(i => i.barcode === originalBcode)] = newItem; if (originalBcode !== bcode) { movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; }); updatedMovimenti = true; } } else if (currentMode === 'INSERT') { inventario.push(newItem); }
+        const payload = { inventario: inventario }; if (updatedMovimenti) payload.movimenti = movimenti;
+        if (await syncDataToServer(payload)) { cancelEdit(); setTimeout(()=>{renderMasterData();},100); }
+    }
+    async function executeManualTx() {
+        const barcode = document.getElementById('inspOriginalBarcode').value; const type = document.getElementById('txType').value; const qty = parseInt(document.getElementById('txQty').value); const item = inventario.find(i => i.barcode === barcode); const loc = document.getElementById('txLoc').value.trim() || 'Movimento Manuale';
+        if (isNaN(qty) || qty <= 0) return alert("Quantità non valida."); if (type === 'OUT' && qty > getStock(barcode)) return alert("Giacenza insufficiente.");
+        movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'ADMIN', warehouse: item.warehouse });
+        if (await syncDataToServer({ movimenti: movimenti })) { document.getElementById('txQty').value = 1; document.getElementById('txLoc').value = ''; toggleTxBox('tx-box'); }
+    }
+    async function deleteCurrentItem() { const barcode = document.getElementById('inspOriginalBarcode').value; if (!confirm(`ATTENZIONE:\nSei sicuro di voler eliminare l'articolo [${barcode}]?`)) return; inventario = inventario.filter(i => i.barcode !== barcode); if (await syncDataToServer({ inventario: inventario })) cancelEdit(); }
+    function jumpToLog() { const barcode = document.getElementById('inspOriginalBarcode').value; switchModule('mod-movimenti', document.querySelectorAll('.sap-nav-tab')[3]); document.getElementById('searchLog').value = barcode; filterTable('globalLogTableBody', barcode); }
+
+    // ================= RENDERIZAZIONI BASE =================
+    function filterTable(tbodyId, query) { const rows = document.getElementById(tbodyId).getElementsByTagName('tr'); query = query.toLowerCase(); for (let row of rows) row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; }
+    function renderMasterData() {
+        const tbody = document.getElementById('inventoryTableBody'); const filterWh = document.getElementById('filterWh'); const currentFilter = filterWh.value;
+        filterWh.innerHTML = `<option value="ALL">Tutti i Magazzini</option>` + configWarehouses.map(w => `<option value="${w}">${w}</option>`).join(''); filterWh.value = configWarehouses.includes(currentFilter) ? currentFilter : "ALL";
+        const filteredItems = filterWh.value === "ALL" ? inventario : inventario.filter(i => i.warehouse === filterWh.value); const selectedBarcode = document.getElementById('inspOriginalBarcode').value;
+        tbody.innerHTML = filteredItems.map(item => {
+            const qty = getStock(item.barcode); const isSel = selectedBarcode === item.barcode ? 'selected' : '';
+            return `<tr class="${isSel}" onclick="inspectItem('${item.barcode}', this)"><td><div class="font-bold text-[var(--sap-primary)]">${item.barcode}</div></td><td title="${item.name}">${item.name}</td><td class="text-[10px] text-[var(--sap-text-muted)]">${item.warehouse||'-'}</td><td class="text-right"><span class="font-bold ${qty>0?'status-ok':'status-err'}">${qty}</span></td></tr>`;
+        }).join('');
+    }
     function renderGlobalLogTable() {
         document.getElementById('globalLogTableBody').innerHTML = [...movimenti].reverse().map(m => {
             const isIN = m.type === 'IN' || m.type === 'STOCK'; const d = new Date(m.timestamp);
             return `<tr><td>${d.toLocaleString('it-IT')}</td><td class="text-[var(--sap-text-muted)]">${m.id}</td><td>${m.warehouse||'N/A'}</td><td class="font-bold text-[var(--sap-primary)]">${m.barcode}</td><td class="text-center font-bold ${isIN?'status-ok':'status-err'}">${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${isIN?'+':'-'}${m.qty||1}</td><td>${m.location||"-"}</td><td>${m.operatore}</td></tr>`;
         }).join('');
     }
-
     function renderDashboard() {
-        let oosCount = 0; let totalQty = 0; 
-        const whData = {}; 
-        let movesIN = 0; let movesOUT = 0;
-        
-        inventario.forEach(item => { 
-            const q = getStock(item.barcode); totalQty += q;
-            if(q === 0) oosCount++;
-            const wh = item.warehouse || 'N/A'; whData[wh] = (whData[wh] || 0) + q; 
-        });
-
+        let oosCount = 0; let totalQty = 0; const whData = {}; let movesIN = 0; let movesOUT = 0;
+        inventario.forEach(item => { const q = getStock(item.barcode); totalQty += q; if(q === 0) oosCount++; const wh = item.warehouse || 'N/A'; whData[wh] = (whData[wh] || 0) + q; });
         movimenti.forEach(m => { if(m.type==='IN' || m.type==='STOCK') movesIN++; else movesOUT++; });
-
-        document.getElementById('kpi-sku').innerText = inventario.length;
-        document.getElementById('kpi-qty').innerText = totalQty;
-        document.getElementById('kpi-tx').innerText = movimenti.length;
-        document.getElementById('kpi-oos').innerText = oosCount;
-
+        document.getElementById('kpi-sku').innerText = inventario.length; document.getElementById('kpi-qty').innerText = totalQty; document.getElementById('kpi-tx').innerText = movimenti.length; document.getElementById('kpi-oos').innerText = oosCount;
         document.getElementById('kpi-recent-tx').innerHTML = [...movimenti].reverse().slice(0, 8).map(m => {
-            const isIN = m.type === 'IN' || m.type === 'STOCK';
-            return `<tr><td class="text-[10px] text-[var(--sap-text-muted)]">${new Date(m.timestamp).toLocaleTimeString()}</td><td class="font-bold text-xs">${m.barcode}</td><td class="text-center font-bold ${isIN?'status-ok':'status-err'}">${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${m.qty||1}</td></tr>`;
+            const isIN = m.type === 'IN' || m.type === 'STOCK'; return `<tr><td class="text-[10px] text-[var(--sap-text-muted)]">${new Date(m.timestamp).toLocaleTimeString()}</td><td class="font-bold text-xs">${m.barcode}</td><td class="text-center font-bold ${isIN?'status-ok':'status-err'}">${isIN?'IN':'OUT'}</td><td class="text-right font-mono">${m.qty||1}</td></tr>`;
         }).join('');
-        
-        // Grafico 1: Stock per Magazzino (Doughnut)
         if(chartStockInst) chartStockInst.destroy();
-        const colors1 = ['#0a6ed1', '#107e3e', '#e56100', '#6a6d70', '#bb0000'];
-        chartStockInst = new Chart(document.getElementById('chartStock').getContext('2d'), {
-            type: 'doughnut', data: { labels: Object.keys(whData), datasets: [{ data: Object.values(whData), backgroundColor: colors1, borderWidth: 2, borderColor: '#fff' }] },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } } } }
-        });
-
-        // Grafico 2: Ratio IN/OUT (Doughnut)
+        chartStockInst = new Chart(document.getElementById('chartStock').getContext('2d'), { type: 'doughnut', data: { labels: Object.keys(whData), datasets: [{ data: Object.values(whData), backgroundColor: ['#0a6ed1', '#107e3e', '#e56100', '#6a6d70', '#bb0000'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } } } } });
         if(chartMovesInst) chartMovesInst.destroy();
-        chartMovesInst = new Chart(document.getElementById('chartMoves').getContext('2d'), {
-            type: 'doughnut', data: { labels: ['Flussi IN', 'Flussi OUT'], datasets: [{ data: [movesIN, movesOUT], backgroundColor: ['#107e3e', '#bb0000'], borderWidth: 2, borderColor: '#fff' }] },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } } } }
-        });
+        chartMovesInst = new Chart(document.getElementById('chartMoves').getContext('2d'), { type: 'doughnut', data: { labels: ['Flussi IN', 'Flussi OUT'], datasets: [{ data: [movesIN, movesOUT], backgroundColor: ['#107e3e', '#bb0000'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } } } } });
     }
 
-    // ================= LAYOUT MAGAZZINO (Mappa 2D) =================
-    function populateMapSelector() {
-        const sel = document.getElementById('mapWhSelector');
-        sel.innerHTML = `<option value="">-- Seleziona Nodo Logistico --</option>` + configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
-    }
-
+    // ================= MAPPA 2D & CONFIG =================
+    function populateMapSelector() { const sel = document.getElementById('mapWhSelector'); sel.innerHTML = `<option value="">-- Seleziona Nodo Logistico --</option>` + configWarehouses.map(w => `<option value="${w}">${w}</option>`).join(''); }
     function drawWarehouseMap() {
-        const container = document.getElementById('warehouse-map');
-        const whName = document.getElementById('mapWhSelector').value;
-        if(!whName) { container.innerHTML = '<div class="text-center mt-20 text-gray-400">Selezionare un magazzino dalla tendina in alto.</div>'; return; }
-
-        // Layout geometrico demo (generazione corsie e bins via grid)
-        let html = '';
-        ['Zona Inbound (A)', 'Zona Stoccaggio Intensivo (B)', 'Zona Outbound / Picking (C)'].forEach((zona, idx) => {
-            html += `<div class="font-bold text-gray-500 uppercase text-xs tracking-wider">${zona}</div><div class="map-aisle">`;
-            for(let rack=1; rack<=(idx==1?3:2); rack++) { // Più scaffali nella zona B
-                html += `<div class="map-rack">`;
-                for(let bin=0; bin<30; bin++) { html += `<div class="map-bin" title="Posizione: ${zona.charAt(5)}${rack}-${bin}"></div>`; }
-                html += `</div>`;
-            }
-            html += `</div>`;
-        });
+        const container = document.getElementById('warehouse-map'); const whName = document.getElementById('mapWhSelector').value;
+        if(!whName) { container.innerHTML = '<div class="text-center mt-20 text-gray-400">Selezionare un magazzino dalla tendina.</div>'; return; }
+        let html = ''; ['Zona Inbound (A)', 'Zona Stoccaggio Intensivo (B)', 'Zona Outbound (C)'].forEach((zona, idx) => { html += `<div class="font-bold text-gray-500 uppercase text-xs tracking-wider">${zona}</div><div class="map-aisle">`; for(let rack=1; rack<=(idx==1?3:2); rack++) { html += `<div class="map-rack">`; for(let bin=0; bin<30; bin++) { html += `<div class="map-bin" title="Posizione: ${zona.charAt(5)}${rack}-${bin}"></div>`; } html += `</div>`; } html += `</div>`; });
         container.innerHTML = html;
     }
-
-    // ================= IMPOSTAZIONI (Setup & Config) =================
-    function renderConfig() {
-        document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<tr><td class="font-bold text-[var(--sap-text-muted)]">${c}</td><td class="w-12 text-center"><button onclick="deleteCategory(${i})" class="text-[var(--sap-error)]"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('');
-        document.getElementById('warehouseList').innerHTML = configWarehouses.map((w, i) => `<tr><td class="font-bold text-[var(--sap-primary)]"><i class="fa-solid fa-building mr-2"></i> ${w}</td><td class="w-12 text-center"><button onclick="deleteWarehouse(${i})" class="text-[var(--sap-error)]"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join('');
-    }
+    function renderConfig() { document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<tr><td class="font-bold text-[var(--sap-text-muted)]">${c}</td><td class="w-12 text-center"><button onclick="deleteCategory(${i})" class="text-[var(--sap-error)]"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join(''); document.getElementById('warehouseList').innerHTML = configWarehouses.map((w, i) => `<tr><td class="font-bold text-[var(--sap-primary)]"><i class="fa-solid fa-building mr-2"></i> ${w}</td><td class="w-12 text-center"><button onclick="deleteWarehouse(${i})" class="text-[var(--sap-error)]"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join(''); }
     function addCategory() { const val = document.getElementById('newCatInput').value.trim().toUpperCase(); if(!val || configCategories.includes(val)) return; configCategories.push(val); localStorage.setItem("wms_categories", JSON.stringify(configCategories)); document.getElementById('newCatInput').value = ''; renderConfig(); }
     function deleteCategory(idx) { configCategories.splice(idx, 1); localStorage.setItem("wms_categories", JSON.stringify(configCategories)); renderConfig(); }
     function addWarehouse() { const val = document.getElementById('newWhInput').value.trim().toUpperCase(); if(!val || configWarehouses.includes(val)) return; configWarehouses.push(val); localStorage.setItem("wms_warehouses", JSON.stringify(configWarehouses)); document.getElementById('newWhInput').value = ''; renderConfig(); }
