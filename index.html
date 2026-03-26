@@ -213,40 +213,83 @@
                     <div class="sap-pane-header bg-[#f9f9f9] border-b-[var(--sap-primary)]">
                         <span class="sap-pane-title text-[var(--sap-primary)]"><i class="fa-solid fa-shirt mr-2"></i>Giacenze Magazzino Vestiario</span>
                     </div>
-                    <div class="p-2 border-b border-[var(--sap-border)] flex gap-2">
-                        <input type="text" id="searchDPI" onkeyup="filterTable('dpiStockBody', this.value)" placeholder="Filtra Articolo o Taglia..." class="sap-input">
+                    
+                    <div class="sap-toolbar shrink-0 justify-between">
+                        <div class="flex-1 mr-2"><input type="text" id="searchDPI" onkeyup="filterTable('dpiStockBody', this.value)" placeholder="Filtra Articolo o Taglia..." class="sap-input"></div>
+                        <button onclick="toggleDpiCreationBox()" class="sap-btn sap-btn-solid shrink-0"><i class="fa-solid fa-plus"></i> Nuovo Articolo/Taglia</button>
                     </div>
+
+                    <div id="dpi-creation-box" class="bg-[#f0f0f0] border-b border-[var(--sap-border)] p-3 hidden-view shrink-0">
+                        <div class="text-xs font-bold mb-2">Aggiungi nuova referenza vestiario:</div>
+                        <div class="flex gap-2 items-end">
+                            <div class="flex-1"><label class="text-[10px] text-[var(--sap-text-muted)]">Articolo (es. POLO)</label><input type="text" id="newDpiArt" class="sap-input uppercase"></div>
+                            <div class="w-1/4"><label class="text-[10px] text-[var(--sap-text-muted)]">Taglia (es. XL)</label><input type="text" id="newDpiTaglia" class="sap-input uppercase font-bold text-center"></div>
+                            <div class="w-1/4"><label class="text-[10px] text-[var(--sap-text-muted)]">Q.tà Iniziale</label><input type="number" id="newDpiQty" value="0" min="0" class="sap-input text-right"></div>
+                            <button onclick="salvaNuovoArticoloDPI()" class="sap-btn sap-btn-solid">Salva</button>
+                            <button onclick="toggleDpiCreationBox()" class="sap-btn border-transparent hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="dpi-carico-box" class="bg-[#e5f0fa] border-b border-[var(--sap-border)] p-3 hidden-view shrink-0">
+                        <div class="text-xs font-bold mb-2">Carico Fornitura: <span id="lblCaricoDpi" class="text-[var(--sap-primary)]"></span></div>
+                        <div class="flex gap-2 items-end">
+                            <input type="hidden" id="dpiCaricoArticolo">
+                            <input type="hidden" id="dpiCaricoTaglia">
+                            <div class="w-1/4"><label class="text-[10px] text-[var(--sap-text-muted)]">Q.tà in Entrata</label><input type="number" id="dpiCaricoQty" value="1" min="1" class="sap-input text-right"></div>
+                            <div class="flex-1"><label class="text-[10px] text-[var(--sap-text-muted)]">Causale (es. Fornitore)</label><input type="text" id="dpiCaricoLoc" class="sap-input"></div>
+                            <button onclick="eseguiCaricoDPI()" class="sap-btn sap-btn-solid"><i class="fa-solid fa-plus"></i> Carica</button>
+                            <button onclick="document.getElementById('dpi-carico-box').classList.add('hidden-view')" class="sap-btn border-transparent hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+
                     <div class="flex-1 overflow-auto">
                         <table class="sap-grid">
                             <thead><tr><th>Articolo</th><th class="text-center">Taglia</th><th class="text-right">Giacenza</th><th class="w-20"></th></tr></thead>
                             <tbody id="dpiStockBody"></tbody>
                         </table>
                     </div>
-                    
-                    <div id="dpi-carico-box" class="bg-[#f0f0f0] border-t border-[var(--sap-border)] p-3 hidden-view shrink-0">
-                        <div class="text-xs font-bold mb-2">Carico Fornitura: <span id="lblCaricoDpi" class="text-[var(--sap-primary)]"></span></div>
-                        <div class="flex gap-2 items-end">
-                            <input type="hidden" id="dpiCaricoArticolo">
-                            <input type="hidden" id="dpiCaricoTaglia">
-                            <div class="w-1/4"><label class="text-[10px] text-[var(--sap-text-muted)]">Q.tà in Entrata</label><input type="number" id="dpiCaricoQty" value="1" min="1" class="sap-input text-right"></div>
-                            <div class="flex-1"><label class="text-[10px] text-[var(--sap-text-muted)]">Causale (es. Lavanderia)</label><input type="text" id="dpiCaricoLoc" class="sap-input"></div>
-                            <button onclick="eseguiCaricoDPI()" class="sap-btn sap-btn-solid"><i class="fa-solid fa-plus"></i> Carica</button>
-                            <button onclick="document.getElementById('dpi-carico-box').classList.add('hidden-view')" class="sap-btn border-transparent hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button>
-                        </div>
-                    </div>
                 </div>
 
-                <div class="sap-pane w-1/2 h-full">
+                <div class="sap-pane w-1/2 h-full flex flex-col">
                     <div class="sap-pane-header bg-[#f9f9f9]">
                         <span class="sap-pane-title"><i class="fa-solid fa-id-card mr-2"></i>Scheda Dipendente & Erogazione</span>
                     </div>
-                    <div class="p-4 bg-white border-b border-[var(--sap-border)]">
-                        <label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase block mb-1">Seleziona Dipendente</label>
-                        <select id="dpiSelectDipendente" class="sap-input font-bold text-lg h-8" onchange="renderSchedaDipendente()">
-                            <option value="">-- Seleziona un nominativo --</option>
-                        </select>
+                    
+                    <div class="p-3 bg-white border-b border-[var(--sap-border)] flex gap-2 items-end">
+                        <div class="flex-1">
+                            <label class="text-[11px] text-[var(--sap-text-muted)] font-bold uppercase block mb-1">Seleziona Dipendente</label>
+                            <select id="dpiSelectDipendente" class="sap-input font-bold" onchange="renderSchedaDipendente()"><option value="">-- Seleziona un nominativo --</option></select>
+                        </div>
+                        <button onclick="toggleDipendenteCreationBox()" class="sap-btn shrink-0"><i class="fa-solid fa-user-plus"></i> Nuovo Dipendente</button>
                     </div>
                     
+                    <div id="dipendente-creation-box" class="bg-[#f0f0f0] border-b border-[var(--sap-border)] p-4 hidden-view shrink-0 overflow-y-auto max-h-[60%]">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="font-bold text-[var(--sap-primary)]">Censimento Nuovo Dipendente (Distinta Taglie)</div>
+                            <button onclick="toggleDipendenteCreationBox()" class="sap-btn border-transparent hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="text-[10px] text-[var(--sap-text-muted)] font-bold">Nome e Cognome</label>
+                            <input type="text" id="newDipNome" class="sap-input font-bold" placeholder="Es. MARIO ROSSI">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="text-[10px] text-[var(--sap-text-muted)]">Scarpe Antinfortunistiche</label><input type="text" id="sz_scarpe" class="sap-input uppercase" placeholder="Es. 43"></div>
+                            <div><label class="text-[10px] text-[var(--sap-text-muted)]">Pantaloni Estivi</label><input type="text" id="sz_pant_est" class="sap-input uppercase" placeholder="Es. 48"></div>
+                            <div><label class="text-[10px] text-[var(--sap-text-muted)]">Pantaloni Invernali</label><input type="text" id="sz_pant_inv" class="sap-input uppercase" placeholder="Es. 48"></div>
+                            <div><label class="text-[10px] text-[var(--sap-text-muted)]">Maglia Manica Corta</label><input type="text" id="sz_maglia_mc" class="sap-input uppercase" placeholder="Es. L"></div>
+                            <div><label class="text-[10px] text-[var(--sap-text-muted)]">Polo</label><input type="text" id="sz_polo" class="sap-input uppercase" placeholder="Es. L"></div>
+                            <div><label class="text-[10px] text-[var(--sap-text-muted)]">Felpa</label><input type="text" id="sz_felpa" class="sap-input uppercase" placeholder="Es. L"></div>
+                            <div><label class="text-[10px] text-[var(--sap-text-muted)]">Giubbino Estivo</label><input type="text" id="sz_giub_est" class="sap-input uppercase" placeholder="Es. L"></div>
+                            <div><label class="text-[10px] text-[var(--sap-text-muted)]">Giubbino Invernale</label><input type="text" id="sz_giub_inv" class="sap-input uppercase" placeholder="Es. XL"></div>
+                        </div>
+                        
+                        <div class="mt-4 flex justify-end">
+                            <button onclick="salvaNuovoDipendente()" class="sap-btn sap-btn-solid w-full">Salva Anagrafica Dipendente</button>
+                        </div>
+                    </div>
+
                     <div class="flex-1 overflow-auto bg-[#fbfbfb] p-4" id="dpiSchedaContainer">
                         <div class="text-center text-gray-400 mt-20">Selezionare un dipendente per visualizzare il fabbisogno taglie.</div>
                     </div>
@@ -296,25 +339,17 @@
     let configCategories = JSON.parse(localStorage.getItem("wms_categories")) || ["MATERIE PRIME", "PRODOTTI FINITI", "VESTIARIO DPI"];
     let configWarehouses = JSON.parse(localStorage.getItem("wms_warehouses")) || ["MAGAZZINO CENTRALE", "SPOGLIATOIO DPI"];
     
-    let inventario = []; 
-    let movimenti = [];  
+    let inventario = []; let movimenti = [];  
     
-    // ================= DATI VESTIARIO (Mockup basato sul tuo CSV) =================
-    // Nel WMS reale, questi dati andrebbero salvati nel database cloud. Per ora li gestiamo in LocalStorage.
+    // Gestione dati Modulo Vestiario in LocalStorage (per la demo persistente)
     let dpiDipendenti = JSON.parse(localStorage.getItem("wms_dpi_dipendenti")) || [
         { nome: "ROBERTO FI.", scarpe: "44", pant_est: "46", pant_inv: "46", maglia_mc: "L", polo: "XL", felpa: "L", giub_est: "L", giub_inv: "L" },
-        { nome: "ALESSANDRO M.", scarpe: "42", pant_est: "46", pant_inv: "46", maglia_mc: "M", polo: "L", felpa: "L", giub_est: "L", giub_inv: "L" },
-        { nome: "GABRIELE", scarpe: "44", pant_est: "48", pant_inv: "48", maglia_mc: "L", polo: "L", felpa: "XL", giub_est: "XL", giub_inv: "XL" }
+        { nome: "ALESSANDRO M.", scarpe: "42", pant_est: "46", pant_inv: "46", maglia_mc: "M", polo: "L", felpa: "L", giub_est: "L", giub_inv: "L" }
     ];
-    
-    // L'inventario vestiario è una matrice (Articolo + Taglia)
     let dpiMagazzino = JSON.parse(localStorage.getItem("wms_dpi_magazzino")) || [
         { articolo: "PANTALONI ESTIVI", taglia: "46", qty: 5 },
-        { articolo: "PANTALONI ESTIVI", taglia: "48", qty: 2 },
         { articolo: "POLO", taglia: "L", qty: 10 },
-        { articolo: "POLO", taglia: "XL", qty: 8 },
-        { articolo: "SCARPE", taglia: "42", qty: 3 },
-        { articolo: "SCARPE", taglia: "44", qty: 4 }
+        { articolo: "SCARPE", taglia: "42", qty: 3 }
     ];
     
     let autoRefreshTimer = null; let chartStockInst = null; let chartMovesInst = null;
@@ -322,7 +357,7 @@
 
     document.addEventListener('DOMContentLoaded', () => { 
         handleRedirect(); checkAppStatus(); renderConfig(); 
-        initVestiarioData();
+        initVestiarioDropdown();
     });
 
     // ================= NAV & AUTH =================
@@ -360,20 +395,16 @@
         }
         if (!res.ok) throw new Error(data.error); return data;
     }
-    
     async function verifyLogin() { const u = document.getElementById('adminUser').value; const p = document.getElementById('adminPass').value; if(!u||!p)return; document.getElementById('loginBtn').innerText='...'; try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "verifyAdminLogin", user: u, pass: p }) }); if ((await res.json()).success) { isAdminUnlocked = true; localStorage.setItem("wms_admin_unlocked", "true"); checkAppStatus(); } else alert("Access Denied"); } catch(e){} document.getElementById('loginBtn').innerText='Log On';}
     async function loginDropbox() { try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getAdminAuthUrl" }) }); const data = await res.json(); if (data.success && data.url) window.location.href = data.url; } catch(e){} }
     async function handleRedirect() { const code = new URLSearchParams(window.location.search).get("code"); if(code) { window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('authScreen').classList.remove('hidden-view'); try { const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "exchangeCode", code: code }) }); const data = await res.json(); if(data.success) { accessToken = data.access_token; refreshToken = data.refresh_token; localStorage.setItem("wms_admin_db_token", accessToken); localStorage.setItem("wms_admin_refresh_token", refreshToken); checkAppStatus(); } } catch(e){} } }
 
     // ================= DATA SYNC MASTER =================
     function getStock(barcode) { return movimenti.filter(m => m.barcode === barcode).reduce((acc, m) => { const q = parseInt(m.qty) || 1; return (m.type === 'IN' || m.type === 'STOCK') ? acc + q : acc - q; }, 0); }
-
     async function loadData(isSilent = false, forceRender = false) {
         if(!isSilent) updateBadge('sync');
         try {
-            const data = await apiCall("getDashboardData");
-            const newDataHash = JSON.stringify(data.inventario.length) + "_" + JSON.stringify(data.movimenti.length);
-            
+            const data = await apiCall("getDashboardData"); const newDataHash = JSON.stringify(data.inventario.length) + "_" + JSON.stringify(data.movimenti.length);
             if ((newDataHash !== lastDataHash && currentMode !== 'INSERT') || forceRender) {
                 inventario = data.inventario || []; movimenti = data.movimenti || []; lastDataHash = newDataHash;
                 renderMasterData(); renderGlobalLogTable();
@@ -383,34 +414,99 @@
             updateBadge('online');
         } catch (e) { updateBadge('fault'); }
     }
-
     async function syncDataToServer(payload) {
         updateBadge('sync');
-        try { await apiCall("saveAdminData", payload); await loadData(true, true); return true; } 
-        catch (e) { alert(`DB Error:\n${e.message}`); return false; }
+        try { await apiCall("saveAdminData", payload); await loadData(true, true); return true; } catch (e) { alert(`DB Error:\n${e.message}`); return false; }
     }
 
-    // ================= MODULO VESTIARIO DPI =================
-    function initVestiarioData() {
+    // ================= NUOVO: GESTIONE CRUD VESTIARIO (DPI) =================
+    
+    // Toggles per le finestre di creazione
+    function toggleDpiCreationBox() { document.getElementById('dpi-creation-box').classList.toggle('hidden-view'); document.getElementById('dpi-carico-box').classList.add('hidden-view'); }
+    function toggleDipendenteCreationBox() { document.getElementById('dipendente-creation-box').classList.toggle('hidden-view'); }
+
+    // Salva Nuovo Articolo Vestiario
+    function salvaNuovoArticoloDPI() {
+        const art = document.getElementById('newDpiArt').value.trim().toUpperCase();
+        const taglia = document.getElementById('newDpiTaglia').value.trim().toUpperCase();
+        const qty = parseInt(document.getElementById('newDpiQty').value) || 0;
+
+        if(!art || !taglia) return alert("Inserire Articolo e Taglia.");
+
+        let target = dpiMagazzino.find(i => i.articolo === art && i.taglia === taglia);
+        if(target) {
+            target.qty += qty; // Se esiste, somma la giacenza
+            alert(`L'articolo esiste già. Aggiunti ${qty} pezzi alla giacenza.`);
+        } else {
+            dpiMagazzino.push({articolo: art, taglia: taglia, qty: qty}); // Se non esiste, crea la riga
+        }
+        
+        localStorage.setItem("wms_dpi_magazzino", JSON.stringify(dpiMagazzino));
+        
+        // Pulisce, chiude e ri-renderizza
+        document.getElementById('newDpiArt').value = ''; document.getElementById('newDpiTaglia').value = ''; document.getElementById('newDpiQty').value = '0';
+        toggleDpiCreationBox();
+        renderVestiarioModule();
+        if(document.getElementById('dpiSelectDipendente').value) renderSchedaDipendente();
+    }
+
+    // Inizializza la tendina dei dipendenti
+    function initVestiarioDropdown() {
         const sel = document.getElementById('dpiSelectDipendente');
+        const currentVal = sel.value;
         sel.innerHTML = `<option value="">-- Seleziona un nominativo --</option>` + dpiDipendenti.map(d => `<option value="${d.nome}">${d.nome}</option>`).join('');
+        sel.value = currentVal; // Mantiene la selezione se aggiornato
+    }
+
+    // Salva Nuovo Dipendente
+    function salvaNuovoDipendente() {
+        const nome = document.getElementById('newDipNome').value.trim().toUpperCase();
+        if(!nome) return alert("Il Nome del dipendente è obbligatorio.");
+        if(dpiDipendenti.some(d => d.nome === nome)) return alert("Dipendente già censito a sistema.");
+
+        const nuovoDip = {
+            nome: nome,
+            scarpe: document.getElementById('sz_scarpe').value.trim().toUpperCase(),
+            pant_est: document.getElementById('sz_pant_est').value.trim().toUpperCase(),
+            pant_inv: document.getElementById('sz_pant_inv').value.trim().toUpperCase(),
+            maglia_mc: document.getElementById('sz_maglia_mc').value.trim().toUpperCase(),
+            polo: document.getElementById('sz_polo').value.trim().toUpperCase(),
+            felpa: document.getElementById('sz_felpa').value.trim().toUpperCase(),
+            giub_est: document.getElementById('sz_giub_est').value.trim().toUpperCase(),
+            giub_inv: document.getElementById('sz_giub_inv').value.trim().toUpperCase()
+        };
+
+        dpiDipendenti.push(nuovoDip);
+        localStorage.setItem("wms_dpi_dipendenti", JSON.stringify(dpiDipendenti));
+        
+        // Pulisce il form e chiude
+        ['newDipNome', 'sz_scarpe', 'sz_pant_est', 'sz_pant_inv', 'sz_maglia_mc', 'sz_polo', 'sz_felpa', 'sz_giub_est', 'sz_giub_inv'].forEach(id => document.getElementById(id).value = '');
+        toggleDipendenteCreationBox();
+        
+        // Ricarica la tendina e seleziona il nuovo arrivato
+        initVestiarioDropdown();
+        document.getElementById('dpiSelectDipendente').value = nome;
+        renderSchedaDipendente();
     }
 
     function renderVestiarioModule() {
         const tbody = document.getElementById('dpiStockBody');
-        // Raggruppa e renderizza giacenze vestiario
-        tbody.innerHTML = dpiMagazzino.map(item => {
+        // Ordina per articolo
+        let sortedStock = [...dpiMagazzino].sort((a,b) => a.articolo.localeCompare(b.articolo));
+        
+        tbody.innerHTML = sortedStock.map(item => {
             return `<tr><td class="font-bold text-[var(--sap-primary)]">${item.articolo}</td><td class="text-center font-bold">${item.taglia}</td><td class="text-right"><span class="font-bold ${item.qty>0?'status-ok':'status-err'}">${item.qty}</span></td><td class="text-center"><button onclick="apriCaricoDPI('${item.articolo}', '${item.taglia}')" class="sap-btn border-transparent hover:bg-[#e5f0fa]" title="Carica merce in arrivo"><i class="fa-solid fa-plus text-[var(--sap-primary)]"></i></button></td></tr>`;
         }).join('');
     }
 
     function apriCaricoDPI(articolo, taglia) {
         document.getElementById('dpi-carico-box').classList.remove('hidden-view');
+        document.getElementById('dpi-creation-box').classList.add('hidden-view');
         document.getElementById('lblCaricoDpi').innerText = `${articolo} - Taglia ${taglia}`;
         document.getElementById('dpiCaricoArticolo').value = articolo;
         document.getElementById('dpiCaricoTaglia').value = taglia;
         document.getElementById('dpiCaricoQty').value = 1;
-        document.getElementById('dpiCaricoLoc').value = "Ingresso Lavanderia/Fornitore";
+        document.getElementById('dpiCaricoLoc').value = "Ingresso Magazzino";
     }
 
     function eseguiCaricoDPI() {
@@ -419,16 +515,12 @@
         const qty = parseInt(document.getElementById('dpiCaricoQty').value);
         if(isNaN(qty) || qty <= 0) return;
 
-        // Cerca item nell'array DPI, se c'è somma, sennò crea
         let target = dpiMagazzino.find(i => i.articolo === art && i.taglia === taglia);
         if(target) target.qty += qty;
-        else dpiMagazzino.push({articolo: art, taglia: taglia, qty: qty});
         
         localStorage.setItem("wms_dpi_magazzino", JSON.stringify(dpiMagazzino));
         document.getElementById('dpi-carico-box').classList.add('hidden-view');
         renderVestiarioModule();
-        
-        // Se la scheda del dipendente è aperta, aggiornala
         if(document.getElementById('dpiSelectDipendente').value) renderSchedaDipendente();
     }
 
@@ -439,24 +531,23 @@
 
         const dip = dpiDipendenti.find(d => d.nome === nome);
         
-        // Mappiamo le voci del JSON CSV alle categorie di vestiario
         const dotazione = [
             { label: "Scarpe Antinfortunistiche", articolo: "SCARPE", taglia: dip.scarpe },
             { label: "Pantaloni Estivi", articolo: "PANTALONI ESTIVI", taglia: dip.pant_est },
             { label: "Pantaloni Invernali", articolo: "PANTALONI INVERNALI", taglia: dip.pant_inv },
-            { label: "Maglia Manica Corta", articolo: "MAGLIA M. C.", taglia: dip.maglia_mc },
+            { label: "Maglia Manica Corta", articolo: "MAGLIA MANICA CORTA", taglia: dip.maglia_mc },
             { label: "Polo", articolo: "POLO", taglia: dip.polo },
             { label: "Felpa", articolo: "FELPA", taglia: dip.felpa },
-            { label: "Giubbino Estivo", articolo: "GIUBBINO EST.", taglia: dip.giub_est },
-            { label: "Giubbino Invernale", articolo: "GIUBBINO INV.", taglia: dip.giub_inv }
+            { label: "Giubbino Estivo", articolo: "GIUBBINO ESTIVO", taglia: dip.giub_est },
+            { label: "Giubbino Invernale", articolo: "GIUBBINO INVERNALE", taglia: dip.giub_inv }
         ];
 
         let html = `<div class="font-bold text-lg mb-4 text-[var(--sap-header)] border-b border-[var(--sap-border)] pb-2">Distinta Base DPI: ${nome}</div>`;
         
+        let hasItems = false;
         dotazione.forEach(d => {
-            if(!d.taglia || d.taglia.trim() === "") return; // Salta se non ha questa dotazione
-            
-            // Controlliamo se c'è disponibilità in magazzino per QUESTA taglia
+            if(!d.taglia || d.taglia.trim() === "") return; 
+            hasItems = true;
             const stock = dpiMagazzino.find(i => i.articolo === d.articolo && i.taglia === d.taglia);
             const qtyDisp = stock ? stock.qty : 0;
             const btnState = qtyDisp > 0 ? '' : 'disabled';
@@ -472,74 +563,37 @@
                     </div>
                 </div>`;
         });
+        
+        if(!hasItems) html += `<div class="text-center text-gray-500 italic mt-10">Nessuna taglia censita per questo dipendente.</div>`;
         container.innerHTML = html;
     }
 
     function erogaDPI(articolo, taglia, dipendente) {
         if(!confirm(`Consegnare 1 pz di ${articolo} (Taglia ${taglia}) a ${dipendente}?`)) return;
 
-        // 1. Riduciamo il magazzino DPI
         let target = dpiMagazzino.find(i => i.articolo === articolo && i.taglia === taglia);
         if(target && target.qty > 0) {
             target.qty -= 1;
             localStorage.setItem("wms_dpi_magazzino", JSON.stringify(dpiMagazzino));
             
-            // 2. Registriamo un finto "Log" nel WMS principale per tracciabilità globale (opzionale ma utile)
             const pseudoBarcode = `DPI-${articolo.substring(0,3)}-${taglia}`;
             movimenti.push({ id: Date.now().toString(), barcode: pseudoBarcode, type: 'OUT', qty: 1, location: `Consegna DPI a ${dipendente}`, timestamp: new Date().toISOString(), operatore: 'ADMIN', warehouse: 'SPOGLIATOIO DPI' });
             syncDataToServer({ movimenti: movimenti });
 
-            // 3. Ricarica la vista
-            renderVestiarioModule();
-            renderSchedaDipendente();
+            renderVestiarioModule(); renderSchedaDipendente();
         }
     }
 
-    // ================= INVENTARIO MASTER (CRUD) =================
-    function setFormState(enabled) {
-        ['inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).disabled = !enabled);
-        if(enabled) document.getElementById('save-box').classList.remove('hidden-view'); else document.getElementById('save-box').classList.add('hidden-view');
-    }
-    function updateToolbar() {
-        ['btn-edit', 'btn-tx', 'btn-log', 'btn-delete'].forEach(id => document.getElementById(id).disabled = true);
-        document.getElementById('tx-box').classList.add('hidden-view');
-        if(currentMode === 'SELECTED') ['btn-edit', 'btn-tx', 'btn-log', 'btn-delete'].forEach(id => document.getElementById(id).disabled = false);
-    }
-    function initNewItem() {
-        currentMode = 'INSERT'; document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected'));
-        document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
-        document.getElementById('inspWarehouse').innerHTML = configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
-        ['inspOriginalBarcode', 'inspBarcode', 'inspName'].forEach(id => document.getElementById(id).value = '');
-        setFormState(true); updateToolbar(); document.getElementById('inspTitle').innerHTML = 'Creazione Nuovo Articolo'; document.getElementById('inspBarcode').focus(); 
-    }
-    function inspectItem(barcode, rowElement) {
-        if(currentMode === 'INSERT' || currentMode === 'EDIT') { if(!confirm("Abbandonare le modifiche in corso?")) return; }
-        currentMode = 'SELECTED';
-        if(rowElement) { document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected')); rowElement.classList.add('selected'); }
-        document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join('');
-        document.getElementById('inspWarehouse').innerHTML = configWarehouses.map(w => `<option value="${w}">${w}</option>`).join('');
-        const item = inventario.find(i => i.barcode === barcode); if(!item) return;
-        document.getElementById('inspOriginalBarcode').value = item.barcode; document.getElementById('inspBarcode').value = item.barcode;
-        document.getElementById('inspName').value = item.name; document.getElementById('inspCategory').value = item.category || ''; document.getElementById('inspWarehouse').value = item.warehouse || '';
-        setFormState(false); updateToolbar(); document.getElementById('inspTitle').innerHTML = `SKU: ${item.barcode}`;
-    }
+    // ================= INVENTARIO MASTER (CRUD STANDARD) =================
+    function setFormState(enabled) { ['inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).disabled = !enabled); if(enabled) document.getElementById('save-box').classList.remove('hidden-view'); else document.getElementById('save-box').classList.add('hidden-view'); }
+    function updateToolbar() { ['btn-edit', 'btn-tx', 'btn-log', 'btn-delete'].forEach(id => document.getElementById(id).disabled = true); document.getElementById('tx-box').classList.add('hidden-view'); if(currentMode === 'SELECTED') ['btn-edit', 'btn-tx', 'btn-log', 'btn-delete'].forEach(id => document.getElementById(id).disabled = false); }
+    function initNewItem() { currentMode = 'INSERT'; document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected')); document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join(''); document.getElementById('inspWarehouse').innerHTML = configWarehouses.map(w => `<option value="${w}">${w}</option>`).join(''); ['inspOriginalBarcode', 'inspBarcode', 'inspName'].forEach(id => document.getElementById(id).value = ''); setFormState(true); updateToolbar(); document.getElementById('inspTitle').innerHTML = 'Creazione Nuovo Articolo'; document.getElementById('inspBarcode').focus(); }
+    function inspectItem(barcode, rowElement) { if(currentMode === 'INSERT' || currentMode === 'EDIT') { if(!confirm("Abbandonare le modifiche in corso?")) return; } currentMode = 'SELECTED'; if(rowElement) { document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected')); rowElement.classList.add('selected'); } document.getElementById('inspCategory').innerHTML = configCategories.map(c => `<option value="${c}">${c}</option>`).join(''); document.getElementById('inspWarehouse').innerHTML = configWarehouses.map(w => `<option value="${w}">${w}</option>`).join(''); const item = inventario.find(i => i.barcode === barcode); if(!item) return; document.getElementById('inspOriginalBarcode').value = item.barcode; document.getElementById('inspBarcode').value = item.barcode; document.getElementById('inspName').value = item.name; document.getElementById('inspCategory').value = item.category || ''; document.getElementById('inspWarehouse').value = item.warehouse || ''; setFormState(false); updateToolbar(); document.getElementById('inspTitle').innerHTML = `SKU: ${item.barcode}`; }
     function enableEdit() { if(currentMode !== 'SELECTED') return; currentMode = 'EDIT'; setFormState(true); updateToolbar(); document.getElementById('inspTitle').innerHTML = 'Modifica Anagrafica'; }
     function cancelEdit() { currentMode = 'VIEW'; document.querySelectorAll('#inventoryTableBody tr').forEach(tr => tr.classList.remove('selected')); setFormState(false); updateToolbar(); ['inspOriginalBarcode', 'inspBarcode', 'inspName', 'inspCategory', 'inspWarehouse'].forEach(id => document.getElementById(id).value = ''); document.getElementById('inspTitle').innerHTML = 'Dettaglio Articolo'; }
-    async function saveMasterData() {
-        const bcode = document.getElementById('inspBarcode').value.trim().toUpperCase(); const name = document.getElementById('inspName').value.trim(); const category = document.getElementById('inspCategory').value; const targetWarehouse = document.getElementById('inspWarehouse').value; const originalBcode = document.getElementById('inspOriginalBarcode').value;
-        if (!bcode || !name) return alert("Codice e Descrizione obbligatori."); if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Codice SKU già in uso.");
-        let updatedMovimenti = false; const newItem = { barcode: bcode, name: name, category: category, warehouse: targetWarehouse };
-        if (currentMode === 'EDIT' && originalBcode) { inventario[inventario.findIndex(i => i.barcode === originalBcode)] = newItem; if (originalBcode !== bcode) { movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; }); updatedMovimenti = true; } } else if (currentMode === 'INSERT') { inventario.push(newItem); }
-        const payload = { inventario: inventario }; if (updatedMovimenti) payload.movimenti = movimenti;
-        if (await syncDataToServer(payload)) { cancelEdit(); setTimeout(()=>{renderMasterData();},100); }
-    }
-    async function executeManualTx() {
-        const barcode = document.getElementById('inspOriginalBarcode').value; const type = document.getElementById('txType').value; const qty = parseInt(document.getElementById('txQty').value); const item = inventario.find(i => i.barcode === barcode); const loc = document.getElementById('txLoc').value.trim() || 'Movimento Manuale';
-        if (isNaN(qty) || qty <= 0) return alert("Quantità non valida."); if (type === 'OUT' && qty > getStock(barcode)) return alert("Giacenza insufficiente.");
-        movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'ADMIN', warehouse: item.warehouse });
-        if (await syncDataToServer({ movimenti: movimenti })) { document.getElementById('txQty').value = 1; document.getElementById('txLoc').value = ''; toggleTxBox('tx-box'); }
-    }
-    async function deleteCurrentItem() { const barcode = document.getElementById('inspOriginalBarcode').value; if (!confirm(`ATTENZIONE:\nSei sicuro di voler eliminare l'articolo [${barcode}]?`)) return; inventario = inventario.filter(i => i.barcode !== barcode); if (await syncDataToServer({ inventario: inventario })) cancelEdit(); }
+    async function saveMasterData() { const bcode = document.getElementById('inspBarcode').value.trim().toUpperCase(); const name = document.getElementById('inspName').value.trim(); const category = document.getElementById('inspCategory').value; const targetWarehouse = document.getElementById('inspWarehouse').value; const originalBcode = document.getElementById('inspOriginalBarcode').value; if (!bcode || !name) return alert("Codice e Descrizione obbligatori."); if (originalBcode !== bcode && inventario.some(i => i.barcode === bcode)) return alert("Codice SKU già in uso."); let updatedMovimenti = false; const newItem = { barcode: bcode, name: name, category: category, warehouse: targetWarehouse }; if (currentMode === 'EDIT' && originalBcode) { inventario[inventario.findIndex(i => i.barcode === originalBcode)] = newItem; if (originalBcode !== bcode) { movimenti.forEach(m => { if (m.barcode === originalBcode) m.barcode = bcode; }); updatedMovimenti = true; } } else if (currentMode === 'INSERT') { inventario.push(newItem); } const payload = { inventario: inventario }; if (updatedMovimenti) payload.movimenti = movimenti; if (await syncDataToServer(payload)) { cancelEdit(); setTimeout(()=>{renderMasterData();},100); } }
+    async function executeManualTx() { const barcode = document.getElementById('inspOriginalBarcode').value; const type = document.getElementById('txType').value; const qty = parseInt(document.getElementById('txQty').value); const item = inventario.find(i => i.barcode === barcode); const loc = document.getElementById('txLoc').value.trim() || 'Movimento Manuale'; if (isNaN(qty) || qty <= 0) return alert("Quantità non valida."); if (type === 'OUT' && qty > getStock(barcode)) return alert("Giacenza insufficiente."); movimenti.push({ id: Date.now().toString(), barcode: barcode, type: type, qty: qty, location: loc, timestamp: new Date().toISOString(), operatore: 'ADMIN', warehouse: item.warehouse }); if (await syncDataToServer({ movimenti: movimenti })) { document.getElementById('txQty').value = 1; document.getElementById('txLoc').value = ''; toggleTxBox('tx-box'); } }
+    async function deleteCurrentItem() { const barcode = document.getElementById('inspOriginalBarcode').value; if (!confirm(`ATTENZIONE:\nSei sicuro di eliminare l'articolo [${barcode}]?`)) return; inventario = inventario.filter(i => i.barcode !== barcode); if (await syncDataToServer({ inventario: inventario })) cancelEdit(); }
     function jumpToLog() { const barcode = document.getElementById('inspOriginalBarcode').value; switchModule('mod-movimenti', document.querySelectorAll('.sap-nav-tab')[3]); document.getElementById('searchLog').value = barcode; filterTable('globalLogTableBody', barcode); }
 
     // ================= RENDERIZAZIONI BASE =================
@@ -575,12 +629,7 @@
 
     // ================= MAPPA 2D & CONFIG =================
     function populateMapSelector() { const sel = document.getElementById('mapWhSelector'); sel.innerHTML = `<option value="">-- Seleziona Nodo Logistico --</option>` + configWarehouses.map(w => `<option value="${w}">${w}</option>`).join(''); }
-    function drawWarehouseMap() {
-        const container = document.getElementById('warehouse-map'); const whName = document.getElementById('mapWhSelector').value;
-        if(!whName) { container.innerHTML = '<div class="text-center mt-20 text-gray-400">Selezionare un magazzino dalla tendina.</div>'; return; }
-        let html = ''; ['Zona Inbound (A)', 'Zona Stoccaggio Intensivo (B)', 'Zona Outbound (C)'].forEach((zona, idx) => { html += `<div class="font-bold text-gray-500 uppercase text-xs tracking-wider">${zona}</div><div class="map-aisle">`; for(let rack=1; rack<=(idx==1?3:2); rack++) { html += `<div class="map-rack">`; for(let bin=0; bin<30; bin++) { html += `<div class="map-bin" title="Posizione: ${zona.charAt(5)}${rack}-${bin}"></div>`; } html += `</div>`; } html += `</div>`; });
-        container.innerHTML = html;
-    }
+    function drawWarehouseMap() { const container = document.getElementById('warehouse-map'); const whName = document.getElementById('mapWhSelector').value; if(!whName) { container.innerHTML = '<div class="text-center mt-20 text-gray-400">Selezionare un magazzino dalla tendina.</div>'; return; } let html = ''; ['Zona Inbound (A)', 'Zona Stoccaggio Intensivo (B)', 'Zona Outbound (C)'].forEach((zona, idx) => { html += `<div class="font-bold text-gray-500 uppercase text-xs tracking-wider">${zona}</div><div class="map-aisle">`; for(let rack=1; rack<=(idx==1?3:2); rack++) { html += `<div class="map-rack">`; for(let bin=0; bin<30; bin++) { html += `<div class="map-bin" title="Posizione: ${zona.charAt(5)}${rack}-${bin}"></div>`; } html += `</div>`; } html += `</div>`; }); container.innerHTML = html; }
     function renderConfig() { document.getElementById('categoryList').innerHTML = configCategories.map((c, i) => `<tr><td class="font-bold text-[var(--sap-text-muted)]">${c}</td><td class="w-12 text-center"><button onclick="deleteCategory(${i})" class="text-[var(--sap-error)]"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join(''); document.getElementById('warehouseList').innerHTML = configWarehouses.map((w, i) => `<tr><td class="font-bold text-[var(--sap-primary)]"><i class="fa-solid fa-building mr-2"></i> ${w}</td><td class="w-12 text-center"><button onclick="deleteWarehouse(${i})" class="text-[var(--sap-error)]"><i class="fa-solid fa-xmark"></i></button></td></tr>`).join(''); }
     function addCategory() { const val = document.getElementById('newCatInput').value.trim().toUpperCase(); if(!val || configCategories.includes(val)) return; configCategories.push(val); localStorage.setItem("wms_categories", JSON.stringify(configCategories)); document.getElementById('newCatInput').value = ''; renderConfig(); }
     function deleteCategory(idx) { configCategories.splice(idx, 1); localStorage.setItem("wms_categories", JSON.stringify(configCategories)); renderConfig(); }
